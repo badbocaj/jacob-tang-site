@@ -2,7 +2,7 @@ import Link from "next/link"
 import { getCollection, Collection } from "@/lib/content"
 
 // ONLY CHANGE THESE TWO FOR OTHER PAGES
-const TITLE = "Professional"
+const TITLE = "Click to Resume"
 const FOLDER: Collection = "professional" 
 
 export default function CategoryPage() {

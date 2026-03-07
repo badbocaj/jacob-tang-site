@@ -18,6 +18,14 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
+### Hero photo (full-bleed background)
+
+To use your own photo as the hero background (cropped to cover the screen like the Anduril-style layout):
+
+1. **Add the image** to the `public` folder, e.g. `public/hero.jpg` or `public/hero.png`.
+2. **Crop for a laptop/wide screen**: Use a landscape or square photo; the site uses **cover** cropping, so the image will fill the hero area and be cropped on the sides or top/bottom as needed. Centering is automatic. For best results, use a high-resolution image (e.g. 1920×1080 or larger).
+3. **Config**: In `lib/site.config.ts`, set `heroImage` to the path (e.g. `"/hero.jpg"`). Set it to `""` to hide the hero image and use the default dark background only.
+
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Learn More

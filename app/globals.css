@@ -1,0 +1,55 @@
+/* Any custom CSS can go below this */
+
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: #05070a; /* Ensure html itself is dark */
+}
+
+body {
+  background-color: #05070a;
+  color: white;
+  min-height: 100vh;
+}
+
+/* subtle grid + noise overlay */
+.bg-system {
+  position: relative;
+  /* Removed isolation: isolate to prevent stacking context wars */
+}
+
+.bg-system::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.035) 1px, transparent 1px);
+  background-size: 96px 96px;
+  opacity: 0.10;
+  pointer-events: none;
+  z-index: -10; /* Pushed aggressively to the back */
+}
+
+.bg-system::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(900px 600px at 20% 15%, rgba(120,160,255,0.12), transparent 60%),
+    radial-gradient(800px 500px at 80% 35%, rgba(255,255,255,0.06), transparent 55%),
+    radial-gradient(900px 600px at 50% 85%, rgba(60,220,255,0.08), transparent 60%),
+    linear-gradient(to bottom, rgba(0,0,0,0.0), rgba(0,0,0,0.55));
+  pointer-events: none;
+  z-index: -10; /* Pushed aggressively to the back */
+}
+
+/* crisp divider helper */
+.divider {
+  border-top: 1px solid rgba(255,255,255,0.10);
+}

@@ -8,7 +8,10 @@ export interface JobItem {
   company: string
   title: string
   period: string
+  location: string
+  hook: string
   description: string
+  logo?: string
   logoText?: string
   href?: string
 }
@@ -23,7 +26,7 @@ interface AnimatedItemProps {
 
 const AnimatedItem = ({ children, delay = 0, index, onMouseEnter, onClick }: AnimatedItemProps) => {
   const ref = useRef(null)
-  const inView = useInView(ref, { amount: 0.5, triggerOnce: false })
+  const inView = useInView(ref, { amount: 0.5, once: false })
   return (
     <motion.div
       ref={ref}
@@ -75,7 +78,6 @@ const AnimatedList = ({
     (item: JobItem, index: number) => {
       setSelectedIndex(index)
       if (onItemSelect) onItemSelect(item, index)
-      if (item.href) window.open(item.href, '_blank')
     },
     [onItemSelect]
   )
@@ -144,14 +146,21 @@ const AnimatedList = ({
             onClick={() => handleItemClick(item, index)}
           >
             <div className={`item ${selectedIndex === index ? 'selected' : ''} ${itemClassName}`}>
-              <div className="item-left">
-                <p className="item-company">{item.company}</p>
-                <p className="item-title">{item.title}</p>
-                <p className="item-period">{item.period}</p>
-                <p className="item-description">{item.description}</p>
-              </div>
+              {/* Logo */}
               <div className="item-logo">
-                {item.logoText ?? item.company.slice(0, 3)}
+                {item.logo ? (
+                  <img src={item.logo} alt={`${item.company} logo`} className="item-logo-img" />
+                ) : (
+                  <span className="item-logo-text">{item.logoText ?? item.company.slice(0, 2)}</span>
+                )}
+              </div>
+
+              {/* 4-line info */}
+              <div className="item-info">
+                <p className="item-role">{item.title}</p>
+                <p className="item-period">{item.period}</p>
+                <p className="item-location">{item.location}</p>
+                <p className="item-hook">{item.hook}</p>
               </div>
             </div>
           </AnimatedItem>

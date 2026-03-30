@@ -53,3 +53,9 @@ body {
 .divider {
   border-top: 1px solid rgba(255,255,255,0.10);
 }
+
+/* Cockpit — terminal cursor blink (step so it's sharp, not faded) */
+@keyframes cockpit-cursor {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}

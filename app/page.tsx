@@ -164,7 +164,7 @@ export default function HomePage() {
           {/* Changed Directory to an "About" link per your request */}
           <Link href="/about" className="inline-block mb-12 group no-underline">
             <h3 className="text-sm font-mono uppercase tracking-[0.3em] text-zinc-500 group-hover:text-white transition-colors m-0">
-              About →
+              Please click my about page →
             </h3>
           </Link>
           

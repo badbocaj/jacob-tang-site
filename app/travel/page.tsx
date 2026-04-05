@@ -462,8 +462,8 @@ const TRAVEL_LOGS: TravelLog[] = [
     country: "Canada",
     season: "Summer",
     year: 2024,
-    coverImage: "/travel/Cover/banff-summer-cover.jpg",
-    popupImage: "/travel/pop-up/banff-summer-popup.jpg",
+    coverImage: "/travel/Cover/banff-summer-cover.jpeg",
+    popupImage: "/travel/pop-up/banff-summer-popup.jpeg",
     coords: "51.1784° N, 115.5689° W",
     story:
       "Ok at the time of making this website my memory is sort of failing me. Banff was lovely, but it rained throughout our trip and our visibility sucked. Shreyes expressed great interested going, so I will porbably go with him and others sometime. Regardless, it was quite lovely. We spent good money on one of the weirder hikes, where we strapped into harnesses and used carabiners to safely climb up runs and ropes. But, the most memorable hike was an underrated one - Ha Ling Peak. Blake and I climbed 2600 feet in elevation to get to the top and got the best view of all the peaks. The weather was perfect that day, except for the wind. Near the top we felt winds of 40+mph, and for the first time ever I felt scared to stand at the peak for fear of being blown away into the valley's abyss.",
@@ -471,6 +471,36 @@ const TRAVEL_LOGS: TravelLog[] = [
     placeholderGradient: "from-emerald-950 to-teal-900",
     people: ["blakejanowitz","mom","dad","unclepaul","auntlin","aidanjanowitz"],
   },
+  {
+    id: "Hawaii-Summer-2024",
+    place: "Hawaii",
+    country: "USA",
+    season: "Summer",
+    year: 2024,
+    coverImage: "/travel/Cover/hawaii-summer-cover.jpeg",
+    popupImage: "/travel/pop-up/hawaii-summer-popup.jpeg",
+    coords: "21.3069° N, 157.8583° W",
+    story:
+      "Hawaii was beautiful. We came right before the fires hit. I'm glad we got to see it. I developed my love for hiking here. I planned all the hikes, I chose where to go, and I'm glad I did. I'm glad I got to share it with my family. As usual, Blake and I went on a random duo hike and it was fun. However, Hawaii is overrated, except for this cave we went to. It was straight out of Minecraft.",
+    tags: ["altitude", "inca", "mountains", "history"],
+    placeholderGradient: "from-emerald-950 to-teal-900",
+    people: ["blakejanowitz","mom","dad","unclepaul","auntlin","aidanjanowitz"],
+  },
+  {
+    id: "Western-Europe-Summer-2023",
+    place: "Western Europe",
+    country: "Europe",
+    season: "Summer",
+    year: 2023,
+    coverImage: "/travel/Cover/western-europe-cover.jpeg",
+    popupImage: "/travel/pop-up/western-europe-popup.jpeg",
+    coords: "48.8566° N, 2.3522° E",
+    story:
+      "My parents have always loved travelling. Whereas others spend money or cars, clothes, or nice food, my parents spending money has always gone towards travel. I enjoyed it, but this is where my addiction started. My dad took me to Europe after I finished high school. He hadn't been for a while, and I had never been outside of the Americas. Again, like all plans with men, nothing was truly planned. Only a few things were certain: we flew into Amsterdam and would stay for 2 nights, we had the Louvre and the Eiffel Tower booked, and we flew out of Munich. I filled in the rest. I learned how to travel and the consequences of being poorly planned. I also learned that I love museums, architecture, and spontaneity. I got a lot closer with my dad, and I'm glad I got to share this experience with him.The trip was 25 days. We travelled to 13 cities. It is too much to write about, so here are the highlights. The Dutch are the kindest people in the world. Paris is dropdead gorgeous, but it fails in all the ways big cities fail. Switzerland is the most gorgeous place on the planet. Rome is the historical capitol of the world. Venice is dying. Vienna is underrated. I would live in Prague, it is pretty, cozy, and culture-rich. I loved the Munich architecture, and the German accent is the coolest.",
+    tags: ["history", "architecture", "food", "mountains"],
+    placeholderGradient: "from-emerald-950 to-teal-900",
+    people: ["dad"],
+  }
 ];
 
 const ROTATIONS = [-2.8, 1.6, -1.2, 2.4, -0.9, 1.8, -2.3, 0.7, -1.5, 2.1];

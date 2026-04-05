@@ -392,7 +392,7 @@ export default function MoviesPage() {
             className="fixed inset-0 z-[60] overflow-hidden"
             style={{ background: '#05070a' }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.92, ease: 'easeInOut' }}
+            transition={{ duration: 0.72, ease: 'easeInOut' }}
           >
             {/* Full star field */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -418,7 +418,7 @@ export default function MoviesPage() {
             <motion.div
               className="absolute inset-0 flex items-center justify-center"
               animate={dialDone ? { scale: 3.4 } : { scale: 1 }}
-              transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
+              transition={{ duration: 1.22, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
               onAnimationComplete={() => {
                 // Only act when the scale-up animation has completed
                 if (dialDone) setShowVault(false)
@@ -429,7 +429,7 @@ export default function MoviesPage() {
                 className="absolute top-0 bottom-0 left-0"
                 style={{ right: '50%' }}
                 animate={dialDone ? { x: '-100%' } : { x: 0 }}
-                transition={{ duration: 1.55, ease: [0.76, 0, 0.24, 1] }}
+                transition={{ duration: 1.27, ease: [0.76, 0, 0.24, 1] }}
               >
                 <DoorPanel side="left" />
               </motion.div>
@@ -439,7 +439,7 @@ export default function MoviesPage() {
                 className="absolute top-0 bottom-0 right-0"
                 style={{ left: '50%' }}
                 animate={dialDone ? { x: '100%' } : { x: 0 }}
-                transition={{ duration: 1.55, ease: [0.76, 0, 0.24, 1] }}
+                transition={{ duration: 1.27, ease: [0.76, 0, 0.24, 1] }}
               >
                 <DoorPanel side="right" />
               </motion.div>
@@ -465,7 +465,7 @@ export default function MoviesPage() {
                 }
                 transition={
                   !dialDone
-                    ? { duration: 2.4, ease: [0.42, 0, 0.58, 1] }
+                    ? { duration: 2.0, ease: [0.42, 0, 0.58, 1] }
                     : { duration: 0.3,  ease: 'easeIn' }
                 }
                 onAnimationComplete={() => {

@@ -12,9 +12,10 @@ const hand = Caveat({ subsets: ["latin"], weight: ["400", "700"] });
 // TEMPORAL LOOM — Canvas animation
 // ─────────────────────────────────────────────────────────────────────────────
 
-const TRUNK_FRAMES = 150;
+// Trunk(100f=1.67s) + wait(50f=0.83s) + climax(1/0.028≈36f=0.60s) = 3.1s canvas + 0.9s fade = 4.0s total
+const TRUNK_FRAMES = 100;
 const TRUNK_BRANCH_FRACS = [0.13, 0.27, 0.40, 0.53, 0.65, 0.77, 0.88, 0.95];
-const CLIMAX_STEP = 0.018;
+const CLIMAX_STEP = 0.028;
 
 interface LoomBranch {
   x1: number; y1: number;
@@ -80,7 +81,7 @@ function TemporalLoom({ onComplete }: { onComplete: () => void }) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
     if (!ctx) return;
 
     const resize = () => {
@@ -353,6 +354,18 @@ const PEOPLE: Record<string, Person> = {
   pranavlingareddy: { name: "Pranav Lingareddy", image: "/people/pranavlingareddy.png" },
   tonyfernandes: { name: "Tony Fernandes", image: "/people/tonyfernandes.png" },
   saimhasan: { name: "Saim Hasan", image: "/people/saimhasan.png" },
+  charlestang: { name: "Charles Tang", image: "/people/charlestang.png" },
+  mom: { name: "Mom", image: "/people/mom.png" },
+  dad: { name: "Dad", image: "/people/dad.png" },
+  blakejanowitz: { name: "Blake Janowitz", image: "/people/blakejanowitz.png" },
+  aidanjanowitz: { name: "Aidan Janowitz", image: "/people/aidanjanowitz.png" },
+  unclepaul: { name: "Uncle Paul", image: "/people/unclepaul.png" },
+  auntlin: { name: "Aunt Lin", image: "/people/auntlin.png" },
+  
+
+
+
+
 
 };
 
@@ -429,19 +442,34 @@ const TRAVEL_LOGS: TravelLog[] = [
     people: ["shreyesbharat","jinqiuwei"],
   },
   {
-    id: "cusco-spring-2023",
-    place: "Cusco",
-    country: "Peru",
-    season: "Spring",
-    year: 2023,
-    coverImage: "/travel/Cover/cusco-cover.jpg",
-    popupImage: "/travel/pop-up/cusco-popup.jpg",
-    coords: "13.5319° S, 71.9675° W",
+    id: "Joshua-Tree-Winter-2024",
+    place: "Joshua Tree",
+    country: "USA",
+    season: "Winter",
+    year: 2024,
+    coverImage: "/travel/Cover/joshua-tree-cover.jpg",
+    popupImage: "/travel/pop-up/joshua-tree-popup.jpg",
+    coords: "34.0111° N, 116.3026° W",
     story:
-      "Replace this with your actual story. High altitude, ancient stonework, coca tea that actually worked. What was it about the place that made it feel fundamentally different from everywhere else? That specific detail — write it down before you forget it.",
+      "Roommates and I decided to go to Joshua Tree and camp. The problem? We didn't plan. Who knew Joshua Tree would get to 80+ with sun in the day and below freezing at night? Not us - none of us checked the weather. We climbed rocks the entire day, set up a campfire at night and stared at the stars. Our incompetence was only matched by our enjoyment. We broke the tent, and even though I had on 4 layers, I was still cold in my sleeping bag. Daniel, my junior year roommate, has a bad habit of being half concious and half asleep sometimes, and he rolled over to me in the middle of the night, looked me dead in the eye and asked if we could double up in the same sleeping bag. I had never been closer to saying yes to something so stupid in my life. I impolitely declined. In hindsight... actually no.",
     tags: ["altitude", "inca", "mountains", "history"],
     placeholderGradient: "from-emerald-950 to-teal-900",
-    people: [],
+    people: ["danielhan","pranavlingareddy","vincentalcantara","tonyfernandes"],
+  },
+  {
+    id: "Banff-Summer-2024",
+    place: "Banff",
+    country: "Canada",
+    season: "Summer",
+    year: 2024,
+    coverImage: "/travel/Cover/banff-summer-cover.jpg",
+    popupImage: "/travel/pop-up/banff-summer-popup.jpg",
+    coords: "51.1784° N, 115.5689° W",
+    story:
+      "Ok at the time of making this website my memory is sort of failing me. Banff was lovely, but it rained throughout our trip and our visibility sucked. Shreyes expressed great interested going, so I will porbably go with him and others sometime. Regardless, it was quite lovely. We spent good money on one of the weirder hikes, where we strapped into harnesses and used carabiners to safely climb up runs and ropes. But, the most memorable hike was an underrated one - Ha Ling Peak. Blake and I climbed 2600 feet in elevation to get to the top and got the best view of all the peaks. The weather was perfect that day, except for the wind. Near the top we felt winds of 40+mph, and for the first time ever I felt scared to stand at the peak for fear of being blown away into the valley's abyss.",
+    tags: ["altitude", "inca", "mountains", "history"],
+    placeholderGradient: "from-emerald-950 to-teal-900",
+    people: ["blakejanowitz","mom","dad","unclepaul","auntlin","aidanjanowitz"],
   },
 ];
 

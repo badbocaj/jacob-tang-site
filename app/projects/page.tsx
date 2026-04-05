@@ -16,7 +16,8 @@ const PING_COORDS = [
 // ─── Internal constants ───────────────────────────────────────────────────────
 
 const TARGET_IDX = PING_COORDS.length - 1;
-const SWEEP_SPEED = 0.8;
+// 280° / 1.7°per-frame ≈ 165f = 2.75s scan + 0.7s lock + 0.5s expand ≈ 4.0s total
+const SWEEP_SPEED = 1.7;
 const LOCK_THRESHOLD = 2;
 
 type Phase = "scanning" | "locked" | "expanding";
@@ -314,8 +315,8 @@ export default function ProjectsPage() {
   }, []);
 
   useEffect(() => {
-    const t1 = setTimeout(() => addLine("> SCANNING_SECTOR..."), 400);
-    const t2 = setTimeout(() => addLine(`> ${PROJECT_COUNT} SIGNATURES DETECTED.`), 2300);
+    const t1 = setTimeout(() => addLine("> SCANNING_SECTOR..."), 300);
+    const t2 = setTimeout(() => addLine(`> ${PROJECT_COUNT} SIGNATURES DETECTED.`), 2000);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [addLine]);
 
@@ -325,7 +326,7 @@ export default function ProjectsPage() {
     const t = setTimeout(() => {
       phaseRef.current = "expanding";
       setPhase("expanding");
-    }, 1100);
+    }, 700);
     return () => clearTimeout(t);
   }, [phase, addLine]);
 

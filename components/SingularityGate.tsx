@@ -16,10 +16,10 @@ const SKILLS_DATABASE = [
   "CAD",
 ];
 
-// ─── TIMING (seconds) ─────────────────────────────────────────────────────────
+// ─── TIMING (seconds) — total = T_PHASE3_START + T_FLASH_IN + T_FLASH_OUT = 4.0s
 const T_FADE_IN      = 0.45;
-const T_PHASE2_START = 1.5;
-const T_PHASE3_START = 3.0;
+const T_PHASE2_START = 1.6;
+const T_PHASE3_START = 3.13;
 const T_FLASH_IN     = 0.32;
 const T_FLASH_OUT    = 0.55;
 

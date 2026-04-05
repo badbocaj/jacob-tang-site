@@ -142,7 +142,7 @@ export default function HomePage() {
         <div className="relative z-10 px-6 text-center">
           <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold uppercase tracking-tighter text-white drop-shadow-2xl m-0">
             "Frontend is a solved problem." <br></br>
-            -Tony Fernandes
+            -My Roomate
           </h2>
         </div>
 

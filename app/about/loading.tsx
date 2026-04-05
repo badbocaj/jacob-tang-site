@@ -3,7 +3,7 @@
 
 export default function AboutLoading() {
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-slate-950 flex flex-col items-center justify-center">
+    <div className="fixed inset-0 z-[60] overflow-hidden bg-slate-950 flex flex-col items-center justify-center">
       {/* Blueprint grid */}
       <div
         className="absolute inset-0 opacity-[0.04]"

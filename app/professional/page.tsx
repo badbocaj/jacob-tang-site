@@ -55,7 +55,7 @@ export default function ProfessionalPage() {
   return (
     <div
       className="relative w-full overflow-hidden bg-[#05070a]"
-      style={{ height: 'calc(100vh - 64px)', marginTop: '64px' }}
+      style={{ height: 'calc(100dvh - 64px)', marginTop: '64px' }}
     >
       {/* Black-hole intro animation — covers the page, unmounts itself when done */}
       <SingularityGate />

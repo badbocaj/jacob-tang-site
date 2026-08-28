@@ -1,26 +1,43 @@
-# Claude Instructions: jacob-tang-site
+# Agent Instructions: jacob-tang-site
+
+## Tech Stack & Architecture
+- Framework: Next.js (App Router, TypeScript)
+- Styling: Tailwind CSS
+- Animation: Framer Motion / Motion.dev
+- Icons: Lucide React
+
+## Project Directory Map
+- `/app` -> Page routes (`/about`, `/travel`, `/movies`, `/projects`)
+- `/components` -> Reusable UI elements (`/components/Cockpit`, etc.)
+- `/public` -> Static assets, images, sketches
 
 ## Clarification Protocol
-When a prompt is ambiguous or unclear, ask 1-2 specific questions before writing any code or content. Do not assume and bulldoze forward. Prioritize asking about:
-- **Scope**: Is this a new component, editing existing code, or a full page?
-- **Tone/Vibe**: Which zone does this fall under (see below)?
-- **Visual intent**: What should it look/feel like — sketch something out if needed.
+When a prompt is ambiguous or unclear, ask 1-2 specific questions before writing code:
+- Scope: Is this a new component, editing existing code, or a full page?
+- Tone/Vibe: Which Zone does this fall under?
+- Visual intent: Layout, animations, or styling goals?
 
-Never give blank templates. Always pull details out first.
+## Interview Protocol (Digital Garden Entries)
+When adding new entries to `/movies`, `/travel`, or `/projects`, interview me first with 1-2 quirky questions to pull out authentic personal details before generating content.
 
-## Interview Protocol (for content entries)
-When adding a new entry to the Digital Garden (travel log, movie review, project post), interview the user first. Ask 1-2 highly specific, quirky questions to pull real details out before writing anything.
+## Zone Rules (Tone & Aesthetics)
 
-## Zone Rules (Tone & Vibe by Section)
-
-**Zone A — Front Door (`/components/Cockpit` or `/about`)**
-- Vibe: "Quirky Aerospace." Low-fidelity "Diary of a Wimpy Kid" sketches meets glitchy spacecraft terminals.
+### Zone A — Front Door (`/components/Cockpit` or `/about`)
+- Aesthetic: "Quirky Aerospace" — low-fi "Diary of a Wimpy Kid" sketches meets glitchy spacecraft terminals.
+- Motion: Snappy spring animations (`stiffness: 400`, `damping: 20`), CRT scanlines, subtle glitch transitions.
 - Tone: Sarcastic computer, incoming transmissions, error alerts.
 
-**Zone B — The Archives (`/movies` and `/travel`)**
-- Vibe: "Personal Diary." This is a life log.
-- Tone: Casual, opinionated, highly personal. Focus on weird details (worst food on a trip, most ridiculous plot hole in a movie).
+### Zone B — The Archives (`/movies` and `/travel`)
+- Aesthetic: Personal life log and diary.
+- Motion: Smooth page transitions, staggered card reveals on scroll.
+- Tone: Casual, opinionated, focused on weird/memorable details.
 
-**Zone C — The Lab (`/projects` / HPFRT / Liquid Propulsion)**
-- Vibe: "Low-Fidelity Engineering."
-- Tone: Grounded in actual physical engineering (thermodynamics, aerodynamics, CAD), but keep it light. Talk about late nights, math that didn't work, and the thrill of building real hardware.
+### Zone C — The Lab (`/projects` / Liquid Propulsion / HPFRT)
+- Aesthetic: "Low-Fidelity Engineering."
+- Motion: Interactive blueprint overlays, CAD-style interactive elements.
+- Tone: Grounded in hardware engineering (thermodynamics, aero, math failures), kept light and personal.
+
+## Coding Guidelines
+- Always write clean, fully-typed TypeScript (`.tsx`).
+- Use Tailwind for utility styling and Framer Motion for UI animations.
+- Modify existing files in place rather than creating duplicate component variants.

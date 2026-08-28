@@ -361,7 +361,11 @@ const PEOPLE: Record<string, Person> = {
   aidanjanowitz: { name: "Aidan Janowitz", image: "/people/aidanjanowitz.png" },
   unclepaul: { name: "Uncle Paul", image: "/people/unclepaul.png" },
   auntlin: { name: "Aunt Lin", image: "/people/auntlin.png" },
-  
+  sophiewojcik: { name: "Sophie Wojcik", image: "/people/sophiewojcik.png" },
+  joywang: { name: "Joy Wang", image: "/people/joywang.png" },
+  justinsunwoo: { name: "Justin Sunwoo", image: "/people/justinsunwoo.png" },
+  noahpinales: { name: "Noah Pinales", image: "/people/noahpinales.png" },
+
 
 
 
@@ -396,6 +400,36 @@ interface TravelLog {
 }
 
 const TRAVEL_LOGS: TravelLog[] = [
+  {
+    id: "NYC-Summer-2026",
+    place: "New York City",
+    country: "USA",
+    season: "Summer",
+    year: 2026,
+    coverImage: "/travel/Cover/nyc-summer-2026-cover.jpeg",
+    popupImage: "/travel/pop-up/nyc-summer-2026-popup.png",
+    coords: "40.7128° N, 74.0060° W",
+    story:
+      "My manager, tall David, suggested I take a break to go align with the other interns for the summer, so I decided to visit the Big Apple again. Jin and I were truly being bums. We didn't leave the house before 11am, watched Modern Family every single night, and ate whatever we wanted whenever we wanted. Turns out sleeping on a floor isn't as bad as everyone makes it sound, and I learned I am genuinely terrible at puzzles. Roosevelt Island and watching both Top Gun movies back to back were, somehow, the highlights of the trip. My expectations were rock bottom going in, and I still ended up thoroughly enjoying doing absolutely nothing.",
+    tags: ["urban", "couch-potato", "puzzles", "top-gun"],
+    placeholderGradient: "from-slate-950 to-blue-950",
+    people: ["jinqiuwei"],
+  },
+  {
+    id: "Bay-Area-Summer-2026",
+    place: "Bay Area",
+    country: "USA",
+    season: "Summer",
+    year: 2026,
+    coverImage: "/travel/Cover/bay-area-summer-2026-cover.jpg",
+    popupImage: "/travel/pop-up/bay-area-summer-2026-popup.jpg",
+    coords: "37.7749° N, 122.4194° W",
+    story:
+      "My poor Honda CRV got beat up relentlessly across two trips up to the Bay this summer — Juneteenth weekend and July 4th weekend — but for once, the AC actually worked. First trip: Pranav and I drove up. We intended to leave at night and, unsurprisingly, left the next morning instead. I was a pure tourist with Justin, Sophie, and Joy, and I walked an ungodly amount. I actually enjoyed the touristing. The second trip was a different animal — I drove up with Justin Sunwoo and we crashed at Noah's place the entire time. The plan was to hit Yosemite. That fell apart fast. Instead, Justin and I got back to our usual betting habit — he said he'd get piercings if I agreed to buzz my head, fully bluffing, convinced I'd never take the deal. I took the deal. Other dumb things happened too, but those stay exclusive.",
+    tags: ["road-trip", "tourists", "bad-bets", "honda-crv"],
+    placeholderGradient: "from-slate-950 to-sky-950",
+    people: ["pranavlingareddy", "sophiewojcik", "joywang", "justinyang", "justinsunwoo", "noahpinales"],
+  },
   {
     id: "sequoia-national-park",
     place: "Sequoia National Park",
@@ -447,11 +481,11 @@ const TRAVEL_LOGS: TravelLog[] = [
     country: "USA",
     season: "Winter",
     year: 2024,
-    coverImage: "/travel/Cover/joshua-tree-cover.jpg",
-    popupImage: "/travel/pop-up/joshua-tree-popup.jpg",
+    coverImage: "/travel/Cover/joshua-tree-cover.JPG",
+    popupImage: "/travel/pop-up/joshua-tree-popup.HEIC",
     coords: "34.0111° N, 116.3026° W",
     story:
-      "Roommates and I decided to go to Joshua Tree and camp. The problem? We didn't plan. Who knew Joshua Tree would get to 80+ with sun in the day and below freezing at night? Not us - none of us checked the weather. We climbed rocks the entire day, set up a campfire at night and stared at the stars. Our incompetence was only matched by our enjoyment. We broke the tent, and even though I had on 4 layers, I was still cold in my sleeping bag. Daniel, my junior year roommate, has a bad habit of being half concious and half asleep sometimes, and he rolled over to me in the middle of the night, looked me dead in the eye and asked if we could double up in the same sleeping bag. I had never been closer to saying yes to something so stupid in my life. I impolitely declined. In hindsight... actually no.",
+      "Roommates and I decided to go to Joshua Tree and camp. The problem? We didn't plan. Who knew Joshua Tree would get to 80+ with sun in the day and below freezing at night? Not us - none of us checked the weather. We climbed rocks the entire day, set up a campfire at night and stared at the stars. We hiked to the highest peak and took a picture at heart rock. Daniel, my future roommate (at the time), yelled as loud as he could to a passing couple, requesting they take a picture of us. The result is the cover photo. Embarassment is NOT in that man's dictionary. Our incompetence was only matched by our enjoyment. We broke the tent, and even though I had on 4 layers, I was still cold in my sleeping bag. Daniel has a bad habit of being half concious and half asleep sometimes, and he rolled over to me in the middle of the night, looked me dead in the eye and asked if we could double up in the same sleeping bag. I had never been closer to saying yes to something so stupid in my life. I impolitely declined. In hindsight... actually no.",
     tags: ["altitude", "inca", "mountains", "history"],
     placeholderGradient: "from-emerald-950 to-teal-900",
     people: ["danielhan","pranavlingareddy","vincentalcantara","tonyfernandes"],
@@ -481,7 +515,7 @@ const TRAVEL_LOGS: TravelLog[] = [
     popupImage: "/travel/pop-up/hawaii-summer-popup.jpeg",
     coords: "21.3069° N, 157.8583° W",
     story:
-      "Hawaii was beautiful. We came right before the fires hit. I'm glad we got to see it. I developed my love for hiking here. I planned all the hikes, I chose where to go, and I'm glad I did. I'm glad I got to share it with my family. As usual, Blake and I went on a random duo hike and it was fun. However, Hawaii is overrated, except for this cave we went to. It was straight out of Minecraft.",
+      "Hawaii was beautiful. We came right before the fires hit. I'm glad we got to see it. I developed my love for hiking here. I planned all the hikes, I chose where to go, and I'm glad I did. I'm glad I got to share it with my family. As usual, Blake and I went on a random duo hike and it was fun. However, Hawaii is overrated, except for this cave we went to. It was straight out of Minecraft. Oh yeah, I dislocated my shoulder for the first time while surfing, and since then I've been trying to get it back into place. It's not going so well.",
     tags: ["altitude", "inca", "mountains", "history"],
     placeholderGradient: "from-emerald-950 to-teal-900",
     people: ["blakejanowitz","mom","dad","unclepaul","auntlin","aidanjanowitz"],

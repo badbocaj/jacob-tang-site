@@ -20,6 +20,7 @@ export const Navbar = () => {
     { label: "Travel", href: "/travel" },
     { label: "Movies", href: "/movies" },
     { label: "Funny", href: "/funny" },
+    { label: "Personalized", href: "/personalized" },
   ]
 
   return (

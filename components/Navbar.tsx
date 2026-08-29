@@ -26,12 +26,12 @@ export const Navbar = () => {
   return (
     <nav className="fixed top-0 left-0 w-full flex justify-between items-center px-8 h-16 z-50 bg-black border-b border-white/10">
       {/* Logo - White text for black background */}
-      <div className="text-sm font-bold tracking-[0.2em] text-white">
+      <div className="text-sm font-bold tracking-label text-white">
         <Link href="/">JACOB TANG</Link>
       </div>
       
       {/* Navigation Links */}
-      <div className="hidden md:flex gap-8 items-center text-[10px] font-mono uppercase tracking-widest">
+      <div className="hidden md:flex gap-8 items-center text-xs font-mono uppercase tracking-label">
         {navItems.map((item) => {
           const isActive = pathname === item.href
           return (
@@ -49,7 +49,7 @@ export const Navbar = () => {
       </div>
 
       {/* Contacts - Styled to match the dark aesthetic */}
-      <div className="text-[10px] font-mono uppercase tracking-widest text-white border border-white/20 px-3 py-1 rounded-full hover:bg-white hover:text-black transition-all cursor-pointer">
+      <div className="text-xs font-mono uppercase tracking-label text-white border border-white/20 px-3 py-1 rounded-full hover:bg-white hover:text-black transition-all cursor-pointer">
         CONTACTS
       </div>
     </nav>

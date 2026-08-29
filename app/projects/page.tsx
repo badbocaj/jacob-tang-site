@@ -356,10 +356,10 @@ export default function ProjectsPage() {
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
 
       <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-6 py-3 border-b border-cyan-400/10">
-        <span className="font-mono text-[10px] text-cyan-400/40 tracking-[0.3em] uppercase">
+        <span className="font-mono text-xs text-cyan-400/40 tracking-label uppercase">
           SECTOR_SCAN :: ACTIVE
         </span>
-        <span className="font-mono text-[10px] text-cyan-400/25 tracking-widest">
+        <span className="font-mono text-xs text-cyan-400/25 tracking-label">
           {phase === "scanning" ? "SWEEPING..." : phase === "locked" ? "TARGET ACQUIRED" : "ENGAGING..."}
         </span>
       </div>

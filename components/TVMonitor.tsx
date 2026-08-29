@@ -35,17 +35,17 @@ export const TVMonitor = () => {
             <svg viewBox="0 0 200 200" className="w-full h-full max-w-[400px] fill-amber-500/80 drop-shadow-[0_0_20px_rgba(245,158,11,0.6)]">
               <circle cx="100" cy="100" r="95" fill="none" strokeWidth="2" strokeDasharray="5 5" className="opacity-30" />
               <path d="M100 5 C 100 5, 10 50, 10 100 C 10 150, 100 195, 100 195 C 100 195, 190 150, 190 100 C 190 50, 100 5, 100 5" fill="none" strokeWidth="1.5" />
-              <text x="100" y="85" textAnchor="middle" className="text-[14px] font-bold uppercase tracking-[0.4em]">TEMPORAL VARIANCE</text>
-              <text x="100" y="105" textAnchor="middle" className="text-[18px] font-bold uppercase tracking-[0.2em] font-serif italic">AUTHORITY</text>
+              <text x="100" y="85" textAnchor="middle" className="text-sm font-bold uppercase tracking-label">TEMPORAL VARIANCE</text>
+              <text x="100" y="105" textAnchor="middle" className="text-lg font-bold uppercase font-serif italic">AUTHORITY</text>
               <path d="M50 120 Q 100 160, 150 120" fill="none" strokeWidth="2" strokeLinecap="round" className="opacity-60"/>
-              <text x="100" y="145" textAnchor="middle" className="text-[36px] font-bold uppercase tracking-[-0.05em] font-mono opacity-90">TVA</text>
+              <text x="100" y="145" textAnchor="middle" className="text-4xl font-bold uppercase tracking-[-0.05em] font-mono opacity-90">TVA</text>
             </svg>
           </div>
         </div>
 
         {/* Branding badge */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-24 md:w-32 h-6 md:h-8 bg-[#1A1A1A] border border-[#333] rounded flex items-center justify-center">
-          <span className="text-[9px] md:text-xs font-mono text-[#444] tracking-widest uppercase">LOG // 01</span>
+          <span className="text-xs md:text-xs font-mono text-[#444] tracking-label uppercase">LOG // 01</span>
         </div>
 
       </div>

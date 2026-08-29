@@ -91,13 +91,13 @@ function ColHeader({ id, label }: { id: string; label: string }) {
   return (
     <div className="flex items-center gap-3 mb-5">
       <span
-        className="font-mono text-[9px] tracking-[0.3em] shrink-0"
+        className="font-mono text-xs tracking-label shrink-0"
         style={{ color: C3 }}
       >
         {id}
       </span>
       <span
-        className="font-mono text-[11px] font-bold tracking-[0.2em] shrink-0"
+        className="font-mono text-xs font-bold tracking-label shrink-0"
         style={{ color: C }}
       >
         {label}
@@ -180,7 +180,7 @@ function Schematic({
           {/* Awaiting-asset label */}
           <div className="absolute inset-0 flex items-center justify-center">
             <span
-              className="font-mono text-[10px] tracking-[0.35em] uppercase"
+              className="font-mono text-xs tracking-label uppercase"
               style={{ color: C2 }}
             >
               [ AWAITING_ASSET ]
@@ -194,7 +194,7 @@ function Schematic({
 
       {/* Figure label — top left */}
       <div
-        className="absolute top-4 left-7 font-mono text-[8px] tracking-widest"
+        className="absolute top-4 left-7 font-mono text-xs tracking-label"
         style={{ color: C3 }}
       >
         {label}
@@ -209,7 +209,7 @@ function Schematic({
         }}
       >
         <span
-          className="font-mono text-[9px] tracking-wider"
+          className="font-mono text-xs tracking-label"
           style={{ color: C5 }}
         >
           {callout}
@@ -244,7 +244,7 @@ function SpecRow({
     >
       {/* Scanline texture shows on hover */}
       <div
-        className="px-3 py-2 font-mono text-[10px] tracking-widest transition-colors"
+        className="px-3 py-2 font-mono text-xs tracking-label transition-colors"
         style={{
           color: hovered ? C5 : C3,
           borderRight: `1px solid ${C1}`,
@@ -262,7 +262,7 @@ function SpecRow({
         {param}
       </div>
       <div
-        className="px-3 py-2 font-mono text-[10px] tracking-widest flex justify-between"
+        className="px-3 py-2 font-mono text-xs tracking-label flex justify-between"
         style={{
           color: C,
           backgroundImage: hovered
@@ -295,7 +295,7 @@ function NavArrow({
   return (
     <Link
       href={href}
-      className="font-mono text-sm tracking-widest select-none transition-all duration-150"
+      className="font-mono text-sm tracking-label select-none transition-all duration-150"
       style={{
         color: hovered ? C : C3,
         textShadow: hovered
@@ -330,7 +330,7 @@ export default function MaiiaPage() {
         <div className="w-[22%] px-5 shrink-0">
           <Link
             href="/projects"
-            className="text-[9px] tracking-[0.3em] transition-colors duration-150 hover:opacity-100"
+            className="text-xs tracking-label transition-colors duration-150 hover:opacity-100"
             style={{ color: C3 }}
           >
             ← PROJECTS
@@ -343,13 +343,13 @@ export default function MaiiaPage() {
 
           <div className="flex flex-col items-center">
             <span
-              className="text-[8px] tracking-[0.35em] leading-none mb-0.5"
+              className="text-xs tracking-label leading-none mb-0.5"
               style={{ color: C3 }}
             >
               {PROJECT.archiveId}
             </span>
             <span
-              className="text-sm font-bold tracking-[0.3em] leading-none"
+              className="text-sm font-bold tracking-label leading-none"
               style={{ color: C }}
             >
               {PROJECT.codename}
@@ -369,7 +369,7 @@ export default function MaiiaPage() {
               style={{ background: C }}
             />
             <span
-              className="text-[9px] tracking-widest hidden sm:block"
+              className="text-xs tracking-label hidden sm:block"
               style={{ color: C3 }}
             >
               {PROJECT.status}
@@ -387,7 +387,7 @@ export default function MaiiaPage() {
         }}
       >
         <span
-          className="text-[9px] tracking-[0.3em]"
+          className="text-xs tracking-label"
           style={{ color: C2 }}
         >
           {PROJECT.subtitle}
@@ -413,13 +413,13 @@ export default function MaiiaPage() {
             {/* Summary */}
             <div>
               <div
-                className="text-[9px] tracking-[0.3em] mb-3"
+                className="text-xs tracking-label mb-3"
                 style={{ color: C3 }}
               >
                 // BRIEF
               </div>
               <p
-                className="text-[12px] leading-relaxed"
+                className="text-xs leading-relaxed"
                 style={{ color: "rgba(0,255,255,0.72)" }}
               >
                 {PROJECT.summary}
@@ -429,7 +429,7 @@ export default function MaiiaPage() {
             {/* Spec table */}
             <div>
               <div
-                className="text-[9px] tracking-[0.3em] mb-3"
+                className="text-xs tracking-label mb-3"
                 style={{ color: C3 }}
               >
                 // SPEC_TABLE
@@ -467,7 +467,7 @@ export default function MaiiaPage() {
 
             {/* Technical note */}
             <div
-              className="text-[10px] leading-relaxed"
+              className="text-xs leading-relaxed"
               style={{ color: C2 }}
             >
               <span style={{ color: C3 }}>{"// NOTE :: "}</span>
@@ -488,7 +488,7 @@ export default function MaiiaPage() {
             {/* Results list */}
             <div>
               <div
-                className="text-[9px] tracking-[0.3em] mb-4"
+                className="text-xs tracking-label mb-4"
                 style={{ color: C3 }}
               >
                 // OUTCOMES
@@ -503,7 +503,7 @@ export default function MaiiaPage() {
                       {r.sym}
                     </span>
                     <span
-                      className="text-[12px] leading-relaxed"
+                      className="text-xs leading-relaxed"
                       style={{ color: "rgba(0,255,255,0.72)" }}
                     >
                       {r.text}
@@ -519,7 +519,7 @@ export default function MaiiaPage() {
             {/* Links placeholder */}
             <div>
               <div
-                className="text-[9px] tracking-[0.3em] mb-3"
+                className="text-xs tracking-label mb-3"
                 style={{ color: C3 }}
               >
                 // EXTERNAL_LINKS
@@ -533,7 +533,7 @@ export default function MaiiaPage() {
                   <a
                     key={link.label}
                     href={link.href}
-                    className="flex items-center gap-2 group text-[10px] tracking-widest transition-colors duration-100"
+                    className="flex items-center gap-2 group text-xs tracking-label transition-colors duration-100"
                     style={{ color: C3 }}
                     onMouseEnter={(e) =>
                       (e.currentTarget.style.color = C)
@@ -561,7 +561,7 @@ export default function MaiiaPage() {
           className="flex items-center justify-between px-5 py-3"
           style={{ borderTop: `1px solid ${C2}`, background: "#000" }}
         >
-          <span className="text-[9px] tracking-[0.3em]" style={{ color: C3 }}>
+          <span className="text-xs tracking-label" style={{ color: C3 }}>
             JACOB_TANG :: {PROJECT.archiveId} // {PROJECT.codename}
           </span>
           <div className="flex items-center gap-6">
@@ -569,7 +569,7 @@ export default function MaiiaPage() {
               <Link
                 key={p.id}
                 href={p.href}
-                className="text-[9px] tracking-widest transition-colors duration-100"
+                className="text-xs tracking-label transition-colors duration-100"
                 style={{ color: i === CURRENT_IDX ? C : C2 }}
                 onMouseEnter={(e) =>
                   (e.currentTarget.style.color = C)
@@ -583,7 +583,7 @@ export default function MaiiaPage() {
               </Link>
             ))}
           </div>
-          <span className="text-[9px] tracking-widest" style={{ color: C2 }}>
+          <span className="text-xs tracking-label" style={{ color: C2 }}>
             ALL_SYSTEMS_NOMINAL
           </span>
         </footer>

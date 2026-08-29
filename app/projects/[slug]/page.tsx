@@ -22,7 +22,7 @@ export default async function EntryPage({ params }: { params: { slug: string } }
           {item.frontmatter.title}
         </h1>
         
-        <div className="flex flex-wrap gap-8 border-y border-white/10 py-6 font-mono text-[10px] uppercase tracking-widest text-zinc-500">
+        <div className="flex flex-wrap gap-8 border-y border-white/10 py-6 font-mono text-xs uppercase tracking-label text-zinc-500">
           <div>
             <span className="block text-zinc-600 mb-1">Date Published</span>
             <span className="text-zinc-300">{item.frontmatter.date}</span>
@@ -55,7 +55,7 @@ export default async function EntryPage({ params }: { params: { slug: string } }
         {item.tags.map((tag: any) => (
           <span 
             key={tag.slug} 
-            className="border border-white/20 px-3 py-1 text-[9px] font-mono text-zinc-500 uppercase tracking-widest"
+            className="border border-white/20 px-3 py-1 text-xs font-mono text-zinc-500 uppercase tracking-label"
           >
             SYS.TAG::{tag.name}
           </span>

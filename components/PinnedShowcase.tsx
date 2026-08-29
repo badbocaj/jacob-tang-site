@@ -44,8 +44,8 @@ export function PinnedShowcase({ items }: { items: Item[] }) {
   return (
     <section className="py-24 md:py-32">
       <div className="mb-10">
-        <p className="text-xs tracking-widest text-zinc-400">SHOWCASE</p>
-        <h2 className="mt-3 text-3xl md:text-4xl font-semibold tracking-tight">
+        <p className="text-xs tracking-label text-zinc-400">SHOWCASE</p>
+        <h2 className="mt-3 text-2xl md:text-4xl font-semibold tracking-tight">
           Featured work, briefed like a system
         </h2>
         <p className="mt-4 max-w-2xl text-zinc-300">
@@ -118,7 +118,7 @@ export function PinnedShowcase({ items }: { items: Item[] }) {
                   <div className="relative">
                     <div className="flex items-start justify-between gap-6">
                       <div>
-                        <p className="text-xs tracking-widest text-zinc-400">
+                        <p className="text-xs tracking-label text-zinc-400">
                           {current?.kind === "project" ? "PROJECT" : "BLOG"}
                         </p>
                         <h3 className="mt-3 text-2xl font-semibold tracking-tight">{current?.title}</h3>
@@ -146,7 +146,7 @@ export function PinnedShowcase({ items }: { items: Item[] }) {
                     {current?.kind === "project" ? (
                       <div className="mt-8 grid grid-cols-2 gap-6">
                         <div>
-                          <p className="text-xs tracking-widest text-zinc-400">TOOLS</p>
+                          <p className="text-xs tracking-label text-zinc-400">TOOLS</p>
                           <div className="mt-3 flex flex-wrap gap-2">
                             {(current.tools ?? []).map((c) => (
                               <span
@@ -159,7 +159,7 @@ export function PinnedShowcase({ items }: { items: Item[] }) {
                           </div>
                         </div>
                         <div>
-                          <p className="text-xs tracking-widest text-zinc-400">OUTCOMES</p>
+                          <p className="text-xs tracking-label text-zinc-400">OUTCOMES</p>
                           <ul className="mt-3 space-y-2 text-sm text-zinc-300">
                             {(current.outcomes ?? []).slice(0, 3).map((o) => (
                               <li key={o}>• {o}</li>
@@ -169,7 +169,7 @@ export function PinnedShowcase({ items }: { items: Item[] }) {
                       </div>
                     ) : (
                       <div className="mt-8">
-                        <p className="text-xs tracking-widest text-zinc-400">KEY IDEA</p>
+                        <p className="text-xs tracking-label text-zinc-400">KEY IDEA</p>
                         <ul className="mt-3 space-y-2 text-sm text-zinc-300">
                           <li>• Keep interfaces simple, then iterate fast.</li>
                           <li>• Don’t confuse motion for clarity.</li>
@@ -202,7 +202,7 @@ export function PinnedShowcase({ items }: { items: Item[] }) {
             href={`/${it.kind === "project" ? "projects" : "blog"}/${it.slug}`}
             className="block rounded-2xl border border-white/10 bg-white/[0.02] p-6"
           >
-            <div className="text-xs tracking-widest text-zinc-400">{it.kind.toUpperCase()}</div>
+            <div className="text-xs tracking-label text-zinc-400">{it.kind.toUpperCase()}</div>
             <div className="mt-2 text-lg font-medium">{it.title}</div>
             <div className="mt-2 text-sm text-zinc-300">{it.summary}</div>
           </Link>

@@ -9,36 +9,11 @@ import {
   findFriendByName,
   checkAnswer,
 } from "@/data/personalized";
+import { HazardStripe, Scanlines } from "@/components/personalized/chrome";
+import DossierPanel from "@/components/personalized/DossierPanel";
+import Whiteboard from "@/components/personalized/Whiteboard";
 
 const STORAGE_KEY = "authenticated_friend";
-
-// ─────────────────────────────────────────────────────────────────────────────
-// CRT scanline overlay — reused pattern from the rest of the site
-// ─────────────────────────────────────────────────────────────────────────────
-
-function Scanlines() {
-  return (
-    <div
-      className="pointer-events-none absolute inset-0 z-20"
-      style={{
-        background:
-          "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px)",
-      }}
-    />
-  );
-}
-
-function HazardStripe({ position }: { position: "top" | "bottom" }) {
-  return (
-    <div
-      className={position === "top" ? "h-2 w-full" : "h-1 w-full"}
-      style={{
-        background:
-          "repeating-linear-gradient(45deg, #16a34a, #16a34a 10px, #0a0a0a 10px, #0a0a0a 20px)",
-      }}
-    />
-  );
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ACCESS DENIED — glitch overlay
@@ -67,10 +42,10 @@ function AccessDenied({ reason }: { reason: string }) {
         className="flex flex-col items-center gap-2"
       >
         <ShieldAlert size={40} className="text-red-500" />
-        <p className="font-mono text-lg sm:text-xl text-red-500 tracking-[0.15em] uppercase text-center px-6">
+        <p className="font-mono text-lg sm:text-xl text-red-500 uppercase text-center px-6">
           ACCESS DENIED
         </p>
-        <p className="font-mono text-[11px] text-red-400/70 tracking-[0.25em] uppercase">
+        <p className="font-mono text-xs text-red-400/70 tracking-label uppercase">
           {reason}
         </p>
       </motion.div>
@@ -97,10 +72,10 @@ function AccessGranted({ name }: { name: string }) {
         className="flex flex-col items-center gap-2"
       >
         <Sparkles size={40} className="text-green-400" />
-        <p className="font-mono text-lg sm:text-xl text-green-400 tracking-[0.15em] uppercase text-center px-6">
+        <p className="font-mono text-lg sm:text-xl text-green-400 uppercase text-center px-6">
           ACCESS GRANTED
         </p>
-        <p className="font-mono text-[11px] text-green-400/70 tracking-[0.25em] uppercase">
+        <p className="font-mono text-xs text-green-400/70 tracking-label uppercase">
           welcome back, {name.split(" ")[0]}
         </p>
       </motion.div>
@@ -166,7 +141,7 @@ function LoginTerminal({
       <div className="relative z-10 p-6 sm:p-8">
         <div className="flex items-center gap-2 mb-6">
           <Terminal size={16} className="text-green-400" />
-          <span className="font-mono text-[11px] text-green-500/70 tracking-[0.3em] uppercase">
+          <span className="font-mono text-xs text-green-500/70 tracking-label uppercase">
             restricted access terminal
           </span>
         </div>
@@ -181,7 +156,7 @@ function LoginTerminal({
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.2 }}
             >
-              <p className="font-mono text-sm text-green-400 tracking-widest uppercase mb-3">
+              <p className="font-mono text-sm text-green-400 tracking-label uppercase mb-3">
                 &gt; IDENTIFY YOURSELF
               </p>
               <div className="flex items-center gap-2 border border-green-500/30 bg-black/60 px-3 py-2">
@@ -191,12 +166,12 @@ function LoginTerminal({
                   value={nameInput}
                   onChange={(e) => setNameInput(e.target.value)}
                   placeholder="full name"
-                  className="w-full bg-transparent font-mono text-sm text-green-300 placeholder:text-green-800 outline-none tracking-wide"
+                  className="w-full bg-transparent font-mono text-sm text-green-300 placeholder:text-green-800 outline-none tracking-label"
                 />
               </div>
               <button
                 type="submit"
-                className="mt-4 w-full font-mono text-[11px] uppercase tracking-widest py-2.5 border border-green-500/40 text-green-400 hover:bg-green-500/10 transition-colors duration-150"
+                className="mt-4 w-full font-mono text-xs uppercase tracking-label py-2.5 border border-green-500/40 text-green-400 hover:bg-green-500/10 transition-colors duration-150"
               >
                 [ TRANSMIT ]
               </button>
@@ -212,10 +187,10 @@ function LoginTerminal({
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.2 }}
             >
-              <p className="font-mono text-[11px] text-zinc-600 tracking-widest uppercase mb-1">
+              <p className="font-mono text-xs text-zinc-600 tracking-label uppercase mb-1">
                 identity confirmed :: {candidate.name}
               </p>
-              <p className="font-mono text-sm text-green-400 tracking-widest uppercase mb-3">
+              <p className="font-mono text-sm text-green-400 tracking-label uppercase mb-3">
                 &gt; SECURITY VERIFICATION
               </p>
               <p className="text-zinc-300 text-sm mb-3">{candidate.question}</p>
@@ -226,12 +201,12 @@ function LoginTerminal({
                   value={answerInput}
                   onChange={(e) => setAnswerInput(e.target.value)}
                   placeholder="answer"
-                  className="w-full bg-transparent font-mono text-sm text-green-300 placeholder:text-green-800 outline-none tracking-wide"
+                  className="w-full bg-transparent font-mono text-sm text-green-300 placeholder:text-green-800 outline-none tracking-label"
                 />
               </div>
               <button
                 type="submit"
-                className="mt-4 w-full font-mono text-[11px] uppercase tracking-widest py-2.5 border border-green-500/40 text-green-400 hover:bg-green-500/10 transition-colors duration-150"
+                className="mt-4 w-full font-mono text-xs uppercase tracking-label py-2.5 border border-green-500/40 text-green-400 hover:bg-green-500/10 transition-colors duration-150"
               >
                 [ VERIFY ]
               </button>
@@ -251,7 +226,9 @@ function LoginTerminal({
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// AUTHENTICATED VIEW
+// AUTHENTICATED VIEW — standardized two-panel layout.
+//   LEFT  :: the archive record I author for this person.
+//   RIGHT :: the whiteboard they own.
 // ─────────────────────────────────────────────────────────────────────────────
 
 function AuthenticatedView({
@@ -263,59 +240,33 @@ function AuthenticatedView({
 }) {
   return (
     <motion.div
-      className="relative w-full max-w-2xl mx-auto bg-zinc-950 border border-green-500/30 shadow-[0_0_60px_rgba(34,197,94,0.08)] overflow-hidden"
+      className="w-full max-w-[1600px] mx-auto"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <HazardStripe position="top" />
-      <Scanlines />
-
-      <div className="relative z-10 p-6 sm:p-10">
-        <div className="flex items-start justify-between gap-4 mb-6">
-          <div>
-            <p className="font-mono text-[10px] text-green-500/50 tracking-[0.3em] uppercase mb-1">
-              clearance level :: friend
-            </p>
-            <h1 className="font-mono text-xl sm:text-2xl text-green-400 tracking-wide uppercase">
-              {friend.title}
-            </h1>
-          </div>
-          <button
-            onClick={onLogout}
-            className="shrink-0 flex items-center gap-1.5 font-mono text-[10px] text-zinc-600 hover:text-red-400 uppercase tracking-widest transition-colors duration-150"
-          >
-            <LogOut size={12} />
-            switch profile
-          </button>
-        </div>
-
-        <div className="border-l-2 border-green-500/30 pl-4 mb-8">
-          <p className="text-zinc-300 text-sm leading-relaxed whitespace-pre-line">
-            {friend.letter}
+      <div className="mb-4 flex items-end justify-between gap-4">
+        <div>
+          <p className="mb-1 font-mono text-xs uppercase tracking-label text-green-500/50">
+            clearance level :: friend
           </p>
+          <h1 className="font-mono text-xl uppercase text-green-400 sm:text-2xl">
+            {friend.title}
+          </h1>
         </div>
-
-        <p className="font-mono text-[10px] text-green-500/50 tracking-[0.3em] uppercase mb-3">
-          shared memory log
-        </p>
-        <ul className="space-y-2">
-          {friend.memories.map((memory, i) => (
-            <motion.li
-              key={i}
-              initial={{ opacity: 0, x: -6 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.25, delay: 0.1 + i * 0.08 }}
-              className="font-mono text-[13px] text-zinc-400 flex items-start gap-2"
-            >
-              <span className="text-green-500/60 shrink-0">&gt;</span>
-              {memory}
-            </motion.li>
-          ))}
-        </ul>
+        <button
+          onClick={onLogout}
+          className="flex shrink-0 items-center gap-1.5 font-mono text-xs uppercase tracking-label text-zinc-600 transition-colors duration-150 hover:text-red-400"
+        >
+          <LogOut size={12} />
+          switch profile
+        </button>
       </div>
 
-      <HazardStripe position="bottom" />
+      <div className="grid gap-4 lg:grid-cols-2">
+        <DossierPanel friend={friend} />
+        <Whiteboard friendId={friend.id} friendName={friend.name} />
+      </div>
     </motion.div>
   );
 }
@@ -343,7 +294,13 @@ export default function PersonalizedPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#050505] flex items-center justify-center px-4 py-28">
+    <div
+      className={`min-h-screen bg-[#050505] px-4 sm:px-6 ${
+        authFriend
+          ? "flex items-start justify-center pb-16 pt-28"
+          : "flex items-center justify-center py-28"
+      }`}
+    >
       {/* Blueprint grid background, matching the rest of the site */}
       <div
         className="fixed inset-0 opacity-[0.04] pointer-events-none"
@@ -355,7 +312,7 @@ export default function PersonalizedPage() {
       />
 
       {!hydrated ? (
-        <p className="font-mono text-[11px] text-green-500/40 tracking-[0.3em] uppercase animate-pulse">
+        <p className="font-mono text-xs text-green-500/40 tracking-label uppercase animate-pulse">
           booting secure link...
         </p>
       ) : authFriend ? (

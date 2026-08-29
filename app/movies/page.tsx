@@ -228,13 +228,13 @@ export default function MoviesPage() {
         {/* Header */}
         <div className="relative z-10 pt-8 pb-4 text-center px-6">
           <p
-            className="font-mono text-[8px] uppercase mb-4"
+            className="font-mono text-xs uppercase mb-4"
             style={{ color:'#1e2e62', letterSpacing:'0.65em' }}
           >
             ◈ COSMIC VAULT — SECTOR 7 ◈
           </p>
           <h1
-            className="text-5xl md:text-6xl font-bold uppercase tracking-tighter text-white leading-none"
+            className="text-4xl md:text-6xl font-bold uppercase tracking-tighter text-white leading-none"
             style={{ textShadow:'0 0 70px rgba(55,95,215,0.38)' }}
           >
             The Trophy Room
@@ -243,7 +243,7 @@ export default function MoviesPage() {
             <div className="h-px flex-1 max-w-28"
               style={{ background:'linear-gradient(to right, transparent, rgba(45,75,175,0.5))' }} />
             <p
-              className="font-mono text-[9px] uppercase"
+              className="font-mono text-xs uppercase"
               style={{ color:'#283e85', letterSpacing:'0.4em' }}
             >
               CINEMATIC ARCHIVES
@@ -357,7 +357,7 @@ export default function MoviesPage() {
 
                 {/* ── Label ── */}
                 <motion.p
-                  className="mt-5 font-mono text-[9px] uppercase text-center"
+                  className="mt-5 font-mono text-xs uppercase text-center"
                   style={{ letterSpacing:'0.3em' }}
                   animate={{ color: hovered === c.id ? '#88bcff' : '#2b3e72' }}
                   transition={{ duration: 0.35 }}
@@ -480,7 +480,7 @@ export default function MoviesPage() {
             {/* Vault footer label */}
             <div className="absolute bottom-7 left-0 right-0 flex justify-center pointer-events-none">
               <p
-                className="font-mono text-[8px] uppercase"
+                className="font-mono text-xs uppercase"
                 style={{ color:'rgba(33,50,118,0.55)', letterSpacing:'0.55em' }}
               >
                 COSMIC VAULT — SECTOR 7 — AUTHORIZED ACCESS ONLY

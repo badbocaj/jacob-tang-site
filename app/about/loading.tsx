@@ -36,7 +36,7 @@ export default function AboutLoading() {
       </svg>
 
       <p
-        className="font-mono text-[10px] text-slate-600 tracking-[0.3em] uppercase mt-6"
+        className="font-mono text-xs text-slate-600 tracking-label uppercase mt-6"
         style={{ animation: "pulse 2s cubic-bezier(0.4,0,0.6,1) infinite" }}
       >
         initializing...

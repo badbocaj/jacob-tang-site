@@ -3,44 +3,6 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 
-const TILES = [
-  
-  { 
-    title: "Professional", 
-    desc: "Work history & roles", 
-    href: "/professional", 
-    img: "/professional.jpg", 
-    colSpan: "md:col-span-4" 
-  },
-  { 
-    title: "Projects", 
-    desc: "Systems & software", 
-    href: "/projects", 
-    img: "/projects.jpg", 
-    colSpan: "md:col-span-4" 
-  },
-  { 
-    title: "Travel", 
-    desc: "Coordinates & logs", 
-    href: "/travel", 
-    img: "/travel.jpg", 
-    colSpan: "md:col-span-4" 
-  },
-  { 
-    title: "Movies", 
-    desc: "Cinematic analysis", 
-    href: "/movies", 
-    img: "/movies.jpg", 
-    colSpan: "md:col-span-4" 
-  },
-  { 
-    title: "Funny", 
-    desc: "Anomalies & humor", 
-    href: "/funny", 
-    img: "/funny.jpg", 
-    colSpan: "md:col-span-8" 
-  },
-]
 const ContactsDropdown = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
@@ -58,7 +20,7 @@ const ContactsDropdown = ({ isOpen, onClose }: { isOpen: boolean, onClose: () =>
         <div className="flex flex-col gap-2">
           <a href="mailto:jacobdtang@gmail.com" className="group flex items-center justify-between rounded-lg p-3 hover:bg-white/10 transition-colors no-underline">
             <div>
-              <div className="text-sm font-bold text-white uppercase tracking-wider">Email</div>
+              <div className="text-sm font-bold text-white uppercase tracking-label">Email</div>
               <div className="text-xs text-zinc-400 font-mono mt-1">Direct Line</div>
             </div>
             {/* Forced sizes to prevent giant icons */}
@@ -69,7 +31,7 @@ const ContactsDropdown = ({ isOpen, onClose }: { isOpen: boolean, onClose: () =>
           
           <a href="https://linkedin.com/in/tangjacob" target="_blank" rel="noreferrer" className="group flex items-center justify-between rounded-lg p-3 hover:bg-white/10 transition-colors no-underline">
             <div>
-              <div className="text-sm font-bold text-white uppercase tracking-wider">LinkedIn</div>
+              <div className="text-sm font-bold text-white uppercase tracking-label">LinkedIn</div>
               <div className="text-xs text-zinc-400 font-mono mt-1">Professional Network</div>
             </div>
             <svg className="w-6 h-6 text-zinc-500 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
@@ -86,7 +48,7 @@ export default function HomePage() {
   const [isContactsOpen, setIsContactsOpen] = useState(false)
 
   const scrollToGrid = () => {
-    document.getElementById("grid-section")?.scrollIntoView({ behavior: "smooth" })
+    document.getElementById("statement-section")?.scrollIntoView({ behavior: "smooth" })
   }
 
   return (
@@ -96,29 +58,18 @@ export default function HomePage() {
       <section className="relative flex h-screen w-full flex-col items-center justify-center overflow-hidden">
         
         {/* Top Nav (Fixed to absolute top) */}
-{/* Top Nav (Fixed to absolute top) */}
-<div className="absolute top-0 left-0 right-0 z-50 flex w-full items-center justify-between p-6 md:p-10">
+        <div className="absolute top-0 left-0 right-0 z-50 flex w-full items-center justify-between p-6 md:p-10">
           
           {/* LEFT: Logo */}
           <Link href="/" className="no-underline z-10">
-            <h1 className="text-xl font-bold uppercase tracking-widest text-white m-0">Jacob Tang's</h1>
-            <p className="mt-1 font-mono text-xs uppercase tracking-widest text-zinc-400 m-0">Persolio</p>
+            <h1 className="text-xl font-bold uppercase text-white m-0">Jacob Tang's</h1>
+            <p className="mt-1 font-mono text-xs uppercase tracking-label text-zinc-400 m-0">Persolio</p>
           </Link>
           
-          {/* CENTER: Navigation Banner */}
-          <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center gap-8 rounded-full border border-white/20 bg-black/50 px-8 py-3 backdrop-blur-md shadow-2xl">
-          <Link href="/about" className="text-xs font-bold uppercase tracking-widest text-zinc-300 hover:text-white transition-colors no-underline">About</Link>
-            <Link href="/professional" className="text-xs font-bold uppercase tracking-widest text-zinc-300 hover:text-white transition-colors no-underline">Professional</Link>
-            <Link href="/projects" className="text-xs font-bold uppercase tracking-widest text-zinc-300 hover:text-white transition-colors no-underline">Projects</Link>
-            <Link href="/travel" className="text-xs font-bold uppercase tracking-widest text-zinc-300 hover:text-white transition-colors no-underline">Travel</Link>
-            <Link href="/movies" className="text-xs font-bold uppercase tracking-widest text-zinc-300 hover:text-white transition-colors no-underline">Movies</Link>
-            <Link href="/funny" className="text-xs font-bold uppercase tracking-widest text-zinc-300 hover:text-white transition-colors no-underline">Funny</Link>
-          </div>
-
           {/* RIGHT: Contacts Button */}
           <button 
             onClick={() => setIsContactsOpen(!isContactsOpen)}
-            className="z-10 flex items-center gap-2 rounded-full border border-white/20 bg-black/50 px-4 py-2 text-xs font-bold uppercase tracking-widest text-white backdrop-blur-md hover:bg-white hover:text-black transition-all"
+            className="z-10 flex items-center gap-2 rounded-full border border-white/20 bg-black/50 px-4 py-2 text-xs font-bold uppercase tracking-label text-white backdrop-blur-md hover:bg-white hover:text-black transition-all"
           >
             Contacts
             <svg className={`w-4 h-4 transition-transform ${isContactsOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -140,7 +91,7 @@ export default function HomePage() {
 
         {/* Hero Center Text */}
         <div className="relative z-10 px-6 text-center">
-          <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold uppercase tracking-tighter text-white drop-shadow-2xl m-0">
+          <h2 className="text-4xl md:text-6xl lg:text-6xl font-bold uppercase tracking-tighter text-white drop-shadow-2xl m-0">
             "Frontend is a solved problem." <br></br>
             -My Roomate
           </h2>
@@ -157,48 +108,46 @@ export default function HomePage() {
         </button>
       </section>
 
-      {/* 2. MAIN GRID SECTION */}
-      <section id="grid-section" className="w-full bg-black px-4 py-24 md:px-12 pb-32">
-        <div className="mx-auto max-w-7xl">
-          
-          {/* Changed Directory to an "About" link per your request */}
-          <Link href="/about" className="inline-block mb-12 group no-underline">
-            <h3 className="text-sm font-mono uppercase tracking-[0.3em] text-zinc-500 group-hover:text-white transition-colors m-0">
-              Please click my about page →
-            </h3>
-          </Link>
-          
-          {/* 12-Column Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-            {TILES.map((tile) => (
-              <Link
-                key={tile.href}
-                href={tile.href}
-                className={`group relative h-[400px] w-full overflow-hidden rounded-2xl bg-zinc-900 ${tile.colSpan} block no-underline`}
-              >
-                {/* Background Image w/ Scale & Brightness Hover */}
-                <img
-                  src={tile.img}
-                  alt={tile.title}
-                  className="absolute inset-0 h-full w-full object-cover opacity-60 transition-all duration-700 group-hover:scale-[1.02] group-hover:opacity-100 group-hover:brightness-110"
-                />
-                
-                {/* Bottom Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 transition-opacity group-hover:opacity-90" />
+      {/* 2. STATEMENT SECTION */}
+      <section
+        id="statement-section"
+        className="flex min-h-screen w-full flex-col items-center justify-center bg-black px-6 py-32 md:px-12"
+      >
+        {/* Three beats — the reason, the result, the invitation — paced apart
+            instead of run together as one slab. */}
+        <div className="mx-auto flex max-w-5xl flex-col items-center gap-10 text-center sm:gap-14">
+          <h2 className="m-0 text-2xl font-bold uppercase leading-[1.25] tracking-normal text-balance text-white sm:text-4xl lg:text-6xl">
+            I wanted to learn how to use Claude Code because I thought it was
+            important.
+          </h2>
 
-                {/* Content (Bottom Left) */}
-                <div className="absolute bottom-0 left-0 p-8 transform transition-transform duration-500 group-hover:-translate-y-2">
-                  <h4 className="text-3xl font-bold uppercase tracking-tighter text-white drop-shadow-lg m-0">
-                    {tile.title}
-                  </h4>
-                  <p className="mt-2 font-mono text-xs uppercase tracking-widest text-zinc-300 opacity-0 transition-opacity duration-500 group-hover:opacity-100 m-0">
-                    {tile.desc}
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <p className="m-0 text-xl font-bold uppercase leading-[1.3] tracking-normal text-zinc-400 sm:text-2xl lg:text-4xl">
+            This is the result.
+          </p>
+
+          <p className="m-0 text-xl font-bold uppercase leading-[1.3] tracking-normal text-white sm:text-2xl lg:text-4xl">
+            Please enjoy!
+          </p>
         </div>
+
+        {/* This is now the only way off the landing page, so it reads as a
+            control rather than a caption. Styled to match the Contacts pill. */}
+        <Link
+          href="/about"
+          className="group mt-20 inline-flex items-center gap-3 rounded-full border border-white/20 bg-black/50 px-6 py-3 no-underline backdrop-blur-md transition-all hover:border-white hover:bg-white"
+        >
+          <span className="font-mono text-xs uppercase tracking-label text-zinc-300 transition-colors group-hover:text-black sm:text-sm">
+            Please click my about page
+          </span>
+          <svg
+            className="h-4 w-4 shrink-0 text-zinc-400 transition-all group-hover:translate-x-1 group-hover:text-black"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </Link>
       </section>
 
     </main>

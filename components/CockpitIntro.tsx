@@ -286,10 +286,10 @@ function HoloSchematicsVisual() {
       </div>
 
       {/* Pulsing status label */}
-      <div className="font-mono text-[14px] text-cyan-400/50 tracking-[0.3em] animate-pulse">
+      <div className="font-mono text-sm text-cyan-400/50 tracking-label animate-pulse">
         [LOADING...]
       </div>
-      <div className="font-mono text-[12px] text-zinc-600 tracking-widest">
+      <div className="font-mono text-xs text-zinc-600 tracking-label">
         {current === "rocket" ? "HPFRT_v2.STEP" : "AERO_WING.CAD"}
       </div>
     </div>
@@ -321,7 +321,7 @@ function MissionLogVisual() {
 
   return (
     <div className="font-mono overflow-hidden">
-      <div className="text-violet-500/40 text-[12px] tracking-widest mb-1">
+      <div className="text-violet-500/40 text-xs tracking-label mb-1">
         {"// MISSION_LOG INTERFACE v1.0"}
       </div>
       {lines.map((line, i) => (
@@ -330,7 +330,7 @@ function MissionLogVisual() {
           initial={{ opacity: 0, x: -4 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.15 }}
-          className="text-green-400/75 text-[14px] leading-[1.65] truncate"
+          className="text-green-400/75 text-sm leading-[1.65] truncate"
         >
           {line}
         </motion.div>
@@ -394,11 +394,11 @@ function MediaArchiveVisual() {
         className="relative z-10 font-mono"
         style={{ textShadow: "0 0 10px rgba(96,165,250,0.85)" }}
       >
-        <div className="text-blue-400/45 text-[12px] tracking-widest mb-0.5">
+        <div className="text-blue-400/45 text-xs tracking-label mb-0.5">
           C:/ARCHIVE/BRAIN_ROT/
         </div>
         {FILM_LIST.map((film, i) => (
-          <div key={i} className="text-blue-200/80 text-[14px] leading-[1.6]">
+          <div key={i} className="text-blue-200/80 text-sm leading-[1.6]">
             {film}
           </div>
         ))}
@@ -488,7 +488,7 @@ function AuxSignalVisual({ hovered }: { hovered: boolean }) {
         className="w-full"
         style={{ height: "56px" }}
       />
-      <div className="font-mono text-[14px] text-amber-400/40 tracking-[0.18em] mt-1">
+      <div className="font-mono text-sm text-amber-400/40 tracking-label mt-1">
         [UNCLASSIFIED DATA] :: HOVER_FOR_FREQ_BOOST
       </div>
     </div>
@@ -534,10 +534,10 @@ function ZoneCell({
       <div className="relative z-10 h-full flex flex-col">
         {/* Zone ID header */}
         <div className="shrink-0 mb-1.5">
-          <div className="font-mono text-[14px] tracking-[0.3em] text-zinc-600 uppercase">
+          <div className="font-mono text-sm tracking-label text-zinc-600 uppercase">
             {zone.sublabel}
           </div>
-          <div className="font-mono text-[18px] font-bold tracking-wider text-white/80">
+          <div className="font-mono text-lg font-bold text-white/80">
             {zone.label}
           </div>
         </div>
@@ -547,7 +547,7 @@ function ZoneCell({
 
         {/* Footer */}
         <div className="shrink-0 flex items-center justify-between mt-1">
-          <span className="font-mono text-[14px] text-zinc-700 tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
+          <span className="font-mono text-sm text-zinc-700 tracking-label opacity-0 group-hover:opacity-100 transition-opacity">
             CLICK TO ACCESS
           </span>
           <span className="w-1.5 h-1.5 rounded-full bg-current opacity-50 group-hover:animate-ping" />
@@ -649,7 +649,7 @@ function BootTerminal({ onDone }: { onDone: () => void }) {
   }, []);
 
   return (
-    <div className="font-mono text-[28px] text-green-400 space-y-2 p-8 max-w-md mx-auto relative">
+    <div className="font-mono text-2xl text-green-400 space-y-2 p-8 max-w-md mx-auto relative">
       <div
         className="pointer-events-none absolute inset-0 z-10"
         style={{
@@ -657,7 +657,7 @@ function BootTerminal({ onDone }: { onDone: () => void }) {
             "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px)",
         }}
       />
-      <div className="text-green-600 text-[24px] mb-4 tracking-widest">
+      <div className="text-green-600 text-2xl mb-4">
         JACOB-TANG-OS v2.6 :: BOOT SEQUENCE
       </div>
       {lines.map((line, idx) => (
@@ -715,10 +715,10 @@ function TransmissionModal({
         {/* Header bar */}
         <div className="flex items-center gap-3 px-5 py-3 border-b border-red-500/40 bg-red-950/20">
           <Radio size={14} className="text-red-400 animate-pulse" />
-          <span className="font-mono text-[24px] text-red-400 tracking-widest uppercase">
+          <span className="font-mono text-2xl text-red-400 uppercase">
             ((o)) Incoming Transmission
           </span>
-          <span className="ml-auto font-mono text-[24px] text-zinc-600">
+          <span className="ml-auto font-mono text-2xl text-zinc-600">
             [{zone.id.toUpperCase()}_CHAN]
           </span>
         </div>
@@ -737,17 +737,17 @@ function TransmissionModal({
           <div className="flex items-start gap-3 mb-4">
             <AlertTriangle size={18} className="text-yellow-400 mt-0.5 shrink-0" />
             <div>
-              <div className="font-mono text-[24px] text-zinc-500 uppercase tracking-widest mb-1">
+              <div className="font-mono text-2xl text-zinc-500 uppercase mb-1">
                 {zone.label}
               </div>
-              <h2 className="font-mono text-[36px] text-white font-bold tracking-wide">
+              <h2 className="font-mono text-4xl text-white font-bold">
                 {zone.sublabel}
               </h2>
             </div>
           </div>
 
           <div className="border-l-2 border-red-500/40 pl-4 mb-6">
-            <p className="font-mono text-[28px] text-zinc-300 leading-relaxed">
+            <p className="font-mono text-2xl text-zinc-300 leading-relaxed">
               {zone.description}
             </p>
           </div>
@@ -755,13 +755,13 @@ function TransmissionModal({
           <div className="flex gap-2">
             <Link
               href={zone.href}
-              className="flex-1 font-mono text-[24px] uppercase tracking-widest py-2.5 border border-white/20 text-zinc-400 bg-white/5 hover:bg-white/10 hover:text-white transition-all duration-150 text-center"
+              className="flex-1 font-mono text-2xl uppercase py-2.5 border border-white/20 text-zinc-400 bg-white/5 hover:bg-white/10 hover:text-white transition-all duration-150 text-center"
             >
               [ ENTER SECTOR ]
             </Link>
             <motion.button
               onClick={onClose}
-              className="flex-1 font-mono text-[24px] uppercase tracking-widest py-2.5 border border-red-500/60 text-red-400 bg-red-950/20 hover:bg-red-500 hover:text-white transition-all duration-150 relative overflow-hidden group"
+              className="flex-1 font-mono text-2xl uppercase py-2.5 border border-red-500/60 text-red-400 bg-red-950/20 hover:bg-red-500 hover:text-white transition-all duration-150 relative overflow-hidden group"
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -818,18 +818,18 @@ function Cockpit({ onZoneClick }: { onZoneClick: (zone: Zone) => void }) {
 
       {/* Top HUD bar */}
       <div className="relative z-30 flex items-center justify-between px-6 py-3 border-b border-white/10 shrink-0">
-        <div className="font-mono text-[10px] tracking-[0.3em] text-zinc-500 uppercase">
+        <div className="font-mono text-xs tracking-label text-zinc-500 uppercase">
           JACOB-TANG-OS :: COCKPIT VIEW
         </div>
         <div className="flex gap-4">
           {["SYS", "NAV", "COMM"].map((label) => (
             <div key={label} className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-              <span className="font-mono text-[9px] text-zinc-600 tracking-widest">{label}</span>
+              <span className="font-mono text-xs text-zinc-600 tracking-label">{label}</span>
             </div>
           ))}
         </div>
-        <div className="font-mono text-[10px] text-zinc-600 tracking-widest">
+        <div className="font-mono text-xs text-zinc-600 tracking-label">
           {new Date().toISOString().slice(0, 19).replace("T", " ")} UTC
         </div>
       </div>
@@ -851,10 +851,10 @@ function Cockpit({ onZoneClick }: { onZoneClick: (zone: Zone) => void }) {
 
       {/* Bottom status bar */}
       <div className="relative z-30 flex items-center gap-6 px-6 py-2 border-t border-white/10 shrink-0">
-        <span className="font-mono text-[18px] text-zinc-700 tracking-widest">
+        <span className="font-mono text-lg text-zinc-700">
           SELECT A QUADRANT TO OPEN TRANSMISSION
         </span>
-        <span className="ml-auto font-mono text-[18px] text-zinc-700 tracking-widest">
+        <span className="ml-auto font-mono text-lg text-zinc-700">
           ALL SYSTEMS NOMINAL
         </span>
       </div>
@@ -897,7 +897,7 @@ export default function CockpitIntro() {
             transition={{ duration: 0.5 }}
           >
             <RocketSketch />
-            <p className="font-mono text-[20px] text-slate-600 tracking-[0.3em] uppercase mt-6 animate-pulse">
+            <p className="font-mono text-xl text-slate-600 uppercase mt-6 animate-pulse">
               initializing...
             </p>
           </motion.div>

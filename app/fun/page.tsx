@@ -11,7 +11,7 @@ export default function CategoryPage() {
   return (
     <main className="mx-auto max-w-5xl px-6 pt-32 pb-20">
       <div className="mb-12">
-        <h1 className="text-5xl font-bold uppercase tracking-tighter text-white">{TITLE}</h1>
+        <h1 className="text-4xl font-bold uppercase tracking-tighter text-white">{TITLE}</h1>
         <div className="h-[1px] w-full bg-white/10 mt-6" />
       </div>
 
@@ -29,7 +29,7 @@ export default function CategoryPage() {
                 <h2 className="text-2xl font-bold uppercase text-white group-hover:text-zinc-300">
                   {item.frontmatter.title}
                 </h2>
-                <span className="font-mono text-[10px] text-zinc-500">
+                <span className="font-mono text-xs text-zinc-500">
                   {item.frontmatter.date}
                 </span>
               </div>
@@ -39,7 +39,7 @@ export default function CategoryPage() {
               
               <div className="mt-6 flex gap-2">
                 {item.tags.map((tag: any) => (
-                  <span key={tag.slug} className="border border-white/10 px-2 py-1 text-[9px] uppercase font-mono text-zinc-500">
+                  <span key={tag.slug} className="border border-white/10 px-2 py-1 text-xs uppercase font-mono text-zinc-500">
                     {tag.name}
                   </span>
                 ))}

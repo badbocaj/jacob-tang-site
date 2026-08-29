@@ -1,6 +1,48 @@
-/* Any custom CSS can go below this */
-
 @import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────────────────
+   DESIGN TOKENS
+   Tailwind v4 reads theme tokens from here. (tailwind.config.ts is inert.)
+   ───────────────────────────────────────────────────────────────────────── */
+@theme {
+  /* Typefaces — the four roles, wired to next/font in app/layout.tsx */
+  --font-sans: var(--ff-body), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--ff-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-display: var(--ff-display), var(--ff-body), sans-serif;
+  --font-hand: var(--ff-hand), ui-rounded, cursive;
+
+  /* One letterspacing value for the label/eyebrow register.
+     Everything that is not a label sets its own tracking (tight/tighter)
+     or inherits normal. */
+  --tracking-label: 0.2em;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   TYPE SCALE — the only sizes this site uses
+     text-xs   12px   utility labels, eyebrows, metadata   (hard floor)
+     text-sm   14px   captions, nav, secondary UI
+     text-base 16px   body copy
+     text-lg   18px   lead paragraphs, card titles
+     text-xl   20px   sub-headings
+     text-2xl  24px   section headings
+     text-4xl  36px   page titles
+     text-6xl  60px   hero display only
+   Nothing below 12px. No arbitrary text-[Npx] values.
+   ───────────────────────────────────────────────────────────────────────── */
+
+@layer base {
+  /* Headings take the display face by default. Anything that opts into the HUD
+     register with font-mono still wins — utilities outrank the base layer. */
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-variation-settings: "wdth" 108;
+  }
+}
+
+/* Display face runs wide — the aerospace nameplate look. Pair with font-display. */
+@utility wide {
+  font-variation-settings: "wdth" 112;
+}
 
 :root {
   color-scheme: dark;
@@ -8,19 +50,19 @@
 
 html {
   scroll-behavior: smooth;
-  background-color: #05070a; /* Ensure html itself is dark */
+  background-color: #05070a;
 }
 
 body {
   background-color: #05070a;
   color: white;
   min-height: 100vh;
+  font-family: var(--font-sans);
 }
 
 /* subtle grid + noise overlay */
 .bg-system {
   position: relative;
-  /* Removed isolation: isolate to prevent stacking context wars */
 }
 
 .bg-system::before {
@@ -33,7 +75,7 @@ body {
   background-size: 96px 96px;
   opacity: 0.10;
   pointer-events: none;
-  z-index: -10; /* Pushed aggressively to the back */
+  z-index: -10;
 }
 
 .bg-system::after {
@@ -46,7 +88,7 @@ body {
     radial-gradient(900px 600px at 50% 85%, rgba(60,220,255,0.08), transparent 60%),
     linear-gradient(to bottom, rgba(0,0,0,0.0), rgba(0,0,0,0.55));
   pointer-events: none;
-  z-index: -10; /* Pushed aggressively to the back */
+  z-index: -10;
 }
 
 /* crisp divider helper */

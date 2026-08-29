@@ -82,7 +82,7 @@
   align-items: center;
   gap: 6px;
   font-family: monospace;
-  font-size: 0.55rem;
+  font-size: 0.75rem;
   color: rgba(255, 255, 255, 0.35);
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -119,7 +119,7 @@
   align-items: center;
   justify-content: center;
   font-family: monospace;
-  font-size: 0.55rem;
+  font-size: 0.75rem;
   color: rgba(255, 255, 255, 0.25);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -141,7 +141,7 @@
 }
 
 .profile-role {
-  font-size: 0.62rem;
+  font-size: 0.75rem;
   font-family: monospace;
   color: #f59e0b;
   text-transform: uppercase;
@@ -164,7 +164,7 @@
 
 .profile-label {
   font-family: monospace;
-  font-size: 0.5rem;
+  font-size: 0.75rem;
   color: rgba(255, 255, 255, 0.25);
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -172,7 +172,7 @@
 
 .profile-value {
   font-family: monospace;
-  font-size: 0.78rem;
+  font-size: 0.875rem;
   color: white;
 }
 

@@ -1,5 +1,45 @@
-import "./globals.css"; // THIS IS THE MAGIC LINE
-import { Navbar } from "@/components/Navbar"; // <-- Import your Navbar here (adjust the path if yours is different!)
+import "./globals.css";
+import type { Metadata } from "next";
+import { Archivo, Public_Sans, IBM_Plex_Mono, Caveat } from "next/font/google";
+import { Navbar } from "@/components/Navbar";
+
+/* ── Type system ───────────────────────────────────────────────────────────
+   display — Archivo, width axis pushed wide for the aerospace-nameplate feel
+   body    — Public Sans, the readable prose face the site was missing
+   mono    — IBM Plex Mono, the technical/HUD utility face
+   hand    — Caveat, the human annotation layer (was stranded on /travel)
+   ------------------------------------------------------------------------ */
+
+const display = Archivo({
+  subsets: ["latin"],
+  axes: ["wdth"],
+  variable: "--ff-display",
+  display: "swap",
+});
+
+const body = Public_Sans({
+  subsets: ["latin"],
+  variable: "--ff-body",
+  display: "swap",
+});
+
+const mono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--ff-mono",
+  display: "swap",
+});
+
+const hand = Caveat({
+  subsets: ["latin"],
+  variable: "--ff-hand",
+  display: "swap",
+});
+
+export const metadata: Metadata = {
+  title: "Jacob Tang",
+  description: "Mechanical engineering portfolio — structures, testing, propulsion.",
+};
 
 export default function RootLayout({
   children,
@@ -7,22 +47,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    // Add it right here on the <html> tag!
-    <html lang="en" suppressHydrationWarning>
-      {/* bg-black and text-white set your dark mode defaults! */}
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${display.variable} ${body.variable} ${mono.variable} ${hand.variable}`}
+    >
       <body className="bg-black text-white antialiased">
-        
-        {/* 1. Add the Navbar here so it wraps every page */}
         <Navbar />
-
-        {/* 2. Wrap children in a main tag with top padding (pt-24).
-          Because your Navbar has 'fixed top-0', it floats above the page.
-          Without this padding, the top of your page content would hide underneath the Navbar!
-        */}
-        <main>
-          {children}
-        </main>
-        
+        <main>{children}</main>
       </body>
     </html>
   );

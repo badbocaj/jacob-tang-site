@@ -93,10 +93,10 @@ const nextProject = ALL_PROJECTS[(CURRENT_IDX + 1) % ALL_PROJECTS.length];
 function ColHeader({ id, label }: { id: string; label: string }) {
   return (
     <div className="flex items-center gap-3 mb-5">
-      <span className="font-mono text-[9px] tracking-[0.3em] shrink-0" style={{ color: C3 }}>
+      <span className="font-mono text-xs tracking-label shrink-0" style={{ color: C3 }}>
         {id}
       </span>
-      <span className="font-mono text-[11px] font-bold tracking-[0.2em] shrink-0" style={{ color: C }}>
+      <span className="font-mono text-xs font-bold tracking-label shrink-0" style={{ color: C }}>
         {label}
       </span>
       <div className="flex-1 h-px" style={{ background: C2 }} />
@@ -145,7 +145,7 @@ function Schematic({ label, callout, src }: { label: string; callout: string; sr
             </div>
           </div>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="font-mono text-[10px] tracking-[0.35em] uppercase" style={{ color: C2 }}>
+            <span className="font-mono text-xs tracking-label uppercase" style={{ color: C2 }}>
               [ AWAITING_ASSET ]
             </span>
           </div>
@@ -154,7 +154,7 @@ function Schematic({ label, callout, src }: { label: string; callout: string; sr
 
       <TargetCorners />
 
-      <div className="absolute top-4 left-7 font-mono text-[8px] tracking-widest" style={{ color: C3 }}>
+      <div className="absolute top-4 left-7 font-mono text-xs tracking-label" style={{ color: C3 }}>
         {label}
       </div>
 
@@ -162,7 +162,7 @@ function Schematic({ label, callout, src }: { label: string; callout: string; sr
         className="absolute bottom-0 left-0 right-0 px-4 py-2"
         style={{ background: "rgba(0,0,0,0.8)", borderTop: `1px solid ${C2}` }}
       >
-        <span className="font-mono text-[9px] tracking-wider" style={{ color: C5 }}>
+        <span className="font-mono text-xs tracking-label" style={{ color: C5 }}>
           {callout}
         </span>
       </div>
@@ -183,13 +183,13 @@ function SpecRow({ param, value, unit }: { param: string; value: string; unit: s
       onMouseLeave={() => setHovered(false)}
     >
       <div
-        className="px-3 py-2 font-mono text-[10px] tracking-widest transition-colors"
+        className="px-3 py-2 font-mono text-xs tracking-label transition-colors"
         style={{ color: hovered ? C5 : C3, borderRight: `1px solid ${C1}`, backgroundImage: scanline }}
       >
         {param}
       </div>
       <div
-        className="px-3 py-2 font-mono text-[10px] tracking-widest flex justify-between"
+        className="px-3 py-2 font-mono text-xs tracking-label flex justify-between"
         style={{ color: C, backgroundImage: scanline }}
       >
         <span>{value}</span>
@@ -204,7 +204,7 @@ function NavArrow({ href, direction }: { href: string; direction: "prev" | "next
   return (
     <Link
       href={href}
-      className="font-mono text-sm tracking-widest select-none transition-all duration-150"
+      className="font-mono text-sm tracking-label select-none transition-all duration-150"
       style={{
         color: hovered ? C : C3,
         textShadow: hovered ? `0 0 10px ${C}, 0 0 22px rgba(0,255,255,0.45)` : "none",
@@ -233,7 +233,7 @@ export default function HpfrtPage() {
         <div className="w-[22%] px-5 shrink-0">
           <Link
             href="/projects"
-            className="text-[9px] tracking-[0.3em] transition-colors duration-150"
+            className="text-xs tracking-label transition-colors duration-150"
             style={{ color: C3 }}
             onMouseEnter={(e) => (e.currentTarget.style.color = C)}
             onMouseLeave={(e) => (e.currentTarget.style.color = C3)}
@@ -245,10 +245,10 @@ export default function HpfrtPage() {
         <div className="flex-1 flex items-center justify-center gap-5">
           <NavArrow href={prevProject.href} direction="prev" />
           <div className="flex flex-col items-center">
-            <span className="text-[8px] tracking-[0.35em] leading-none mb-0.5" style={{ color: C3 }}>
+            <span className="text-xs tracking-label leading-none mb-0.5" style={{ color: C3 }}>
               {PROJECT.archiveId}
             </span>
-            <span className="text-sm font-bold tracking-[0.3em] leading-none" style={{ color: C }}>
+            <span className="text-sm font-bold tracking-label leading-none" style={{ color: C }}>
               {PROJECT.codename}
             </span>
           </div>
@@ -258,7 +258,7 @@ export default function HpfrtPage() {
         <div className="w-[22%] px-5 flex items-center justify-end gap-4 shrink-0">
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: C }} />
-            <span className="text-[9px] tracking-widest hidden sm:block" style={{ color: C3 }}>
+            <span className="text-xs tracking-label hidden sm:block" style={{ color: C3 }}>
               {PROJECT.status}
             </span>
           </div>
@@ -270,7 +270,7 @@ export default function HpfrtPage() {
         className="fixed top-[7.5rem] left-0 right-0 z-40 px-5 py-1.5 flex items-center"
         style={{ background: "#000", borderBottom: `1px solid ${C1}` }}
       >
-        <span className="text-[9px] tracking-[0.3em]" style={{ color: C2 }}>
+        <span className="text-xs tracking-label" style={{ color: C2 }}>
           {PROJECT.subtitle}
         </span>
       </div>
@@ -288,16 +288,16 @@ export default function HpfrtPage() {
             <ColHeader id="COL_01" label="MISSION_OBJECTIVES" />
 
             <div>
-              <div className="text-[9px] tracking-[0.3em] mb-3" style={{ color: C3 }}>
+              <div className="text-xs tracking-label mb-3" style={{ color: C3 }}>
                 // BRIEF
               </div>
-              <p className="text-[12px] leading-relaxed" style={{ color: "rgba(0,255,255,0.72)" }}>
+              <p className="text-xs leading-relaxed" style={{ color: "rgba(0,255,255,0.72)" }}>
                 {PROJECT.summary}
               </p>
             </div>
 
             <div>
-              <div className="text-[9px] tracking-[0.3em] mb-3" style={{ color: C3 }}>
+              <div className="text-xs tracking-label mb-3" style={{ color: C3 }}>
                 // SPEC_TABLE
               </div>
               <div className="overflow-hidden" style={{ border: `1px solid ${C2}` }}>
@@ -316,7 +316,7 @@ export default function HpfrtPage() {
               <Schematic key={s.label} label={s.label} callout={s.callout} />
             ))}
 
-            <div className="text-[10px] leading-relaxed" style={{ color: C2 }}>
+            <div className="text-xs leading-relaxed" style={{ color: C2 }}>
               <span style={{ color: C3 }}>{"// NOTE :: "}</span>
               Replace schematic placeholders by uncommenting the{" "}
               <code style={{ color: C5 }}>src</code> field in the{" "}
@@ -329,7 +329,7 @@ export default function HpfrtPage() {
             <ColHeader id="COL_03" label="POST_MISSION_ANALYSIS" />
 
             <div>
-              <div className="text-[9px] tracking-[0.3em] mb-4" style={{ color: C3 }}>
+              <div className="text-xs tracking-label mb-4" style={{ color: C3 }}>
                 // OUTCOMES
               </div>
               <ul className="space-y-4">
@@ -338,7 +338,7 @@ export default function HpfrtPage() {
                     <span className="shrink-0 text-sm font-bold mt-px" style={{ color: C }}>
                       {r.sym}
                     </span>
-                    <span className="text-[12px] leading-relaxed" style={{ color: "rgba(0,255,255,0.72)" }}>
+                    <span className="text-xs leading-relaxed" style={{ color: "rgba(0,255,255,0.72)" }}>
                       {r.text}
                     </span>
                   </li>
@@ -349,7 +349,7 @@ export default function HpfrtPage() {
             <div className="h-px" style={{ background: C1 }} />
 
             <div>
-              <div className="text-[9px] tracking-[0.3em] mb-3" style={{ color: C3 }}>
+              <div className="text-xs tracking-label mb-3" style={{ color: C3 }}>
                 // EXTERNAL_LINKS
               </div>
               <div className="space-y-2">
@@ -361,7 +361,7 @@ export default function HpfrtPage() {
                   <a
                     key={link.label}
                     href={link.href}
-                    className="flex items-center gap-2 text-[10px] tracking-widest transition-colors duration-100"
+                    className="flex items-center gap-2 text-xs tracking-label transition-colors duration-100"
                     style={{ color: C3 }}
                     onMouseEnter={(e) => (e.currentTarget.style.color = C)}
                     onMouseLeave={(e) => (e.currentTarget.style.color = C3)}
@@ -382,7 +382,7 @@ export default function HpfrtPage() {
           className="flex items-center justify-between px-5 py-3"
           style={{ borderTop: `1px solid ${C2}`, background: "#000" }}
         >
-          <span className="text-[9px] tracking-[0.3em]" style={{ color: C3 }}>
+          <span className="text-xs tracking-label" style={{ color: C3 }}>
             JACOB_TANG :: {PROJECT.archiveId} // {PROJECT.codename}
           </span>
           <div className="flex items-center gap-6">
@@ -390,7 +390,7 @@ export default function HpfrtPage() {
               <Link
                 key={p.id}
                 href={p.href}
-                className="text-[9px] tracking-widest transition-colors duration-100"
+                className="text-xs tracking-label transition-colors duration-100"
                 style={{ color: i === CURRENT_IDX ? C : C2 }}
                 onMouseEnter={(e) => (e.currentTarget.style.color = C)}
                 onMouseLeave={(e) => (e.currentTarget.style.color = i === CURRENT_IDX ? C : C2)}
@@ -399,7 +399,7 @@ export default function HpfrtPage() {
               </Link>
             ))}
           </div>
-          <span className="text-[9px] tracking-widest" style={{ color: C2 }}>
+          <span className="text-xs tracking-label" style={{ color: C2 }}>
             ALL_SYSTEMS_NOMINAL
           </span>
         </footer>

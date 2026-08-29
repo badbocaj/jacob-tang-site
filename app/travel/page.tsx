@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Caveat } from "next/font/google";
 import { X, MapPin, Calendar } from "lucide-react";
+import WorldMap, { parseCoords, type MapPoint } from "@/components/travel/WorldMap";
 
-// ─── Handwriting font for Polaroid captions ───────────────────────────────────
-const hand = Caveat({ subsets: ["latin"], weight: ["400", "700"] });
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TEMPORAL LOOM — Canvas animation
@@ -574,10 +573,10 @@ function TravelPhoto({
         <span className="absolute bottom-2 left-2 w-3 h-3 border-b border-l border-white/20" />
         <span className="absolute bottom-2 right-2 w-3 h-3 border-b border-r border-white/20" />
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5">
-          <span className="font-mono text-[8px] tracking-[0.35em] text-white/20 uppercase">
+          <span className="font-mono text-xs tracking-label text-white/20 uppercase">
             [ undeveloped ]
           </span>
-          <span className="font-mono text-[7px] text-white/10 tracking-wider">{src}</span>
+          <span className="font-mono text-xs text-white/10 tracking-label">{src}</span>
         </div>
       </div>
     );
@@ -606,10 +605,10 @@ function PeoplePanel({ peopleKeys }: { peopleKeys: string[] }) {
   if (people.length === 0) {
     return (
       <div className="h-full flex flex-col items-center justify-center gap-1">
-        <span className="font-mono text-[7px] tracking-[0.3em] text-zinc-700 uppercase">
+        <span className="font-mono text-xs tracking-label text-zinc-700 uppercase">
           solo
         </span>
-        <span className="font-mono text-[6px] text-zinc-800">mission</span>
+        <span className="font-mono text-xs text-zinc-800">mission</span>
       </div>
     );
   }
@@ -631,7 +630,7 @@ function PeoplePanel({ peopleKeys }: { peopleKeys: string[] }) {
             />
           </div>
           {/* initials pinned below */}
-          <span className="flex-shrink-0 font-mono text-[9px] text-amber-400/60 leading-none pb-0.5">
+          <span className="flex-shrink-0 font-mono text-xs text-amber-400/60 leading-none pb-0.5">
             {getInitials(person.name)}
           </span>
         </div>
@@ -680,9 +679,9 @@ function PolaroidCard({
           placeholderGradient={log.placeholderGradient}
         />
       </div>
-      <div className={`${hand.className} pt-2 px-0.5`}>
-        <p className="text-gray-900 font-bold text-[18px] leading-tight">{log.place}</p>
-        <p className="text-gray-400 text-[14px]">
+      <div className="font-hand pt-2 px-0.5">
+        <p className="text-gray-900 font-bold text-lg leading-tight">{log.place}</p>
+        <p className="text-gray-400 text-sm">
           {log.season} {log.year}
         </p>
       </div>
@@ -694,18 +693,26 @@ function PolaroidCard({
 // TRUNK DOT
 // ─────────────────────────────────────────────────────────────────────────────
 
-function TrunkDot({ index }: { index: number }) {
+function TrunkDot({ index, isActive }: { index: number; isActive: boolean }) {
   return (
     <motion.div
-      className="w-3 h-3 rounded-full bg-amber-400 flex-shrink-0"
+      className="h-3 w-3 flex-shrink-0 rounded-full bg-amber-400"
       animate={{
-        boxShadow: [
-          "0 0 5px rgba(245,158,11,0.5), 0 0 10px rgba(245,158,11,0.15)",
-          "0 0 12px rgba(245,158,11,0.85), 0 0 24px rgba(245,158,11,0.3)",
-          "0 0 5px rgba(245,158,11,0.5), 0 0 10px rgba(245,158,11,0.15)",
-        ],
+        scale: isActive ? 1.45 : 1,
+        boxShadow: isActive
+          ? "0 0 14px rgba(245,158,11,0.95), 0 0 30px rgba(245,158,11,0.45)"
+          : [
+              "0 0 5px rgba(245,158,11,0.5), 0 0 10px rgba(245,158,11,0.15)",
+              "0 0 12px rgba(245,158,11,0.85), 0 0 24px rgba(245,158,11,0.3)",
+              "0 0 5px rgba(245,158,11,0.5), 0 0 10px rgba(245,158,11,0.15)",
+            ],
       }}
-      transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut", delay: index * 0.45 }}
+      transition={{
+        boxShadow: isActive
+          ? { duration: 0.2 }
+          : { duration: 2.8, repeat: Infinity, ease: "easeInOut", delay: index * 0.45 },
+        scale: { duration: 0.2 },
+      }}
     />
   );
 }
@@ -736,54 +743,67 @@ function Branch({ direction }: { direction: "left" | "right" }) {
 function TimelineItem({
   log,
   index,
-  isLeft,
+  isActive,
+  onHover,
   onClick,
+  registerRef,
 }: {
   log: TravelLog;
   index: number;
-  isLeft: boolean;
+  isActive: boolean;
+  onHover: (id: string | null) => void;
   onClick: () => void;
+  registerRef: (el: HTMLDivElement | null) => void;
 }) {
   return (
     <motion.div
-      className="relative py-16 md:py-20"
-      initial={{ opacity: 0, x: isLeft ? -55 : 55 }}
+      ref={registerRef}
+      className="relative scroll-mt-28 py-10"
+      initial={{ opacity: 0, x: 30 }}
       whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true, amount: 0.25 }}
-      transition={{ duration: 0.65, ease: EASING, delay: 0.05 }}
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ duration: 0.6, ease: EASING }}
+      onMouseEnter={() => onHover(log.id)}
+      onMouseLeave={() => onHover(null)}
     >
-      {/* Desktop */}
-      <div className="hidden md:flex items-center w-full">
-        <div className="flex-1 flex items-center justify-end">
-          {isLeft ? (
-            <div className="flex items-center gap-0">
-              <PolaroidCard log={log} index={index} onClick={onClick} />
-              <Branch direction="right" />
-            </div>
-          ) : null}
-        </div>
-        <div className="w-3 flex-shrink-0 flex justify-center z-10">
-          <TrunkDot index={index} />
-        </div>
-        <div className="flex-1 flex items-center justify-start">
-          {!isLeft ? (
-            <div className="flex items-center gap-0">
-              <Branch direction="left" />
-              <PolaroidCard log={log} index={index} onClick={onClick} />
-            </div>
-          ) : null}
-        </div>
+      {/* Highlight wash when the matching pin is hovered */}
+      <div
+        className="pointer-events-none absolute inset-y-3 left-8 right-0 transition-opacity duration-300"
+        style={{
+          background:
+            "linear-gradient(to right, rgba(245,158,11,0.08), transparent 65%)",
+          opacity: isActive ? 1 : 0,
+        }}
+      />
+
+      {/* Rail node */}
+      <div className="absolute left-8 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2">
+        <TrunkDot index={index} isActive={isActive} />
       </div>
 
-      {/* Mobile */}
-      <div className="flex md:hidden items-center pl-14">
-        <div className="flex items-center gap-0">
-          <Branch direction="left" />
-          <PolaroidCard log={log} index={index} onClick={onClick} />
+      <div className="relative flex items-center pl-14">
+        <Branch direction="left" />
+        <PolaroidCard log={log} index={index} onClick={onClick} />
+
+        {/* Log metadata — fills the space freed by dropping the zig-zag */}
+        <div className="ml-5 hidden min-w-0 flex-1 sm:block">
+          <p className="font-mono text-xs uppercase tracking-label text-amber-400/70">
+            {log.season} {log.year}
+          </p>
+          <p className="mt-1 truncate font-mono text-xs text-zinc-600">
+            {log.coords}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {log.tags.slice(0, 3).map((t) => (
+              <span
+                key={t}
+                className="border border-white/10 px-1.5 py-0.5 font-mono text-xs uppercase text-zinc-500"
+              >
+                {t}
+              </span>
+            ))}
+          </div>
         </div>
-      </div>
-      <div className="md:hidden absolute left-8 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-        <TrunkDot index={index} />
       </div>
     </motion.div>
   );
@@ -829,11 +849,11 @@ function TemporalModal({ log, onClose }: { log: TravelLog; onClose: () => void }
 
             {/* Mobile: horizontal strip */}
             <div className="sm:hidden flex flex-row items-center gap-4 px-4 py-3 overflow-x-auto">
-              <span className="font-mono text-[7px] tracking-[0.3em] text-amber-400/30 uppercase flex-shrink-0">
+              <span className="font-mono text-xs tracking-label text-amber-400/30 uppercase flex-shrink-0">
                 CREW
               </span>
               {log.people.length === 0 ? (
-                <span className="font-mono text-[8px] text-zinc-700">solo mission</span>
+                <span className="font-mono text-xs text-zinc-700">solo mission</span>
               ) : (
                 log.people.map((k) => {
                   const p = PEOPLE[k];
@@ -842,7 +862,7 @@ function TemporalModal({ log, onClose }: { log: TravelLog; onClose: () => void }
                     <div key={k} className="flex flex-col items-center gap-0.5 flex-shrink-0">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={p.image} alt={p.name} className="w-9 h-9 object-contain" />
-                      <span className="font-mono text-[8px] text-amber-400/60">
+                      <span className="font-mono text-xs text-amber-400/60">
                         {getInitials(p.name)}
                       </span>
                     </div>
@@ -853,7 +873,7 @@ function TemporalModal({ log, onClose }: { log: TravelLog; onClose: () => void }
 
             {/* Desktop: vertical panel — fills parent height via self-stretch */}
             <div className="hidden sm:flex flex-col h-full p-3">
-              <span className="font-mono text-[7px] tracking-[0.3em] text-amber-400/30 uppercase flex-shrink-0 mb-2">
+              <span className="font-mono text-xs tracking-label text-amber-400/30 uppercase flex-shrink-0 mb-2">
                 CREW
               </span>
               <div className="flex-1 min-h-0">
@@ -878,7 +898,7 @@ function TemporalModal({ log, onClose }: { log: TravelLog; onClose: () => void }
           <div className="flex-1 p-5 sm:p-6 flex flex-col gap-4 min-w-0 overflow-y-auto">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="font-mono text-[8px] tracking-[0.35em] text-amber-400/40 uppercase mb-1">
+                <p className="font-mono text-xs tracking-label text-amber-400/40 uppercase mb-1">
                   TEMPORAL_LOG // {log.id.toUpperCase().replace(/-/g, "_")}
                 </p>
                 <h2 className="text-2xl font-bold text-white leading-tight">{log.place}</h2>
@@ -893,11 +913,11 @@ function TemporalModal({ log, onClose }: { log: TravelLog; onClose: () => void }
               </button>
             </div>
             <div className="flex flex-wrap gap-3">
-              <span className="flex items-center gap-1.5 font-mono text-[10px] text-amber-400/55">
+              <span className="flex items-center gap-1.5 font-mono text-xs text-amber-400/55">
                 <Calendar size={10} className="shrink-0" />
                 {log.season} {log.year}
               </span>
-              <span className="flex items-center gap-1.5 font-mono text-[10px] text-amber-400/55">
+              <span className="flex items-center gap-1.5 font-mono text-xs text-amber-400/55">
                 <MapPin size={10} className="shrink-0" />
                 {log.coords}
               </span>
@@ -906,17 +926,17 @@ function TemporalModal({ log, onClose }: { log: TravelLog; onClose: () => void }
               {log.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="font-mono text-[8px] tracking-widest uppercase px-2 py-0.5 border border-amber-400/12 text-amber-400/35"
+                  className="font-mono text-xs tracking-label uppercase px-2 py-0.5 border border-amber-400/12 text-amber-400/35"
                 >
                   {tag}
                 </span>
               ))}
             </div>
             <div className="h-px bg-amber-400/8" />
-            <p className="text-zinc-400 text-[13px] leading-relaxed flex-1">{log.story}</p>
+            <p className="text-zinc-400 text-sm leading-relaxed flex-1">{log.story}</p>
             <button
               onClick={onClose}
-              className="self-start font-mono text-[9px] tracking-widest uppercase px-4 py-2 border border-amber-400/18 text-amber-400/40 hover:border-amber-400/50 hover:text-amber-400/80 transition-all duration-150"
+              className="self-start font-mono text-xs tracking-label uppercase px-4 py-2 border border-amber-400/18 text-amber-400/40 hover:border-amber-400/50 hover:text-amber-400/80 transition-all duration-150"
             >
               [ CLOSE_LOG ]
             </button>
@@ -944,10 +964,42 @@ export default function TravelPage() {
   const [loomVisible, setLoomVisible] = useState(true);
   const [loomFading, setLoomFading] = useState(false);
   const [selectedLog, setSelectedLog] = useState<TravelLog | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const itemRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const handleLoomComplete = useCallback(() => {
     setLoomFading(true);
     setTimeout(() => setLoomVisible(false), 900);
+  }, []);
+
+  // Pins derive straight from each log's existing `coords` string, so adding a
+  // travel entry adds its pin automatically — there is no second list to keep
+  // in sync. A log with unparseable coords is simply skipped.
+  const mapPoints = useMemo<MapPoint[]>(
+    () =>
+      TRAVEL_LOGS.flatMap((log) => {
+        const c = parseCoords(log.coords);
+        if (!c) return [];
+        return [
+          {
+            id: log.id,
+            label: log.place,
+            sublabel: `${log.season} ${log.year}`,
+            lon: c.lon,
+            lat: c.lat,
+          },
+        ];
+      }),
+    []
+  );
+
+  const handleSelect = useCallback((id: string) => {
+    const log = TRAVEL_LOGS.find((l) => l.id === id);
+    if (!log) return;
+    // Scroll the matching entry into view so the timeline is in the right place
+    // once the modal closes.
+    itemRefs.current[id]?.scrollIntoView({ behavior: "smooth", block: "center" });
+    setSelectedLog(log);
   }, []);
 
   return (
@@ -968,90 +1020,97 @@ export default function TravelPage() {
         </div>
       )}
 
-      {/* ── Page header ─────────────────────────────────────────────────── */}
-      <div className="pt-28 pb-6 text-center px-6">
-        <motion.p
-          className="font-mono text-[9px] tracking-[0.5em] text-amber-400/35 uppercase mb-3"
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          TEMPORAL_ARCHIVE
-        </motion.p>
-        <motion.h1
-          className="text-4xl sm:text-5xl font-bold text-white tracking-tight mb-4"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, delay: 0.1 }}
-        >
-          Travel Log
-        </motion.h1>
-        <motion.div
-          className="h-px w-14 mx-auto bg-amber-400/30"
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 0.55, delay: 0.22, ease: "easeOut" }}
-        />
-        <motion.p
-          className="font-mono text-[10px] text-zinc-700 mt-4 tracking-[0.25em]"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.45 }}
-        >
-          {TRAVEL_LOGS.length} VARIANTS_ON_RECORD
-        </motion.p>
-      </div>
+      <div className="flex flex-col lg:flex-row">
 
-      {/* ── Timeline ────────────────────────────────────────────────────── */}
-      <div className="relative max-w-4xl mx-auto px-4 pb-40">
-        <motion.div
-          className="hidden md:block absolute top-0 bottom-0 left-1/2 w-px -translate-x-px pointer-events-none"
-          style={{
-            background:
-              "linear-gradient(to bottom, transparent 0%, rgba(245,158,11,0.55) 6%, rgba(245,158,11,0.55) 94%, transparent 100%)",
-          }}
-          animate={{
-            boxShadow: [
-              "0 0 4px rgba(245,158,11,0.2)",
-              "0 0 10px rgba(245,158,11,0.5)",
-              "0 0 4px rgba(245,158,11,0.2)",
-            ],
-          }}
-          transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="block md:hidden absolute top-0 bottom-0 left-8 w-px pointer-events-none"
-          style={{
-            background:
-              "linear-gradient(to bottom, transparent 0%, rgba(245,158,11,0.55) 6%, rgba(245,158,11,0.55) 94%, transparent 100%)",
-          }}
-          animate={{
-            boxShadow: [
-              "0 0 4px rgba(245,158,11,0.2)",
-              "0 0 10px rgba(245,158,11,0.5)",
-              "0 0 4px rgba(245,158,11,0.2)",
-            ],
-          }}
-          transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-        />
-
-        {TRAVEL_LOGS.map((log, i) => (
-          <TimelineItem
-            key={log.id}
-            log={log}
-            index={i}
-            isLeft={i % 2 === 0}
-            onClick={() => setSelectedLog(log)}
+        {/* ── LEFT — world map ──────────────────────────────────────────── */}
+        <div className="relative h-[45vh] w-full border-b border-white/5 lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:w-1/2 lg:border-b-0 lg:border-r">
+          <WorldMap
+            points={mapPoints}
+            activeId={activeId}
+            onHover={setActiveId}
+            onSelect={handleSelect}
           />
-        ))}
+        </div>
 
-        <div className="hidden md:flex justify-center pt-2">
-          <div className="flex flex-col items-center gap-1">
-            <div className="w-px h-6 bg-amber-400/25" />
-            <div
-              className="w-2 h-2 rounded-full bg-amber-400/30"
-              style={{ boxShadow: "0 0 6px rgba(245,158,11,0.2)" }}
+        {/* ── RIGHT — timeline ──────────────────────────────────────────── */}
+        <div className="w-full lg:w-1/2">
+
+          {/* Header */}
+          <div className="px-6 pb-4 pt-16 lg:pt-24">
+            <motion.p
+              className="font-mono text-xs uppercase tracking-label text-amber-400/35"
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              TEMPORAL_ARCHIVE
+            </motion.p>
+            <motion.h1
+              className="mt-3 text-4xl font-bold tracking-tight text-white"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, delay: 0.1 }}
+            >
+              Travel Log
+            </motion.h1>
+            <motion.div
+              className="mt-4 h-px w-14 bg-amber-400/30"
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 0.55, delay: 0.22, ease: "easeOut" }}
+              style={{ transformOrigin: "left" }}
             />
+            <motion.p
+              className="mt-4 font-mono text-xs tracking-label text-zinc-700"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.45 }}
+            >
+              {TRAVEL_LOGS.length} VARIANTS_ON_RECORD
+            </motion.p>
+          </div>
+
+          {/* Timeline */}
+          <div className="relative px-4 pb-40">
+            <motion.div
+              className="pointer-events-none absolute bottom-0 left-8 top-0 w-px"
+              style={{
+                background:
+                  "linear-gradient(to bottom, transparent 0%, rgba(245,158,11,0.55) 6%, rgba(245,158,11,0.55) 94%, transparent 100%)",
+              }}
+              animate={{
+                boxShadow: [
+                  "0 0 4px rgba(245,158,11,0.2)",
+                  "0 0 10px rgba(245,158,11,0.5)",
+                  "0 0 4px rgba(245,158,11,0.2)",
+                ],
+              }}
+              transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+            />
+
+            {TRAVEL_LOGS.map((log, i) => (
+              <TimelineItem
+                key={log.id}
+                log={log}
+                index={i}
+                isActive={activeId === log.id}
+                onHover={setActiveId}
+                onClick={() => setSelectedLog(log)}
+                registerRef={(el) => {
+                  itemRefs.current[log.id] = el;
+                }}
+              />
+            ))}
+
+            <div className="flex pl-8">
+              <div className="flex -translate-x-1/2 flex-col items-center gap-1">
+                <div className="h-6 w-px bg-amber-400/25" />
+                <div
+                  className="h-2 w-2 rounded-full bg-amber-400/30"
+                  style={{ boxShadow: "0 0 6px rgba(245,158,11,0.2)" }}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>

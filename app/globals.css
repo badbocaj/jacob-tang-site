@@ -101,3 +101,162 @@ body {
   0%, 49% { opacity: 1; }
   50%, 100% { opacity: 0; }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   COCKPIT / HUD  (app/cockpit + components/Cockpit)
+   Ambient, always-running motion lives here as CSS keyframes so it never
+   costs a React render. Discrete, state-driven motion stays in Framer.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* Rain running down the canopy glass. --rain-drift skews the fall per streak. */
+@keyframes cockpit-rain {
+  from { transform: translate3d(0, -30vh, 0); opacity: 0; }
+  8%   { opacity: 1; }
+  92%  { opacity: 1; }
+  to   { transform: translate3d(var(--rain-drift, -20px), 118vh, 0); opacity: 0; }
+}
+.cockpit-rain {
+  animation-name: cockpit-rain;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
+/* Distant flying traffic crossing the sky band. */
+@keyframes cockpit-traffic {
+  from { transform: translate3d(-25vw, 0, 0); }
+  to   { transform: translate3d(125vw, 0, 0); }
+}
+.cockpit-traffic {
+  animation-name: cockpit-traffic;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
+/* Rooftop beacons and a handful of windows that refuse to hold still. */
+@keyframes cockpit-beacon {
+  0%, 44%  { opacity: 0.15; }
+  50%, 58% { opacity: 1; }
+  64%,100% { opacity: 0.15; }
+}
+.cockpit-beacon {
+  animation: cockpit-beacon 3.4s ease-in-out infinite;
+}
+
+/* Radar sweep hand. */
+@keyframes cockpit-sweep {
+  to { transform: rotate(360deg); }
+}
+.cockpit-sweep {
+  animation: cockpit-sweep 3.2s linear infinite;
+  transform-origin: 50% 50%;
+}
+
+/* Contacts fading up as the sweep passes over them. */
+@keyframes cockpit-blip {
+  0%       { opacity: 1; transform: scale(1.5); }
+  22%      { opacity: 0.55; transform: scale(1); }
+  70%,100% { opacity: 0; transform: scale(1); }
+}
+.cockpit-blip {
+  animation: cockpit-blip 3.2s linear infinite;
+}
+
+/* CRT scanlines drifting down the visor. */
+@keyframes cockpit-scan {
+  to { transform: translate3d(0, 6px, 0); }
+}
+.cockpit-scanlines {
+  background-image: repeating-linear-gradient(
+    180deg,
+    rgba(125, 211, 252, 0.055) 0px,
+    rgba(125, 211, 252, 0.055) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  animation: cockpit-scan 0.9s linear infinite;
+}
+
+/* The single bright bar that rakes down the visor right after it locks. */
+@keyframes cockpit-bootsweep {
+  from { transform: translate3d(0, -14vh, 0); opacity: 0; }
+  12%  { opacity: 1; }
+  to   { transform: translate3d(0, 108vh, 0); opacity: 0; }
+}
+.cockpit-bootsweep {
+  animation: cockpit-bootsweep 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.28s 1 both;
+}
+
+/* Holograms are never perfectly stable. */
+@keyframes cockpit-holo {
+  0%, 100% { opacity: 1; }
+  47%      { opacity: 0.94; }
+  48%      { opacity: 0.99; }
+  71%      { opacity: 0.9; }
+  72%      { opacity: 1; }
+}
+.cockpit-holo {
+  animation: cockpit-holo 6s steps(1, end) infinite;
+}
+
+/* [ CLICK TO INITIALIZE HUD ] */
+@keyframes cockpit-prompt {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.28; }
+}
+.cockpit-prompt {
+  animation: cockpit-prompt 1.6s ease-in-out infinite;
+}
+
+/* OVERRIDE lock icon + emergency strobe on the glass. */
+@keyframes cockpit-lockblink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.25; }
+}
+.cockpit-lockblink {
+  animation: cockpit-lockblink 1.05s steps(2, end) infinite;
+}
+
+@keyframes cockpit-strobe {
+  0%, 100% { opacity: 0.08; }
+  50%      { opacity: 0.42; }
+}
+.cockpit-strobe {
+  animation: cockpit-strobe 0.72s ease-in-out infinite;
+}
+
+/* Targeting cursor. */
+@keyframes cockpit-reticle-spin {
+  to { transform: rotate(360deg); }
+}
+.cockpit-reticle-spin {
+  animation: cockpit-reticle-spin 5s linear infinite;
+}
+
+/* Cursor suppression is scoped to the cockpit root so it cannot leak out. */
+.cockpit-root--reticle,
+.cockpit-root--reticle * {
+  cursor: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cockpit-rain,
+  .cockpit-traffic,
+  .cockpit-beacon,
+  .cockpit-sweep,
+  .cockpit-blip,
+  .cockpit-scanlines,
+  .cockpit-bootsweep,
+  .cockpit-holo,
+  .cockpit-prompt,
+  .cockpit-lockblink,
+  .cockpit-strobe,
+  .cockpit-reticle-spin {
+    animation: none !important;
+  }
+  .cockpit-root--reticle,
+  .cockpit-root--reticle * {
+    cursor: auto;
+  }
+}

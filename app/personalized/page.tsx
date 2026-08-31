@@ -295,11 +295,10 @@ export default function PersonalizedPage() {
 
   return (
     <div
-      className={`min-h-screen bg-[#050505] px-4 sm:px-6 ${
-        authFriend
+      className={`min-h-screen bg-[#050505] px-4 sm:px-6 ${authFriend
           ? "flex items-start justify-center pb-16 pt-28"
           : "flex items-center justify-center py-28"
-      }`}
+        }`}
     >
       {/* Blueprint grid background, matching the rest of the site */}
       <div

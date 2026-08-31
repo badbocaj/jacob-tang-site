@@ -133,11 +133,11 @@ export default function HomePage() {
         {/* This is now the only way off the landing page, so it reads as a
             control rather than a caption. Styled to match the Contacts pill. */}
         <Link
-          href="/about"
+          href="/cockpit"
           className="group mt-20 inline-flex items-center gap-3 rounded-full border border-white/20 bg-black/50 px-6 py-3 no-underline backdrop-blur-md transition-all hover:border-white hover:bg-white"
         >
           <span className="font-mono text-xs uppercase tracking-label text-zinc-300 transition-colors group-hover:text-black sm:text-sm">
-            Please click my about page
+            Board the cockpit
           </span>
           <svg
             className="h-4 w-4 shrink-0 text-zinc-400 transition-all group-hover:translate-x-1 group-hover:text-black"

@@ -6,13 +6,14 @@ import { usePathname } from "next/navigation"
 export const Navbar = () => {
   const pathname = usePathname()
 
-  // 1. THE KILL SWITCH: Hide navbar on Home AND the interactive About page
-  // This prevents the black bar from covering your bedroom image
-  if (pathname === "/" || pathname === "/about") {
+  // 1. THE KILL SWITCH: hide the navbar on Home and on the cockpit, which
+  // carries its own HUD channel bar and must not be covered by a black slab.
+  if (pathname === "/" || pathname === "/cockpit") {
     return null
   }
 
   const navItems = [
+    { label: "Cockpit", href: "/cockpit" },
     { label: "About", href: "/about" },
 
     { label: "Professional", href: "/professional" },

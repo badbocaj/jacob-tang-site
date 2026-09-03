@@ -2,6 +2,9 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { Lock } from "lucide-react"
+
+import { isLocked } from "@/lib/construction"
 
 export const Navbar = () => {
   const pathname = usePathname()
@@ -20,7 +23,8 @@ export const Navbar = () => {
     { label: "Projects", href: "/projects" },
     { label: "Travel", href: "/travel" },
     { label: "Movies", href: "/movies" },
-    { label: "Funny", href: "/funny" },
+    // The route lives at app/fun; this pointed at /funny, which 404s.
+    { label: "Funny", href: "/fun" },
     { label: "Personalized", href: "/personalized" },
   ]
 
@@ -35,15 +39,25 @@ export const Navbar = () => {
       <div className="hidden md:flex gap-8 items-center text-xs font-mono uppercase tracking-label">
         {navItems.map((item) => {
           const isActive = pathname === item.href
+          // Sealed sections stay clickable — the lock explains itself far
+          // better than a dead link would. See lib/construction.ts.
+          const sealed = isLocked(item.href)
+
           return (
-            <Link 
-              key={item.label} 
+            <Link
+              key={item.label}
               href={item.href}
-              className={`transition-colors duration-300 ${
-                isActive ? "text-white" : "text-zinc-500 hover:text-white"
+              title={sealed ? `${item.label} — under construction` : undefined}
+              className={`flex items-center gap-1.5 transition-colors duration-300 ${
+                isActive
+                  ? "text-white"
+                  : sealed
+                    ? "text-zinc-600 hover:text-amber-300"
+                    : "text-zinc-500 hover:text-white"
               }`}
             >
               {item.label}
+              {sealed && <Lock className="h-3 w-3 shrink-0 opacity-70" strokeWidth={2.5} />}
             </Link>
           )
         })}

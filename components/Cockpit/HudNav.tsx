@@ -125,13 +125,19 @@ export function HudNav({ onSelect, engagingId }: HudNavProps) {
               {isHot && (
                 <motion.span
                   className="absolute left-1/2 top-full z-10 mt-1.5 block -translate-x-1/2 whitespace-nowrap font-mono text-xs uppercase tracking-label"
-                  style={{ color: locked ? "rgba(252,165,165,0.9)" : "rgba(103,232,249,0.75)" }}
+                  style={{
+                    color: tab.construction
+                      ? "rgba(251,191,36,0.9)"
+                      : locked
+                        ? "rgba(252,165,165,0.9)"
+                        : "rgba(103,232,249,0.75)",
+                  }}
                   initial={{ opacity: 0, y: -6, filter: "blur(4px)" }}
                   animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                   exit={{ opacity: 0, y: -6, filter: "blur(4px)" }}
                   transition={{ duration: 0.16 }}
                 >
-                  {tab.sub}
+                  {tab.construction ? "UNDER CONSTRUCTION" : tab.sub}
                 </motion.span>
               )}
             </AnimatePresence>

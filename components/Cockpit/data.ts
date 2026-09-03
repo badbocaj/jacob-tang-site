@@ -6,6 +6,8 @@
    Math.random() — the city would re-roll on hydration and React would flag it.
    ─────────────────────────────────────────────────────────────────────────── */
 
+import { isLocked } from "@/lib/construction";
+
 // ─── Seeded PRNG ────────────────────────────────────────────────────────────
 
 function mulberry32(seed: number): () => number {
@@ -42,9 +44,15 @@ export interface NavTab {
    * the destination enforces its own clearance.
    */
   locked?: boolean;
+  /**
+   * Derived, not authored: the section sits behind the temporary construction
+   * lock. Unlike `locked`, this one really does gate — the middleware rewrites
+   * the route. Edit lib/construction.ts to change it.
+   */
+  construction?: boolean;
 }
 
-export const NAV_TABS: NavTab[] = [
+const CHANNELS: NavTab[] = [
   { id: "about",        label: "ABOUT",        sub: "OPERATOR DOSSIER",  href: "/about" },
   { id: "professional", label: "PROFESSIONAL", sub: "MISSION LOG",       href: "/professional" },
   { id: "projects",     label: "PROJECTS",     sub: "HARDWARE INDEX",    href: "/projects" },
@@ -52,6 +60,11 @@ export const NAV_TABS: NavTab[] = [
   { id: "movies",       label: "MOVIES",       sub: "MEDIA CACHE",       href: "/movies" },
   { id: "override",     label: "OVERRIDE",     sub: "LEVEL-5 CLEARANCE", href: "/personalized", locked: true },
 ];
+
+export const NAV_TABS: NavTab[] = CHANNELS.map((tab) => ({
+  ...tab,
+  construction: isLocked(tab.href),
+}));
 
 // ─── Boot diagnostics ───────────────────────────────────────────────────────
 
@@ -291,3 +304,89 @@ export const BLIPS: Blip[] = (() => {
     delay: round(rnd() * 3.2, 2),
   }));
 })();
+
+// ─── Sky targets ────────────────────────────────────────────────────────────
+// The asteroid field you see when you pitch the nose up. One rock per channel,
+// hand-placed so nothing overlaps at rest, with the silhouette, cratering and
+// drift rolled off the same seeded PRNG as everything else in this file.
+
+export interface Crater {
+  x: number;
+  y: number;
+  r: number;
+}
+
+export interface Asteroid {
+  id: TabId;
+  /** Resting position inside the sky panel, as a fraction of the viewport. */
+  x: number;
+  y: number;
+  /** Rock radius in px. */
+  r: number;
+  /** Silhouette in unit space, ready for <polygon points>. */
+  points: string;
+  craters: Crater[];
+  /** Seconds per revolution. */
+  spin: number;
+  dir: 1 | -1;
+  /** Vertical drift — amplitude in px, period in seconds. */
+  bobAmp: number;
+  bobDur: number;
+  phase: number;
+  /** Flavour readout on the target label. */
+  range: string;
+}
+
+interface RockSlot {
+  x: number;
+  y: number;
+  r: number;
+  range: string;
+}
+
+const ROCK_SLOTS: Record<TabId, RockSlot> = {
+  about:        { x: 0.17, y: 0.30, r: 54, range: "3.1 KM" },
+  professional: { x: 0.38, y: 0.56, r: 46, range: "4.7 KM" },
+  projects:     { x: 0.62, y: 0.24, r: 60, range: "2.8 KM" },
+  travel:       { x: 0.83, y: 0.47, r: 50, range: "3.9 KM" },
+  movies:       { x: 0.28, y: 0.78, r: 43, range: "5.2 KM" },
+  override:     { x: 0.72, y: 0.79, r: 66, range: "1.4 KM" },
+};
+
+export const ASTEROIDS: Asteroid[] = NAV_TABS.map((tab, i) => {
+  const rnd = mulberry32(911 + i * 37);
+  const slot = ROCK_SLOTS[tab.id];
+
+  // Silhouette: an 11-gon with each vertex pulled inward by a random bite.
+  const verts = 11;
+  const points = Array.from({ length: verts }, (_, k) => {
+    const a = (k / verts) * Math.PI * 2;
+    const rad = 1 - 0.28 * rnd();
+    return `${round(Math.cos(a) * rad, 3)},${round(Math.sin(a) * rad, 3)}`;
+  }).join(" ");
+
+  const craters: Crater[] = Array.from({ length: 3 + Math.floor(rnd() * 3) }, () => {
+    const a = rnd() * Math.PI * 2;
+    const d = rnd() * 0.52;
+    return {
+      x: round(Math.cos(a) * d, 3),
+      y: round(Math.sin(a) * d, 3),
+      r: round(0.08 + rnd() * 0.16, 3),
+    };
+  });
+
+  return {
+    id: tab.id,
+    x: slot.x,
+    y: slot.y,
+    r: slot.r,
+    points,
+    craters,
+    spin: round(34 + rnd() * 46, 1),
+    dir: (i % 2 === 0 ? 1 : -1) as 1 | -1,
+    bobAmp: round(5 + rnd() * 9, 1),
+    bobDur: round(6 + rnd() * 7, 1),
+    phase: round(rnd(), 3),
+    range: slot.range,
+  };
+});

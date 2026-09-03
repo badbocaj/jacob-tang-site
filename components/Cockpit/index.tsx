@@ -5,16 +5,18 @@ import { useRouter } from "next/navigation";
 import {
   AnimatePresence,
   motion,
+  useAnimationFrame,
   useMotionValue,
   useSpring,
   useTransform,
 } from "framer-motion";
-import { User } from "lucide-react";
+import { ChevronDown, User } from "lucide-react";
 
 import { CityBackdrop } from "./CityBackdrop";
 import { CanopyFrame } from "./CanopyFrame";
 import { VisorOverlay } from "./VisorOverlay";
 import { HudNav } from "./HudNav";
+import { SkyView } from "./SkyView";
 import { StatusCluster } from "./StatusCluster";
 import { RadarLoop } from "./RadarLoop";
 import { ProfilePanel } from "./ProfilePanel";
@@ -36,6 +38,12 @@ import {
      booting  visor sweeps down and locks, systems flash into existence
      online   full HUD
 
+   Navigation has two routes. The primary one is the sky: hold the arrow keys
+   to pitch the nose up, and the city drops away to an asteroid field where
+   every rock is a channel — put the reticle on one and click to shoot it. The
+   fallback is QUICK NAV, an off-by-default switch on the glass that drops the
+   old channel bar back down for anyone who just wants a link.
+
    The subject profile is not on screen by default. It lives behind the
    PILOT INFO switch on the dash, so the default view is the city and the
    instruments rather than a wall of text.
@@ -54,6 +62,17 @@ const BOOT_MS = 1500;
 const CHANNEL_MS = 540;
 const SNAP = { type: "spring", stiffness: 400, damping: 20 } as const;
 
+/** Look rates, in units of full travel per second. */
+const PITCH_RATE = 0.9;
+const YAW_RATE = 0.8;
+/** Hysteresis on fire control, so a rock cannot flicker in and out of arming. */
+const SKY_ARM = 0.3;
+const SKY_DISARM = 0.12;
+
+const LOOK_KEYS = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"]);
+
+const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
+
 export default function Cockpit() {
   const router = useRouter();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -62,6 +81,9 @@ export default function Cockpit() {
   const [engaging, setEngaging] = useState<NavTab | null>(null);
   const [logLines, setLogLines] = useState(0);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [quickNav, setQuickNav] = useState(false);
+  const [skyArmed, setSkyArmed] = useState(false);
+  const [hasLooked, setHasLooked] = useState(false);
 
   const preciseCursor = usePreciseCursor();
   const booted = phase !== "dormant";
@@ -80,6 +102,73 @@ export default function Cockpit() {
   const hudY = useTransform(sy, (v) => v * -7);
   const worldRotY = useTransform(sx, (v) => v * 5);
   const worldRotX = useTransform(sy, (v) => v * -3.5);
+
+  // ── Look axis ────────────────────────────────────────────────────────────
+  // Arrow keys drive a persistent camera attitude: pitch stays where you left
+  // it so you can let go of the keyboard and reach for the trigger. Both live
+  // as motion values, so slewing never re-renders the tree — only crossing the
+  // arming threshold does.
+  const pitch = useMotionValue(0);
+  const yaw = useMotionValue(0);
+  /** The city falls away below as the nose comes up. */
+  const cityDrop = useTransform(pitch, [0, 1], ["0vh", "100vh"]);
+  /** The canopy pitches with you, but only a little — it is bolted to you. */
+  const canopyDrop = useTransform(pitch, [0, 1], [0, 34]);
+
+  const heldRef = useRef<Set<string>>(new Set());
+  const armedRef = useRef(false);
+
+  useEffect(() => {
+    if (!booted) return;
+
+    const held = heldRef.current;
+    const onDown = (e: KeyboardEvent) => {
+      if (!LOOK_KEYS.has(e.key)) return;
+      // Otherwise the page fights the camera for the arrow keys.
+      e.preventDefault();
+      held.add(e.key);
+      setHasLooked(true);
+    };
+    const onUp = (e: KeyboardEvent) => held.delete(e.key);
+    const onBlur = () => held.clear();
+
+    window.addEventListener("keydown", onDown);
+    window.addEventListener("keyup", onUp);
+    window.addEventListener("blur", onBlur);
+    return () => {
+      window.removeEventListener("keydown", onDown);
+      window.removeEventListener("keyup", onUp);
+      window.removeEventListener("blur", onBlur);
+      held.clear();
+    };
+  }, [booted]);
+
+  useAnimationFrame((_, delta) => {
+    const held = heldRef.current;
+    if (!booted) return;
+
+    const dt = Math.min(delta, 50) / 1000;
+    const up = held.has("ArrowUp") ? 1 : 0;
+    const down = held.has("ArrowDown") ? 1 : 0;
+    const left = held.has("ArrowLeft") ? 1 : 0;
+    const right = held.has("ArrowRight") ? 1 : 0;
+
+    if (up || down) {
+      pitch.set(clamp(pitch.get() + (up - down) * PITCH_RATE * dt, 0, 1));
+    }
+    if (left || right) {
+      yaw.set(clamp(yaw.get() + (right - left) * YAW_RATE * dt, -1, 1));
+    }
+
+    // Only cross the React boundary on an actual state change — this runs 60
+    // times a second and the rest of it never re-renders anything.
+    const p = pitch.get();
+    const next = armedRef.current ? p > SKY_DISARM : p > SKY_ARM;
+    if (next !== armedRef.current) {
+      armedRef.current = next;
+      setSkyArmed(next);
+    }
+  });
 
   const handlePointerMove = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
@@ -170,18 +259,50 @@ export default function Cockpit() {
         className="absolute inset-0"
         style={{ rotateX: worldRotX, rotateY: worldRotY, transformStyle: "preserve-3d" }}
       >
-        <motion.div className="absolute inset-[-5%]" style={{ x: cityX, y: cityY }}>
-          <CityBackdrop powered={booted} />
+        <motion.div className="absolute inset-0" style={{ y: cityDrop }}>
+          <motion.div className="absolute inset-[-5%]" style={{ x: cityX, y: cityY }}>
+            <CityBackdrop powered={booted} />
+          </motion.div>
         </motion.div>
+      </motion.div>
 
-        <motion.div className="absolute inset-0" style={{ x: frameX, y: frameY }}>
+      {/* ══ SKY ═════════════════════════════════════════════════════════════
+          Kept out of the rotated world plane on purpose: the trigger works in
+          screen space, and a 5° tilt between the reticle and the rocks would
+          be felt long before it was seen. */}
+      {booted && (
+        <SkyView
+          pitch={pitch}
+          yaw={yaw}
+          active={skyArmed && !engaging}
+          busy={Boolean(engaging)}
+          onEngage={handleSelect}
+        />
+      )}
+
+      {/* ══ CANOPY ══════════════════════════════════════════════════════════
+          In front of the sky — you are still looking through your own glass. */}
+      <motion.div
+        className="pointer-events-none absolute inset-0"
+        style={{ y: canopyDrop }}
+      >
+        <motion.div
+          className="pointer-events-none absolute inset-0"
+          style={{ x: frameX, y: frameY }}
+        >
           <CanopyFrame powered={booted} />
         </motion.div>
       </motion.div>
 
       {/* ══ VISOR + HUD PLANE ═══════════════════════════════════════════════ */}
       {booted && (
-        <motion.div className="absolute inset-0" style={{ x: hudX, y: hudY }}>
+        // pointer-events-none is load-bearing: this plane covers the whole
+        // viewport, so without it every click lands here instead of on the
+        // asteroid underneath. Interactive chrome inside opts back in.
+        <motion.div
+          className="pointer-events-none absolute inset-0"
+          style={{ x: hudX, y: hudY }}
+        >
           <VisorOverlay booting={phase === "booting"} />
 
           {/* HUD chrome sits above the visor plate */}
@@ -226,13 +347,37 @@ export default function Cockpit() {
                 <div className="mt-1 text-cyan-300/40">HUD REV 2.6 · VISOR LOCKED</div>
               </motion.div>
 
+              {/* ── Quick nav ──────────────────────────────────────────────
+                  Off by default: the intended way through this page is the
+                  sky. This is the fire exit, and it drops the old channel bar
+                  down under the switch when you flip it. */}
               <motion.div
-                className="pointer-events-auto order-last w-full sm:order-none sm:w-auto"
+                className="pointer-events-auto order-last flex w-full flex-col items-center sm:order-none sm:w-auto"
                 initial={{ opacity: 0, y: -18 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ ...SNAP, delay: 0.55 }}
               >
-                <HudNav onSelect={handleSelect} engagingId={engagingId} />
+                <QuickNavCheckbox
+                  checked={quickNav}
+                  onChange={() => setQuickNav((v) => !v)}
+                />
+
+                <AnimatePresence initial={false}>
+                  {quickNav && (
+                    <motion.div
+                      key="quicknav"
+                      className="overflow-visible"
+                      initial={{ opacity: 0, height: 0, y: -10 }}
+                      animate={{ opacity: 1, height: "auto", y: 0 }}
+                      exit={{ opacity: 0, height: 0, y: -10 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    >
+                      <div className="pt-2">
+                        <HudNav onSelect={handleSelect} engagingId={engagingId} />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </motion.div>
 
               <motion.div
@@ -316,6 +461,8 @@ export default function Cockpit() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ ...SNAP, delay: 0.74 }}
             >
+              <LookPrompt armed={skyArmed} nudged={hasLooked} />
+
               <div className="relative hidden items-end gap-[9px] sm:flex">
                 {Array.from({ length: 21 }, (_, i) => (
                   <span
@@ -346,8 +493,12 @@ export default function Cockpit() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ ...SNAP, delay: 0.78 }}
             >
-              <div className="text-amber-300/90">MODE :: STANDBY ORBIT</div>
-              <div className="text-cyan-300/45">SELECT A CHANNEL ABOVE</div>
+              <div className="text-amber-300/90">
+                {skyArmed ? "MODE :: SKY SWEEP" : "MODE :: STANDBY ORBIT"}
+              </div>
+              <div className="text-cyan-300/45">
+                {skyArmed ? "MOUSE = TRIGGER · ↓ = BACK TO DECK" : "↑ ↓ ← → = LOOK · MOUSE = TRIGGER"}
+              </div>
               <div className="text-cyan-300/25">PARALLAX ACTIVE · TRACKING OPERATOR</div>
             </motion.div>
           </div>
@@ -409,6 +560,149 @@ export default function Cockpit() {
 
       <Reticle enabled={booted && preciseCursor} />
     </div>
+  );
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   QUICK NAV — a real checkbox, dressed as an armament switch.
+
+   The input itself is kept in the DOM (screen-reader- and keyboard-operable,
+   space toggles it); the lit box next to it is what you actually see. Checked,
+   the channel bar drops out from under it.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+function QuickNavCheckbox({
+  checked,
+  onChange,
+}: {
+  checked: boolean;
+  onChange: () => void;
+}) {
+  const line = checked ? "rgba(251,191,36,0.9)" : "rgba(34,211,238,0.45)";
+
+  return (
+    <motion.label
+      data-hud-target
+      whileHover={{ scale: 1.04 }}
+      whileTap={{ scale: 0.97 }}
+      transition={SNAP}
+      className="group relative flex cursor-pointer items-center gap-2.5 px-3.5 py-2"
+      style={{
+        border: `1px solid ${line}`,
+        background: checked
+          ? "linear-gradient(180deg, rgba(62,40,4,0.85), rgba(22,13,2,0.9))"
+          : "linear-gradient(180deg, rgba(6,22,34,0.82), rgba(2,8,15,0.9))",
+        boxShadow: checked
+          ? "0 0 26px rgba(251,191,36,0.35), inset 0 1px 0 rgba(253,230,138,0.3)"
+          : "inset 0 1px 0 rgba(165,243,252,0.14)",
+      }}
+    >
+      <Brackets size={checked ? 12 : 8} color={line} offset={checked ? 4 : 0} />
+
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={onChange}
+        className="peer sr-only"
+      />
+
+      {/* The lamp that stands in for the box */}
+      <span
+        className="relative block h-3.5 w-3.5 shrink-0 transition-colors duration-200 peer-focus-visible:ring-1 peer-focus-visible:ring-cyan-200"
+        style={{
+          border: `1px solid ${line}`,
+          background: checked ? "rgba(251,191,36,0.22)" : "rgba(2,10,18,0.8)",
+          boxShadow: checked ? "0 0 12px rgba(251,191,36,0.6) inset" : "none",
+        }}
+      >
+        <AnimatePresence initial={false}>
+          {checked && (
+            <motion.span
+              className="absolute inset-[2px] block bg-amber-300"
+              style={{ boxShadow: "0 0 10px rgba(251,191,36,0.9)" }}
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0, opacity: 0 }}
+              transition={SNAP}
+            />
+          )}
+        </AnimatePresence>
+      </span>
+
+      <span
+        className="font-mono text-xs uppercase tracking-label transition-colors duration-200"
+        style={{
+          color: checked ? "#fef3c7" : "rgba(165,243,252,0.8)",
+          textShadow: checked ? "0 0 12px rgba(251,191,36,0.7)" : "none",
+        }}
+      >
+        QUICK NAV
+      </span>
+
+      <motion.span
+        animate={{ rotate: checked ? 0 : -90 }}
+        transition={SNAP}
+        className="block"
+      >
+        <ChevronDown
+          className="h-3.5 w-3.5"
+          strokeWidth={2.5}
+          style={{ color: checked ? "#fde68a" : "rgba(103,232,249,0.6)" }}
+        />
+      </motion.span>
+    </motion.label>
+  );
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   The nudge toward the sky.
+
+   Before the operator has touched the arrow keys this blinks and spells the
+   whole thing out. After that it stops shouting and becomes a state readout,
+   because a hint you have already taken is just noise on the glass.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+function LookPrompt({ armed, nudged }: { armed: boolean; nudged: boolean }) {
+  return (
+    <AnimatePresence initial={false}>
+      {/* Once the sky is up, fire control owns this strip of glass — two
+          instruction lines stacked on each other would just be clutter. */}
+      {!armed && (
+        <motion.div
+          key="look"
+          className="flex items-center gap-2.5 overflow-hidden font-mono text-xs uppercase tracking-label"
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <span className="flex items-end gap-[3px]">
+            {["↑", "↓", "←", "→"].map((k) => (
+              <span
+                key={k}
+                className={`flex h-5 w-5 items-center justify-center border text-[10px] leading-none ${
+                  !nudged && k === "↑" ? "cockpit-prompt" : ""
+                }`}
+                style={{
+                  borderColor: k === "↑" ? "rgba(251,191,36,0.7)" : "rgba(34,211,238,0.35)",
+                  color: k === "↑" ? "#fde68a" : "rgba(165,243,252,0.6)",
+                  background: "rgba(2,10,18,0.75)",
+                }}
+              >
+                {k}
+              </span>
+            ))}
+          </span>
+
+          <span
+            className="text-cyan-100/80"
+            style={{ textShadow: "0 0 10px rgba(34,211,238,0.45)" }}
+          >
+            HOLD ↑ TO LOOK UP AT THE SKY
+          </span>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 

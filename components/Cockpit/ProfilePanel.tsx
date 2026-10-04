@@ -102,12 +102,12 @@ export function ProfilePanel({ onOpenDossier, onClose }: ProfilePanelProps) {
       <div
         className="cockpit-holo relative max-h-full overflow-y-auto"
         style={{
-          border: "1px solid rgba(34,211,238,0.32)",
+          border: "1px solid rgba(34,211,238,0.45)",
           background:
-            "linear-gradient(180deg, rgba(4,18,32,0.72), rgba(2,9,18,0.58))",
-          backdropFilter: "blur(4px)",
+            "linear-gradient(180deg, rgba(4,18,32,0.96), rgba(2,9,18,0.94))",
+          backdropFilter: "blur(8px)",
           boxShadow:
-            "0 0 60px rgba(34,211,238,0.16), inset 0 0 60px rgba(3,14,26,0.7)",
+            "0 0 0 1px rgba(0,0,0,0.6), 0 24px 80px rgba(0,0,0,0.75), 0 0 60px rgba(34,211,238,0.22), inset 0 0 60px rgba(3,14,26,0.7)",
         }}
       >
         {/* Header strip */}

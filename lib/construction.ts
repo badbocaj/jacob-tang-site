@@ -22,7 +22,6 @@
  * of the site still point at /funny — sealing both means neither leaks.
  */
 export const LOCKED_SECTIONS = [
-  "/about",
   "/projects",
   "/movies",
   "/fun",
@@ -52,6 +51,7 @@ export function sectionLabel(pathname: string): string {
 /** The channels that are still open, for the "go here instead" offer. */
 export const OPEN_SECTIONS: { label: string; href: string; sub: string }[] = [
   { label: "COCKPIT", href: "/cockpit", sub: "FLIGHT DECK" },
+  { label: "ABOUT", href: "/about", sub: "OPERATOR DOSSIER" },
   { label: "PROFESSIONAL", href: "/professional", sub: "MISSION LOG" },
   { label: "TRAVEL", href: "/travel", sub: "NAV ARCHIVE" },
 ];

@@ -406,7 +406,7 @@ const TRAVEL_LOGS: TravelLog[] = [
     season: "Summer",
     year: 2026,
     coverImage: "/travel/Cover/nyc-summer-2026-cover.jpeg",
-    popupImage: "/travel/pop-up/nyc-summer-2026-popup.png",
+    popupImage: "/travel/pop-up/nyc-summer-2026-popup.PNG",
     coords: "40.7128° N, 74.0060° W",
     story:
       "My manager, tall David, suggested I take a break to go align with the other interns for the summer, so I decided to visit the Big Apple again. Jin and I were truly being bums. We didn't leave the house before 11am, watched Modern Family every single night, and ate whatever we wanted whenever we wanted. Turns out sleeping on a floor isn't as bad as everyone makes it sound, and I learned I am genuinely terrible at puzzles. Roosevelt Island and watching both Top Gun movies back to back were, somehow, the highlights of the trip. My expectations were rock bottom going in, and I still ended up thoroughly enjoying doing absolutely nothing.",
@@ -436,7 +436,7 @@ const TRAVEL_LOGS: TravelLog[] = [
     season: "Spring",
     year: 2026,
     coverImage: "/travel/Cover/sequoia-cover.jpg",
-    popupImage: "/travel/pop-up/sequoia-popup.jpg",
+    popupImage: "/travel/pop-up/sequoia-popup.JPG",
     coords: "36.5626° N, 118.7796° W",
     story:
       "A week before, Justin told me he wanted to go to Sequoia. I said yes. The night before, I called him and asked if he had booked the motel. He said no. I drove 9 hours to hike 10 hours. The driving in the park was nerve wracking, as the descent forced the car to go 45+ mph, only for a hairpin turn to force me to brake to 10mph, sending all our water bottles flying. But the trees were worth it.",
@@ -451,7 +451,7 @@ const TRAVEL_LOGS: TravelLog[] = [
     season: "Winter",
     year: 2025,
     coverImage: "/travel/Cover/japan-cover.jpg",
-    popupImage: "/travel/pop-up/japan-popup.jpg",
+    popupImage: "/travel/pop-up/Japan-popup.jpg",
     coords: "35.6762° N, 139.6503° E",
     story:
       "This was the first time I really traveled with friends. Everything was closed for New Year's and I was PO'd. But, the country was lovely. I went from Tokyo to Hokkaido to Kyoto. Kyoto was by far my favorite city. It seemed to maintain the culture perfectly. The cozy houses integrated with the city, with random historical monuments at every corner. Too much chaos? Dart between the alleyways and find a small ramen shop. The perfect balance between organized chaos and tranquility.",
@@ -465,8 +465,8 @@ const TRAVEL_LOGS: TravelLog[] = [
     country: "USA",
     season: "Summer",
     year: 2025,
-    coverImage: "/travel/Cover/northeast-summer-cover.heic",
-    popupImage: "/travel/pop-up/northeast-summer-popup.jpg",
+    coverImage: "/travel/Cover/northeast-summer-cover.jpg",
+    popupImage: "/travel/pop-up/northeast-summer-popup.jpeg",
     coords: "40.7128° N, 74.0060° W",
     story:
       "I interned in North New Jersey for a couple months. I wasn't making much money but I had more than what I knew to spend it on. Shreyes and I pulled the forsaken Hartford maneuver. He was interning in Boston working Thurs/Fri remote, and I had every other Friday off. When I was young, I memorized the state capitals, glorifying all of the cities, as I imagined the political central would be place of great intrigue. It only took one trip to that unholy city to realize how wrong I was. 30+ gunshots in a row. Handgun magazines don't hold THAT MANY ROUNDS. Regardless, we insisted on meeting in the middle of Boston and Clifton, so we could both hang out in NYC and sleep in my NJ apartment. We met up with Jin every weekend in NYC, and for some reason, we all clicked. Shreyes was always saying and doing some dumb shit, I was always there to call him an idiot, and Jin seemed quite entertained to listen and contribute to the chaos. The banter was unmatched, and in those moments nothing else mattered. Also, Shreyes and I randomly decided to do the hardest hike in the White Mountains.",
@@ -481,7 +481,7 @@ const TRAVEL_LOGS: TravelLog[] = [
     season: "Winter",
     year: 2024,
     coverImage: "/travel/Cover/joshua-tree-cover.JPG",
-    popupImage: "/travel/pop-up/joshua-tree-popup.HEIC",
+    popupImage: "/travel/pop-up/joshua-tree-popup.jpg",
     coords: "34.0111° N, 116.3026° W",
     story:
       "Roommates and I decided to go to Joshua Tree and camp. The problem? We didn't plan. Who knew Joshua Tree would get to 80+ with sun in the day and below freezing at night? Not us - none of us checked the weather. We climbed rocks the entire day, set up a campfire at night and stared at the stars. We hiked to the highest peak and took a picture at heart rock. Daniel, my future roommate (at the time), yelled as loud as he could to a passing couple, requesting they take a picture of us. The result is the cover photo. Embarassment is NOT in that man's dictionary. Our incompetence was only matched by our enjoyment. We broke the tent, and even though I had on 4 layers, I was still cold in my sleeping bag. Daniel has a bad habit of being half concious and half asleep sometimes, and he rolled over to me in the middle of the night, looked me dead in the eye and asked if we could double up in the same sleeping bag. I had never been closer to saying yes to something so stupid in my life. I impolitely declined. In hindsight... actually no.",

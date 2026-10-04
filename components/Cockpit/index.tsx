@@ -307,34 +307,6 @@ export default function Cockpit() {
 
           {/* HUD chrome sits above the visor plate */}
           <div className="pointer-events-none absolute inset-0 z-40">
-            {/* ── Pilot dossier ─────────────────────────────────────────────
-                Rendered first on purpose: every other HUD region paints on top
-                of it, so the channel bar and instruments stay live and legible
-                while the dossier is deployed. */}
-            <AnimatePresence>
-              {profileOpen && (
-                <motion.div
-                  key="dossier"
-                  className="absolute inset-0 flex items-center justify-center px-4 py-24 sm:px-10"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <button
-                    type="button"
-                    aria-label="Stow pilot dossier"
-                    onClick={() => setProfileOpen(false)}
-                    className="pointer-events-auto absolute inset-0 cursor-default bg-black/45"
-                  />
-                  <ProfilePanel
-                    onOpenDossier={openDossier}
-                    onClose={() => setProfileOpen(false)}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-
             {/* ── Top rail ──────────────────────────────────────────────── */}
             <div className="absolute inset-x-0 top-0 flex flex-wrap items-start justify-between gap-4 px-4 pt-4 sm:flex-nowrap sm:px-8 sm:pt-6">
               <motion.div
@@ -504,6 +476,39 @@ export default function Cockpit() {
           </div>
         </motion.div>
       )}
+
+      {/* ══ PILOT DOSSIER ═══════════════════════════════════════════════════
+          Its own layer, outside the parallax HUD plane, so it sits above the
+          instruments and the sky's fire-control overlays (z-70) instead of
+          blending into them. The scrim dims and blurs everything behind it so
+          the panel reads as the only thing on the glass. Only the channel
+          transition (z-80) and the reticle cursor (z-100) paint over it. */}
+      <AnimatePresence>
+        {booted && profileOpen && (
+          <motion.div
+            key="dossier"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Pilot dossier"
+            className="absolute inset-0 z-[75] flex items-center justify-center px-4 py-10 sm:px-10 sm:py-16"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <button
+              type="button"
+              aria-label="Stow pilot dossier"
+              onClick={() => setProfileOpen(false)}
+              className="absolute inset-0 cursor-default bg-black/75 backdrop-blur-md"
+            />
+            <ProfilePanel
+              onOpenDossier={openDossier}
+              onClose={() => setProfileOpen(false)}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ══ CHANNEL TRANSITION ══════════════════════════════════════════════ */}
       <AnimatePresence>

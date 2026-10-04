@@ -92,10 +92,10 @@ export interface CoreDrive {
 }
 
 export const PROFILE_ROWS: ProfileRow[] = [
-  { key: "STATUS",     value: "ACTIVE — BUILDING THINGS THAT HAVE TO SURVIVE REALITY" },
-  { key: "BASE",       value: "UNIV. OF SOUTHERN CALIFORNIA · LOS ANGELES" },
-  { key: "ASSIGNMENT", value: "MECH. ENG. INTERN — VITAL LYFE" },
-  { key: "PRIOR",      value: "L3HARRIS · AIM LAB @ UH · CURVE @ USC" },
+  { key: "STATUS",            value: "ACTIVELY BUILDING ROCKET TEST STANDS" },
+  { key: "BASE",              value: "UNIV. OF SOUTHERN CALIFORNIA · LOS ANGELES" },
+  { key: "FUTURE ASSIGNMENT", value: "BUILD ENGINEER — SPACEX" },
+  { key: "PRIOR",             value: "MECH. ENG. INTERN — VITAL LYFE · L3HARRIS · AIM LAB @ UH · CURVE @ USC" },
 ];
 
 export const CORE_DRIVES: CoreDrive[] = [

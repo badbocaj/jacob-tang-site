@@ -1,6 +1,5 @@
 "use client";
 
-import SingularityGate from "@/components/SingularityGate";
 import ComicStrip from "@/components/professional/ComicStrip";
 import { JOBS } from "@/components/professional/facilityConfig";
 
@@ -12,9 +11,6 @@ import { JOBS } from "@/components/professional/facilityConfig";
 export default function ProfessionalPage() {
   return (
     <div className="bg-[#05070a]" style={{ marginTop: 64 }}>
-      {/* Black-hole intro — unchanged, still the way you arrive */}
-      <SingularityGate />
-
       <section
         className="flex flex-col px-4 pb-4 lg:h-[calc(100vh-4rem)] lg:overflow-hidden"
         aria-label="Work history, told as a four-panel comic"

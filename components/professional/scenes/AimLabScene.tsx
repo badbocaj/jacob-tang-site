@@ -1,142 +1,145 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Headphones, Ink, Jacob, MusicNote } from "../Doodle";
-import { Scrawl, UHMark } from "../Marks";
-import { ACCENT, FLOOR_Y } from "../facilityConfig";
-import { dArc, dCircle, dLine, dRect, r2, spread } from "@/lib/doodle";
+import { Headphones, INK, Jacob, Lettering, Loop, MusicNote, PAPER, PEN_BLUE, PEN_RED, Pulse, TINT, Travel } from "../Doodle";
+import { UHMark } from "../Marks";
+import { FLOOR_Y, JACOB_X } from "../facilityConfig";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SHAKER LAB — AIM Lab @ UH
-// A hemisphere mounted so its equator sits on the lid of the shaker box, the
-// whole rig buzzing. He has headphones in. The hook is "Vibe-Researching", so
-// the joke is that the vibration and the vibe are the same reading.
+// A hemisphere bolted to the lid of a shaker table, the whole rig buzzing, the
+// scope sweeping beside it. He has headphones in and is nodding along: the
+// hook is "Vibe-Researching", so the vibration and the vibe are one reading.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const BOX_L = 480;
-const BOX_R = 762;
-const BOX_T = 398;
+const JX = JACOB_X.aim;
+
+const BOX_L = 470;
+const BOX_R = 750;
+const BOX_T = 420;
 const DOME_CX = (BOX_L + BOX_R) / 2;
-const DOME_R = 80;
+const DOME_R = 78;
 
-const JX = 950;
+// Scope screen
+const SCR_X = 110;
+const SCR_Y = 250;
+const SCR_W = 260;
+const SCR_H = 130;
+const WAVELENGTH = 60;
 
-/** Everything bolted to the shaker table buzzes as one rigid body. */
-const SHAKE = {
-  x: [0, -2.4, 2.2, -1.6, 1.8, -0.8, 0],
-  y: [0, 1.4, -1.2, 1.6, -0.9, 0.7, 0],
-};
-const SHAKE_T = { duration: 0.42, repeat: Infinity, ease: "linear" as const };
+/** One long sine, rounded so the server and browser write the same path. */
+const WAVE = (() => {
+  const mid = SCR_Y + SCR_H / 2;
+  const pts: string[] = [];
+  for (let x = 0; x <= SCR_W + WAVELENGTH * 2; x += 5) {
+    const y = mid + 30 * Math.sin((2 * Math.PI * x) / WAVELENGTH);
+    pts.push(`${pts.length ? "L" : "M"}${SCR_X + x} ${Math.round(y * 10) / 10}`);
+  }
+  return pts.join(" ");
+})();
 
-function Waveform() {
-  const pts = spread(40, 0, 240);
-  // Coordinates are rounded before they reach the `d` attribute — raw Math.sin
-  // output differs between Node and the browser and breaks hydration.
-  const d = pts
-    .map((x, i) => `${i === 0 ? "M" : "L"} ${r2(x)} ${r2(Math.sin(i / 2.1) * 18)}`)
-    .join(" ");
+function Scope() {
   return (
-    <g transform="translate(150, 190)">
-      <Ink d={dRect(-24, -54, 288, 108, 700, 2)} w={2.6} fill="rgba(3,6,12,0.9)" />
-      <motion.g
-        animate={{ x: [0, -24] }}
-        transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}
-      >
-        <path d={d} stroke={ACCENT} strokeWidth={2.4} fill="none" strokeLinecap="round" opacity={0.9} />
-      </motion.g>
-      <Ink d={dLine(-16, 0, 252, 0, 701, 1.2)} w={1.4} opacity={0.25} />
-      <Scrawl x={110} y={-72} size={24} color={ACCENT} opacity={0.7}>
-        RESONANCE SWEEP
-      </Scrawl>
+    <g>
+      <defs>
+        <clipPath id="aim-scope">
+          <rect x={SCR_X + 8} y={SCR_Y + 8} width={SCR_W - 16} height={SCR_H - 16} rx={6} />
+        </clipPath>
+      </defs>
+      <rect x={SCR_X} y={SCR_Y} width={SCR_W} height={SCR_H} rx={12} fill="#e8f2f8" />
+      <g clipPath="url(#aim-scope)">
+        <path d={`M${SCR_X} ${SCR_Y + SCR_H / 2} h${SCR_W}`} strokeWidth={1.5} opacity={0.25} />
+        <Loop type="translate" values={["0 0", `${-WAVELENGTH} 0`]} dur={1.1} linear>
+          <path d={WAVE} stroke={PEN_RED} strokeWidth={3.5} />
+        </Loop>
+      </g>
+      {/* Cart */}
+      <path d={`M${SCR_X + SCR_W / 2} ${SCR_Y + SCR_H} V${FLOOR_Y - 24} M${SCR_X + 40} ${FLOOR_Y - 24} H${SCR_X + SCR_W - 40}`} />
+      <circle cx={SCR_X + 52} cy={FLOOR_Y - 12} r={12} fill={PAPER} />
+      <circle cx={SCR_X + SCR_W - 52} cy={FLOOR_Y - 12} r={12} fill={PAPER} />
+      <Lettering x={SCR_X + SCR_W / 2} y={SCR_Y + SCR_H + 30} size={26} color={PEN_BLUE} scrawl>
+        resonance sweep
+      </Lettering>
+    </g>
+  );
+}
+
+function ShakerRig() {
+  const bolts = [BOX_L + 34, BOX_L + 98, BOX_R - 98, BOX_R - 34];
+  return (
+    // Everything bolted to the table buzzes as one rigid body.
+    <Loop type="translate" values={["0 0", "-2.5 1", "2 -1", "-1.5 1.2", "1.5 -0.6", "0 0"]} dur={0.34} linear>
+      <path
+        d={`M${DOME_CX - DOME_R} ${BOX_T} A ${DOME_R} ${DOME_R} 0 0 1 ${DOME_CX + DOME_R} ${BOX_T} Z`}
+        fill="#ffffff"
+      />
+      <path
+        d={`M${DOME_CX - DOME_R / 2} ${BOX_T} A ${DOME_R / 2} ${DOME_R} 0 0 1 ${DOME_CX + DOME_R / 2} ${BOX_T}`}
+        strokeWidth={2}
+        opacity={0.4}
+      />
+      <rect x={BOX_L} y={BOX_T} width={BOX_R - BOX_L} height={FLOOR_Y - BOX_T} rx={8} fill={TINT.pink} />
+      <path d={`M${BOX_L - 14} ${BOX_T} H${BOX_R + 14}`} strokeWidth={7} />
+      {bolts.map((x) => (
+        <circle key={x} cx={x} cy={BOX_T + 22} r={5} fill={INK} stroke="none" />
+      ))}
+      <g transform={`translate(${DOME_CX} ${BOX_T + 72})`}>
+        <UHMark />
+      </g>
+    </Loop>
+  );
+}
+
+/** Parenthesis-shaped buzz marks either side of the rig. */
+function Buzz() {
+  return (
+    <g strokeWidth={3} stroke={PEN_RED}>
+      {[0, 1, 2].map((i) => {
+        const gap = 18 + i * 16;
+        const h = 36 + i * 12;
+        const y = 470 - h / 2;
+        return (
+          <Pulse key={i} dur={0.7} delay={i * 0.12} values={[0.15, 0.9, 0.15]}>
+            <path d={`M${BOX_R + gap} ${y} q ${10 + i * 2} ${h / 2} 0 ${h}`} />
+            <path d={`M${BOX_L - gap} ${y} q ${-(10 + i * 2)} ${h / 2} 0 ${h}`} />
+          </Pulse>
+        );
+      })}
     </g>
   );
 }
 
 export default function AimLabScene() {
+  const beat = 1.05;
+
   return (
     <g>
-      <Waveform />
+      <Scope />
+      <ShakerRig />
+      <Buzz />
+      <Lettering x={DOME_CX - 160} y={340} size={38} color={PEN_RED} rotate={-10} scrawl>
+        bzzzz
+      </Lettering>
 
-      {/* ── Shaker rig ─────────────────────────────────────────────────── */}
-      <motion.g animate={SHAKE} transition={SHAKE_T}>
-        {/* Hemisphere — cut exactly by the lid of the box */}
-        <Ink d={dArc(DOME_CX, BOX_T, DOME_R, Math.PI, Math.PI * 2, 710, 1.8)} w={3} fill="rgba(5,7,10,0.6)" />
-        {/* Its hidden half, dashed, so the cut plane reads */}
-        <Ink d={dArc(DOME_CX, BOX_T, DOME_R * 0.94, 0, Math.PI, 711, 1.6)} w={1.8} opacity={0.28} />
-        {/* Meridian */}
-        <Ink d={dArc(DOME_CX, BOX_T, DOME_R * 0.5, Math.PI, Math.PI * 2, 712, 1.4)} w={1.8} opacity={0.35} />
-
-        {/* Box */}
-        <Ink d={dRect(BOX_L, BOX_T, BOX_R - BOX_L, FLOOR_Y - BOX_T, 713, 2)} w={3} fill="rgba(5,7,10,0.75)" />
-        {/* Lid line — the plane that halves the dome */}
-        <Ink d={dLine(BOX_L - 12, BOX_T, BOX_R + 12, BOX_T, 714, 1.6)} w={3.2} />
-        {/* Stencil */}
-        <g transform={`translate(${DOME_CX}, 476)`}>
-          <UHMark scale={1} />
-        </g>
-        {/* Hold-down bolts */}
-        {spread(4, BOX_L + 26, BOX_R - 26).map((x, i) => (
-          <Ink key={i} d={dCircle(x, BOX_T + 22, 5, 720 + i, 0.8)} w={2} opacity={0.6} />
-        ))}
-      </motion.g>
-
-      {/* Buzz lines either side of the rig */}
+      {/* Music, drifting up off the headphones */}
       {[0, 1, 2].map((i) => (
-        <motion.g
-          key={i}
-          animate={{ opacity: [0.15, 0.7, 0.15] }}
-          transition={{ duration: 0.42, delay: i * 0.09, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <Ink d={dLine(BOX_L - 34 - i * 16, 430 + i * 22, BOX_L - 14 - i * 16, 430 + i * 22, 730 + i, 1)} w={2.2} color={ACCENT} />
-          <Ink d={dLine(BOX_R + 14 + i * 16, 430 + i * 22, BOX_R + 34 + i * 16, 430 + i * 22, 740 + i, 1)} w={2.2} color={ACCENT} />
-        </motion.g>
+        <Travel key={i} path={`M${JX + 40} 330 C ${JX + 80} 290 ${JX + 60} 250 ${JX + 120} 190`} dur={3.3} delay={i * 1.1}>
+          <MusicNote color={PEN_BLUE} />
+        </Travel>
       ))}
 
-      {/* ── Music, drifting off the headphones ─────────────────────────── */}
-      {[
-        { x: 872, delay: 0 },
-        { x: 838, delay: 1.1 },
-        { x: 856, delay: 2.2 },
-      ].map((nvals, i) => (
-        <motion.g
-          key={i}
-          initial={{ opacity: 0 }}
-          animate={{ y: [0, -120], x: [0, -26], opacity: [0, 0.9, 0.9, 0], rotate: [-6, 10, -4] }}
-          transition={{ duration: 3.3, delay: nvals.delay, repeat: Infinity, ease: "easeOut" }}
-        >
-          <g transform={`translate(${nvals.x}, 322)`}>
-            <MusicNote x={0} y={0} seed={750 + i} color={ACCENT} />
-          </g>
-        </motion.g>
-      ))}
-
-      {/* ── Jacob, listening ───────────────────────────────────────────── */}
       <Jacob
         x={JX}
         y={FLOOR_Y}
         flip
-        seed={29}
-        // Nodding to it. The whole figure bobs so the headphones stay put.
-        bob={{ y: [0, -6, 0], rotate: [0, 1.4, 0] }}
-        bobTransition={{ duration: 1.05, repeat: Infinity, ease: "easeInOut" }}
-        armRight={{
-          elbow: [30, 30],
-          hand: [22, 66],
-          animate: { rotate: [0, 7, 0] },
-          transition: { duration: 1.05, repeat: Infinity, ease: "easeInOut" },
-        }}
-        armLeft={{
-          elbow: [-28, 32],
-          hand: [-20, 68],
-          animate: { rotate: [0, -7, 0] },
-          transition: { duration: 1.05, repeat: Infinity, ease: "easeInOut" },
-        }}
+        look={2}
+        bob={[0, -6, 0]}
+        bobDur={beat}
+        tilt={[-3, 5, -3]}
+        tiltDur={beat}
+        armRight={{ elbow: [24, 34], hand: [32, 70], swing: [0, 7, 0], dur: beat }}
+        armLeft={{ elbow: [-24, 34], hand: [-32, 70], swing: [0, -7, 0], dur: beat }}
         headProp={<Headphones />}
       />
-
-      <Scrawl x={JX + 6} y={FLOOR_Y - 276} size={26} opacity={0.45}>
-        good vibes only
-      </Scrawl>
     </g>
   );
 }

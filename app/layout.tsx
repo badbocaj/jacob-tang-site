@@ -1,6 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Archivo, Public_Sans, IBM_Plex_Mono, Caveat } from "next/font/google";
+import { Archivo, Public_Sans, IBM_Plex_Mono, Caveat, Patrick_Hand } from "next/font/google";
 import { Navbar } from "@/components/Navbar";
 
 /* ── Type system ───────────────────────────────────────────────────────────
@@ -8,6 +8,8 @@ import { Navbar } from "@/components/Navbar";
    body    — Public Sans, the readable prose face the site was missing
    mono    — IBM Plex Mono, the technical/HUD utility face
    hand    — Caveat, the human annotation layer (was stranded on /travel)
+   journal — Patrick Hand, neat printed lettering for the paper pages
+             (/about's journal, /professional's comic)
    ------------------------------------------------------------------------ */
 
 const display = Archivo({
@@ -36,6 +38,13 @@ const hand = Caveat({
   display: "swap",
 });
 
+const journal = Patrick_Hand({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--ff-journal",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Jacob Tang",
   description: "Mechanical engineering portfolio — structures, testing, propulsion.",
@@ -50,7 +59,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${display.variable} ${body.variable} ${mono.variable} ${hand.variable}`}
+      className={`${display.variable} ${body.variable} ${mono.variable} ${hand.variable} ${journal.variable}`}
     >
       <body className="bg-black text-white antialiased">
         <Navbar />

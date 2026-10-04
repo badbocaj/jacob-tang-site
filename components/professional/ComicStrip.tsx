@@ -1,10 +1,9 @@
 "use client";
 
-import { MotionConfig } from "framer-motion";
-import { Ink, INK } from "./Doodle";
-import { Scrawl } from "./Marks";
-import { ACCENT, FLOOR_Y, JOBS, ROOM_H, ROOM_W, type Job, type SceneKey } from "./facilityConfig";
-import { dLine, dRect } from "@/lib/doodle";
+import { useSyncExternalStore, type CSSProperties } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { HAND_FONT, INK, PAPER, PEN, PEN_BLUE, SCRAWL_FONT, StillContext, TINT } from "./Doodle";
+import { FLOOR_Y, HEAD_TOP_Y, JACOB_X, JOBS, ROOM_H, ROOM_W, type Job, type SceneKey } from "./facilityConfig";
 import VitalLyfeScene from "./scenes/VitalLyfeScene";
 import L3HarrisScene from "./scenes/L3HarrisScene";
 import CurveScene from "./scenes/CurveScene";
@@ -12,9 +11,15 @@ import AimLabScene from "./scenes/AimLabScene";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // THE STRIP
-// Four jobs, four panels, read left to right and top to bottom. Every panel is
-// a room in the same facility, so the walls, floor slab and stair shaft carry
-// across the gutters and it still reads as one building.
+// Four jobs, four panels on one comic page, read left to right and top to
+// bottom. Same stationery as the /about journal: cream paper, one black pen,
+// yellow narration boxes, and Jacob saying the hook in a speech bubble.
+//
+// Panel art lives in fixed 1200×620 scene units, so the lettering on top is
+// sized in container units (cqw) and scales with the panel it sits in. On a
+// phone the panel is taller than the art, which sits on the bottom and leaves
+// headroom for the narration box — the lettering can't shrink as far as the
+// drawing can and would otherwise land on top of it.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const SCENES: Record<SceneKey, () => React.ReactElement> = {
@@ -24,111 +29,159 @@ const SCENES: Record<SceneKey, () => React.ReactElement> = {
   aim: AimLabScene,
 };
 
-const WALL_L = 26;
-const WALL_R = ROOM_W - 26;
-const SHAFT_L = 46;
-const SHAFT_R = 92;
+/** Panels are dealt onto the page one after another, like reading them. */
+const DEAL = { type: "spring", stiffness: 240, damping: 24 } as const;
+const POP = { type: "spring", stiffness: 400, damping: 20 } as const;
 
-/** Room fabric: slab, stair shaft and wall faces, identical in every panel. */
-function RoomShell({ index, hatchId }: { index: number; hatchId: string }) {
+function Floor() {
+  const ticks: number[] = [];
+  for (let x = 40; x < ROOM_W; x += 64) ticks.push(x);
   return (
     <g>
-      {/* Slab, split either side of the stair shaft */}
-      <rect x={0} y={FLOOR_Y} width={SHAFT_L - 6} height={ROOM_H - FLOOR_Y} fill={`url(#${hatchId})`} opacity={0.55} />
-      <rect x={SHAFT_R + 6} y={FLOOR_Y} width={ROOM_W - SHAFT_R - 6} height={ROOM_H - FLOOR_Y} fill={`url(#${hatchId})`} opacity={0.55} />
-      <Ink d={dLine(0, FLOOR_Y, SHAFT_L - 6, FLOOR_Y, 800 + index, 1.6)} w={3.2} />
-      <Ink d={dLine(SHAFT_R + 6, FLOOR_Y, ROOM_W, FLOOR_Y, 810 + index, 2)} w={3.2} />
-
-      {/* Stair shaft — the thread that ties the panels into one building */}
-      <Ink d={dLine(SHAFT_L, 0, SHAFT_L, ROOM_H, 862 + index, 2.4)} w={2.2} opacity={0.35} />
-      <Ink d={dLine(SHAFT_R, 0, SHAFT_R, ROOM_H, 863 + index, 2.4)} w={2.2} opacity={0.35} />
-      {[0, 1, 2, 3, 4, 5, 6].map((k) => (
-        <Ink key={k} d={dLine(SHAFT_L, 40 + k * 84, SHAFT_R, 40 + k * 84, 870 + index * 10 + k, 1)} w={1.8} opacity={0.25} />
-      ))}
-
-      {/* Interior wall faces */}
-      <Ink d={dLine(WALL_L, 0, WALL_L, FLOOR_Y, 830 + index, 2)} w={2.2} opacity={0.45} />
-      <Ink d={dLine(WALL_R, 0, WALL_R, FLOOR_Y, 840 + index, 2)} w={2.2} opacity={0.45} />
+      <path d={`M0 ${FLOOR_Y} H${ROOM_W}`} strokeWidth={4.5} />
+      <g strokeWidth={2.2} opacity={0.28}>
+        {ticks.map((x) => (
+          <path key={x} d={`M${x} ${FLOOR_Y + 16} l-18 24`} />
+        ))}
+      </g>
     </g>
+  );
+}
+
+function Narration({ job }: { job: Job }) {
+  return (
+    <figcaption
+      className="absolute left-[2.5%] top-[4%] max-w-[52%] border-[2.5px] px-[1.6cqw] py-[1.1cqw]"
+      style={{ background: TINT.yellow, borderColor: INK, boxShadow: `3px 3px 0 ${INK}`, color: INK }}
+    >
+      <p className="m-0 uppercase leading-none tracking-wide opacity-70" style={{ ...HAND_FONT, fontSize: "clamp(10px, 1.55cqw, 14px)" }}>
+        {job.period} · {job.location}
+      </p>
+      <p className="m-0 mt-[0.5cqw] uppercase leading-none" style={{ ...HAND_FONT, fontSize: "clamp(16px, 3.3cqw, 28px)" }}>
+        {job.company}
+      </p>
+      <p className="m-0 leading-tight" style={{ ...SCRAWL_FONT, color: PEN_BLUE, fontSize: "clamp(14px, 2.5cqw, 22px)" }}>
+        {job.title}
+      </p>
+      {/* Appears on its own once there is real copy in facilityConfig */}
+      {!job.description.startsWith("Placeholder") && (
+        <p className="m-0 mt-[0.6cqw] max-w-[38ch] leading-snug" style={{ ...HAND_FONT, fontSize: "clamp(11px, 1.7cqw, 15px)" }}>
+          {job.description}
+        </p>
+      )}
+    </figcaption>
+  );
+}
+
+function SpeechBubble({ job, index }: { job: Job; index: number }) {
+  const jx = JACOB_X[job.key];
+  // Hang the bubble up and to the left of his head, tail pointing down at it.
+  const box: CSSProperties = {
+    right: `${((ROOM_W - (jx + 56)) / ROOM_W) * 100}%`,
+    bottom: `${((ROOM_H - (HEAD_TOP_Y - 20)) / ROOM_H) * 100}%`,
+    // Never narrower than a few words, so a phone bubble stays three lines.
+    maxWidth: "max(36%, 12em)",
+    transformOrigin: "85% 100%",
+  };
+
+  return (
+    <motion.div
+      className="absolute"
+      style={box}
+      initial={{ opacity: 0, scale: 0.4 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ ...POP, delay: 0.5 + index * 0.14 }}
+    >
+      <p
+        className="relative m-0 rounded-[1.3em] border-[2.5px] bg-white px-[1em] py-[0.5em] leading-[1.15]"
+        style={{ ...HAND_FONT, color: INK, borderColor: INK, fontSize: "clamp(11px, 2.25cqw, 19px)" }}
+      >
+        {job.hook}
+        <svg
+          aria-hidden
+          viewBox="0 0 24 18"
+          className="absolute right-[16%] top-full -mt-[3px] h-[1.05em] w-[1.3em]"
+          style={{ overflow: "visible" }}
+        >
+          <path d="M1 0 L17 17 L21 0" fill="#ffffff" stroke={INK} strokeWidth={2.5} strokeLinejoin="round" />
+        </svg>
+      </p>
+    </motion.div>
   );
 }
 
 function Panel({ job, index }: { job: Job; index: number }) {
   const Scene = SCENES[job.key];
-  // Ids must be unique per panel — four SVGs share one document.
-  const hatchId = `slabHatch-${job.key}`;
 
   return (
-    <figure className="group relative m-0 min-h-0 overflow-hidden rounded-sm max-lg:aspect-[1200/620]">
-      <svg
-        viewBox={`0 0 ${ROOM_W} ${ROOM_H}`}
-        className="h-full w-full"
-        preserveAspectRatio="xMidYMid meet"
-        role="img"
-        aria-label={`Panel ${index + 1}. ${job.company}: a stick figure in the ${job.room}.`}
-      >
-        <defs>
-          <pattern id={hatchId} width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-            <line x1="0" y1="0" x2="0" y2="14" stroke={INK} strokeWidth="1.4" opacity="0.5" />
-          </pattern>
-        </defs>
-
-        <RoomShell index={index} hatchId={hatchId} />
-        <Scene />
-
-        {/* Panel frame, drawn in the same hand as everything inside it */}
-        <Ink
-          d={dRect(5, 5, ROOM_W - 10, ROOM_H - 10, 960 + index, 2.6)}
-          w={4}
-          color={INK}
-          opacity={0.55}
-        />
-
-        {/* Panel number, bottom right, comic style */}
-        <Scrawl x={ROOM_W - 40} y={ROOM_H - 28} size={30} color={INK} opacity={0.35}>
-          {index + 1}
-        </Scrawl>
-      </svg>
-
-      {/* ── Caption box ─────────────────────────────────────────────────── */}
-      <figcaption className="pointer-events-none absolute left-[3%] top-[5%] max-w-[62%]">
-        <div className="inline-block border border-white/25 bg-black/85 px-3 py-2 backdrop-blur-[2px]">
-          <p className="font-mono text-xs uppercase tracking-label text-amber-400/70">
-            {job.period} · {job.location}
-          </p>
-          <p className="mt-1 text-lg font-bold leading-tight text-white">{job.company}</p>
-          <p className="font-mono text-xs text-zinc-400">{job.title}</p>
-          {/* Appears on its own once there is real copy in facilityConfig */}
-          {!job.description.startsWith("Placeholder") && (
-            <p className="mt-2 max-w-[34ch] text-xs leading-relaxed text-zinc-400">
-              {job.description}
-            </p>
-          )}
-        </div>
-      </figcaption>
-
-      {/* ── Narration box ───────────────────────────────────────────────── */}
-      <div className="pointer-events-none absolute bottom-[5%] left-[3%] max-w-[72%]">
-        <p className="font-hand inline-block border border-amber-400/25 bg-black/85 px-3 py-1.5 text-base leading-snug text-amber-200/90">
-          “{job.hook}”
-        </p>
+    <motion.figure
+      className="relative m-0 aspect-[1200/860] overflow-hidden sm:aspect-[1200/620]"
+      style={{
+        containerType: "inline-size",
+        background: PAPER,
+        border: `3px solid ${INK}`,
+        borderRadius: 3,
+      }}
+      initial={{ opacity: 0, y: 22, rotate: index % 2 ? 1.2 : -1.2 }}
+      animate={{ opacity: 1, y: 0, rotate: 0 }}
+      transition={{ ...DEAL, delay: 0.08 + index * 0.14 }}
+      whileHover={{ y: -4, boxShadow: `6px 8px 0 rgba(31,35,40,0.85)` }}
+    >
+      {/* The art box: exactly the scene's shape, pinned to the panel floor */}
+      <div className="absolute inset-x-0 bottom-0" style={{ aspectRatio: `${ROOM_W} / ${ROOM_H}` }}>
+        <svg
+          viewBox={`0 0 ${ROOM_W} ${ROOM_H}`}
+          className="absolute inset-0 h-full w-full"
+          role="img"
+          aria-label={`Panel ${index + 1}. ${job.company}: Jacob in the ${job.room}.`}
+        >
+          <g {...PEN}>
+            <Floor />
+            <Scene />
+          </g>
+        </svg>
+        <SpeechBubble job={job} index={index} />
       </div>
 
-    </figure>
+      <Narration job={job} />
+
+      <span
+        aria-hidden
+        className="absolute bottom-[2%] right-[1.6%] leading-none opacity-50"
+        style={{ ...SCRAWL_FONT, color: INK, fontSize: "clamp(14px, 2.6cqw, 22px)" }}
+      >
+        {index + 1}
+      </span>
+    </motion.figure>
   );
 }
 
+const noSubscribe = () => () => {};
+
 export default function ComicStrip() {
+  const reduceMotion = useReducedMotion();
+  // The server can't know the reader's motion setting, so the first client
+  // render has to match it (animated); the still version swaps in after.
+  const hydrated = useSyncExternalStore(noSubscribe, () => true, () => false);
+
   return (
-    <MotionConfig reducedMotion="user">
+    <StillContext.Provider value={hydrated && Boolean(reduceMotion)}>
       <div
-        className="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-2 lg:gap-4"
-        style={{ color: ACCENT }}
+        className="mx-auto w-full rounded-[4px] p-3 sm:p-4 lg:max-w-(--sheet-max)"
+        style={{
+          // Two rows of panels plus the gutter have to fit under the masthead,
+          // so the sheet's width follows the viewport's height.
+          ["--sheet-max" as string]: `calc((100svh - 18rem) * ${(ROOM_W / ROOM_H).toFixed(4)} + 3rem)`,
+          background: "#f3eee0",
+          boxShadow: "0 28px 60px rgba(0,0,0,0.6), 0 8px 18px rgba(0,0,0,0.45)",
+        }}
       >
-        {JOBS.map((job, i) => (
-          <Panel key={job.key} job={job} index={i} />
-        ))}
+        <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-2">
+          {JOBS.map((job, i) => (
+            <Panel key={job.key} job={job} index={i} />
+          ))}
+        </div>
       </div>
-    </MotionConfig>
+    </StillContext.Provider>
   );
 }

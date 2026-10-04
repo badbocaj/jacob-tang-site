@@ -2,7 +2,6 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Patrick_Hand } from "next/font/google";
 
 import Journal from "@/components/about/Journal";
 import { PORTFOLIO } from "@/components/about/data";
@@ -12,22 +11,13 @@ export const metadata: Metadata = {
   description: "Jacob's journal: what he's building, what he does outside, what he plays, and how he got here.",
 };
 
-/* The journal's printed hand — neat block lettering, the way a kid writes
-   when he knows someone else is going to read it. Caveat stays the scrawl. */
-const journalHand = Patrick_Hand({
-  weight: "400",
-  subsets: ["latin"],
-  variable: "--ff-journal",
-  display: "swap",
-});
-
 export default function AboutPage() {
   // The folder on page one only lights up once the PDF is actually there.
   const portfolioReady = existsSync(path.join(process.cwd(), PORTFOLIO.diskPath));
 
   return (
     <div
-      className={`${journalHand.variable} relative min-h-screen overflow-x-clip px-4 pb-12 pt-20 sm:px-8`}
+      className={`relative min-h-screen overflow-x-clip px-4 pb-12 pt-20 sm:px-8`}
       style={{
         background:
           "radial-gradient(70% 55% at 50% 42%, rgba(251,191,36,0.10), transparent 70%), #0b0a08",

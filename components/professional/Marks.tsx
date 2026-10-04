@@ -1,177 +1,95 @@
 "use client";
 
-import { Ink, INK } from "./Doodle";
-import { dArc, dCircle, dCurve, dLine, dPoly, dRect } from "@/lib/doodle";
+import { HAND_FONT, INK, PAPER, TINT } from "./Doodle";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MARKS
-// Every logo here is drawn from scratch in the same marker hand as the rest of
-// the facility — these are sketched stand-ins that say which employer a scene
-// belongs to, not reproductions of anyone's trademark.
-//
-// All marks draw centred on their own origin, so a scene just translates them
-// into place.
+// Sketched stand-ins that say which employer a panel belongs to — drawn from
+// scratch in the comic's pen, not reproductions of anyone's trademark.
+// Every mark is centred on its own origin; scenes translate it into place.
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** Handwritten lettering. Caveat is already loaded globally as `font-hand`. */
-export function Scrawl({
-  children,
-  x = 0,
-  y = 0,
-  size = 34,
-  color = INK,
-  opacity = 1,
-  anchor = "middle",
-  rotate = 0,
-}: {
-  children: React.ReactNode;
-  x?: number;
-  y?: number;
-  size?: number;
-  color?: string;
-  opacity?: number;
-  anchor?: "start" | "middle" | "end";
-  rotate?: number;
-}) {
-  return (
-    <text
-      className="font-hand"
-      x={x}
-      y={y}
-      fontSize={size}
-      fill={color}
-      opacity={opacity}
-      textAnchor={anchor}
-      dominantBaseline="middle"
-      transform={rotate ? `rotate(${rotate} ${x} ${y})` : undefined}
-      style={{ fontWeight: 700 }}
-    >
-      {children}
-    </text>
-  );
-}
-
-// ── USC — Trojan helmet ──────────────────────────────────────────────────────
-// Dome, nose guard, cheek plate and a crest plume: the silhouette does the
-// work, so it still reads at train-car size.
-export function TrojanHelmet({ scale = 1, color = INK }: { scale?: number; color?: string }) {
-  return (
-    <g transform={`scale(${scale})`}>
-      {/* Crest plume */}
-      <Ink d={dCurve([-16, -20], [0, -46], [20, -16], 210, 1.6)} w={2.6} color={color} />
-      <Ink d={dCurve([-11, -18], [0, -38], [16, -15], 211, 1.6)} w={2.2} color={color} opacity={0.65} />
-      {/* Dome */}
-      <Ink d={dArc(0, 2, 24, Math.PI, Math.PI * 2, 212, 1.5)} w={2.8} color={color} />
-      {/* Brow line */}
-      <Ink d={dLine(-24, 2, 24, 2, 213, 1.4)} w={2.4} color={color} />
-      {/* Nose guard */}
-      <Ink d={dLine(0, 2, 0, 26, 214, 1.3)} w={2.6} color={color} />
-      {/* Cheek plates */}
-      <Ink d={dCurve([-24, 2], [-22, 18], [-13, 24], 215, 1.3)} w={2.4} color={color} />
-      <Ink d={dCurve([24, 2], [22, 18], [13, 24], 216, 1.3)} w={2.4} color={color} />
-    </g>
-  );
-}
-
-// ── UH — stencilled on the shaker box ────────────────────────────────────────
-export function UHMark({ scale = 1, color = INK }: { scale?: number; color?: string }) {
-  return (
-    <g transform={`scale(${scale})`}>
-      <Ink d={dRect(-30, -22, 60, 44, 220, 1.6)} w={2.2} color={color} opacity={0.55} />
-      <Scrawl size={34} color={color} y={2}>
-        UH
-      </Scrawl>
-    </g>
-  );
-}
-
-// ── L3Harris — sketched module badge ─────────────────────────────────────────
-// A hexagonal plate with an "L3" scrawl and three broadcast arcs, standing in
-// for the electronic-warfare work.
-export function L3Mark({ scale = 1, color = INK }: { scale?: number; color?: string }) {
-  const hex: [number, number][] = [
-    [-30, -16],
-    [0, -32],
-    [30, -16],
-    [30, 16],
-    [0, 32],
-    [-30, 16],
-  ];
-  return (
-    <g transform={`scale(${scale})`}>
-      <Ink d={dPoly(hex, 230, 1.6, true)} w={2.6} color={color} />
-      <Scrawl size={26} color={color} x={-9} y={1}>
-        L3
-      </Scrawl>
-      {/* Broadcast arcs */}
-      <Ink d={dArc(10, 0, 9, -Math.PI / 2.4, Math.PI / 2.4, 231, 0.9)} w={2} color={color} />
-      <Ink d={dArc(10, 0, 15, -Math.PI / 2.4, Math.PI / 2.4, 232, 0.9)} w={1.8} color={color} opacity={0.7} />
-      <Ink d={dArc(10, 0, 21, -Math.PI / 2.4, Math.PI / 2.4, 233, 0.9)} w={1.6} color={color} opacity={0.45} />
-    </g>
-  );
-}
-
-// ── Vital Lyfe — droplet with a pulse line ───────────────────────────────────
-export function VitalLyfeMark({ scale = 1, color = INK }: { scale?: number; color?: string }) {
-  return (
-    <g transform={`scale(${scale})`}>
-      {/* Droplet: point at the top, round at the base */}
-      <Ink d={dCurve([0, -30], [-20, -6], [-16, 8], 240, 1.2)} w={2.6} color={color} />
-      <Ink d={dArc(0, 8, 16, Math.PI, Math.PI * 2, 241, 1.2)} w={2.6} color={color} />
-      <Ink d={dCurve([16, 8], [20, -6], [0, -30], 242, 1.2)} w={2.6} color={color} />
-      {/* Pulse */}
-      <Ink
-        d={dPoly(
-          [
-            [-13, 6],
-            [-6, 6],
-            [-2, -5],
-            [3, 15],
-            [7, 6],
-            [13, 6],
-          ],
-          243,
-          0.9
-        )}
-        w={2.2}
-        color={color}
-      />
-    </g>
-  );
-}
-
-// ── Train cars ───────────────────────────────────────────────────────────────
-// The USC floor runs three of these round a junction: an S, a C, and a helmet.
-
-export function TrainCar({
-  label,
-  helmet = false,
-  color = INK,
-  accent,
-}: {
-  label?: string;
-  helmet?: boolean;
-  color?: string;
-  accent?: string;
-}) {
+/** UH, stencilled onto the shaker box. */
+export function UHMark() {
   return (
     <g>
-      {/* Body */}
-      <Ink d={dRect(-34, -26, 68, 40, 250, 1.6)} w={2.6} color={color} fill="rgba(5,7,10,0.85)" />
-      {/* Cab roof */}
-      <Ink d={dLine(-30, -26, 30, -26, 251, 1.3)} w={2.2} color={color} opacity={0.7} />
-      {/* Wheels */}
-      <Ink d={dCircle(-18, 18, 8, 252, 1.1)} w={2.2} color={color} />
-      <Ink d={dCircle(18, 18, 8, 253, 1.1)} w={2.2} color={color} />
-      {/* Cargo */}
+      <rect x={-34} y={-24} width={68} height={48} rx={6} fill={PAPER} strokeWidth={3} />
+      <text
+        x={0}
+        y={2}
+        fontSize={34}
+        fill={TINT.cardinal}
+        stroke="none"
+        textAnchor="middle"
+        dominantBaseline="middle"
+        style={HAND_FONT}
+      >
+        UH
+      </text>
+    </g>
+  );
+}
+
+/** A hex module badge with broadcast arcs — the parts on the L3Harris line. */
+export function L3Mark({ fill = TINT.blue }: { fill?: string }) {
+  return (
+    <g>
+      <polygon points="-30,-17 0,-34 30,-17 30,17 0,34 -30,17" fill={fill} />
+      <text x={-7} y={2} fontSize={24} fill={INK} stroke="none" textAnchor="middle" dominantBaseline="middle" style={HAND_FONT}>
+        L3
+      </text>
+      <path d="M10 -9 a 11 11 0 0 1 0 18" strokeWidth={2.6} />
+      <path d="M15 -15 a 18 18 0 0 1 0 30" strokeWidth={2.6} opacity={0.55} />
+    </g>
+  );
+}
+
+/** A droplet with a pulse line through it. */
+export function VitalLyfeMark() {
+  return (
+    <g>
+      <path d="M0 -34 C 14 -16 22 -4 22 8 A 22 22 0 0 1 -22 8 C -22 -4 -14 -16 0 -34 Z" fill={TINT.water} />
+      <path d="M-15 8 H-6 L-2 -3 L3 18 L7 8 H15" strokeWidth={3} />
+    </g>
+  );
+}
+
+/** Dome, brow, nose guard, cheek plates and a crest. Reads at train-car size. */
+export function TrojanHelmet({ color = TINT.cardinal }: { color?: string }) {
+  return (
+    <g stroke={color}>
+      <path d="M-18 -18 C -10 -46 14 -46 22 -16" strokeWidth={5} />
+      <path d="M-24 4 A 24 24 0 0 1 24 4 Z" fill={TINT.gold} strokeWidth={3} />
+      <path d="M0 4 V26 M-24 4 C -22 18 -16 24 -10 26 M24 4 C 22 18 16 24 10 26" strokeWidth={3} />
+    </g>
+  );
+}
+
+/** One car on the USC traffic board: an S, a C, or a helmet. */
+export function TrainCar({ label, helmet = false }: { label?: string; helmet?: boolean }) {
+  return (
+    <g>
+      <rect x={-40} y={-30} width={80} height={44} rx={9} fill={TINT.gold} />
+      <path d="M-30 -30 V-38 H30 V-30" strokeWidth={3} />
+      <circle cx={-20} cy={18} r={8} fill={PAPER} />
+      <circle cx={20} cy={18} r={8} fill={PAPER} />
       {helmet ? (
-        <g transform="translate(0, -8) scale(0.62)">
-          <TrojanHelmet color={accent ?? color} />
+        <g transform="translate(0 -10) scale(0.62)">
+          <TrojanHelmet />
         </g>
       ) : (
-        <Scrawl size={40} color={accent ?? color} y={-5}>
+        <text
+          x={0}
+          y={-7}
+          fontSize={36}
+          fill={TINT.cardinal}
+          stroke="none"
+          textAnchor="middle"
+          dominantBaseline="middle"
+          style={HAND_FONT}
+        >
           {label}
-        </Scrawl>
+        </text>
       )}
     </g>
   );

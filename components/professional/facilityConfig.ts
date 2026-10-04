@@ -1,8 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // FACILITY CONFIG
-// The four jobs are four rooms of one building, shown as four comic panels.
-// Everything that has to agree between the panels, the scenes and the captions
-// lives here.
+// Four jobs, four comic panels on one page. Everything that has to agree
+// between the panels, the scenes and the captions lives here.
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** Interior width of a room, in scene units. */
@@ -11,10 +10,21 @@ export const ROOM_W = 1200;
 export const ROOM_H = 620;
 /** The line every stick figure stands on. */
 export const FLOOR_Y = 545;
+
+export type SceneKey = "vital" | "l3" | "curve" | "aim";
+
 /** Ceiling of the usable interior. */
 export const CEIL_Y = 58;
 
-export type SceneKey = "vital" | "l3" | "curve" | "aim";
+/** Where Jacob stands in each panel. The speech bubble hangs off his head. */
+export const JACOB_X: Record<SceneKey, number> = {
+  aim: 1000,
+  curve: 1010,
+  l3: 1000,
+  vital: 1000,
+};
+/** Top of his hair, in scene units — the bubble's tail points here. */
+export const HEAD_TOP_Y = FLOOR_Y - 240;
 
 export interface Job {
   key: SceneKey;
@@ -24,7 +34,7 @@ export interface Job {
   location: string;
   hook: string;
   description: string;
-  /** Room name within the facility. */
+  /** What the panel shows, for screen readers. */
   room: string;
 }
 
@@ -74,14 +84,3 @@ export const JOBS: Job[] = [
     room: "Filtration Bay",
   },
 ];
-
-/** Amber, same accent as the travel log — one colour for the whole facility. */
-export const ACCENT = "#f59e0b";
-
-/** Semantic colours. Used only where the content needs them to read at all. */
-export const TONE = {
-  dirty: "#8a6134",
-  clean: "#67d4e8",
-  pass: "#4ade80",
-  stop: "#ef4444",
-};

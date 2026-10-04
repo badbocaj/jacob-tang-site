@@ -1,106 +1,305 @@
 "use client";
 
-import { motion, type MotionProps } from "framer-motion";
-import { dCircle, dLine, dPoly } from "@/lib/doodle";
+import { createContext, useContext, type ReactNode } from "react";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// INK
-// Every stroke in the facility goes through here so the whole drawing reads as
-// one marker and one hand.
+// PEN KIT
+// The comic is drawn the way the /about journal is: one black pen on cream
+// paper, flat pastel fills, clean geometry. Scenes use plain SVG shapes — the
+// panel wraps them in a group that sets the pen, so a scene only says where.
+//
+// Loops run on SVG's own <animateTransform>, which rotates about a real pivot
+// in the shape's own coordinates. That is what lets an arm swing from the
+// shoulder instead of from the middle of its bounding box.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const INK = "#ece7dd";
+export const INK = "#1f2328";
+export const PAPER = "#fdfbf3";
+export const PEN_RED = "#c2412d";
+export const PEN_BLUE = "#2c4f94";
 
-export function Ink({
-  d,
-  w = 2.6,
-  color = INK,
-  fill = "none",
-  opacity = 1,
+/** Flat fills, same family as the journal's tabs and highlighters. */
+export const TINT = {
+  yellow: "#fde68a",
+  blue: "#bfdbfe",
+  green: "#bbf7d0",
+  pink: "#fecaca",
+  sand: "#ead7b7",
+  water: "#a5e4f3",
+  sludge: "#8a6134",
+  pass: "#16a34a",
+  stop: "#dc2626",
+  cardinal: "#9d2235",
+  gold: "#ffc72c",
+};
+
+/** The pen every panel draws with. Spread onto a <g>. */
+export const PEN = {
+  fill: "none",
+  stroke: INK,
+  strokeWidth: 3.5,
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
+} as const;
+
+export const HAND_FONT = { fontFamily: "var(--ff-journal), var(--ff-hand), cursive" };
+export const SCRAWL_FONT = { fontFamily: "var(--ff-hand), cursive", fontWeight: 700 };
+
+// ─── Motion ──────────────────────────────────────────────────────────────────
+
+/** True when the reader has asked for reduced motion: loops hold still. */
+export const StillContext = createContext(false);
+
+const EASE = "0.45 0 0.55 1";
+const r3 = (n: number) => Math.round(n * 1000) / 1000;
+
+/**
+ * Loops a transform on its own group. `values` are SVG transform arguments,
+ * e.g. ["0", "8", "0"] for rotate or ["0 0", "0 -4", "0 0"] for translate.
+ */
+export function Loop({
+  type,
+  values,
+  dur,
+  delay = 0,
+  linear = false,
+  children,
 }: {
-  d: string;
-  w?: number;
-  color?: string;
-  fill?: string;
-  opacity?: number;
+  type: "rotate" | "translate" | "scale";
+  values: string[];
+  dur: number;
+  delay?: number;
+  linear?: boolean;
+  children: ReactNode;
 }) {
+  const still = useContext(StillContext);
+  const n = values.length;
+  const keyTimes = values.map((_, i) => r3(i / (n - 1))).join(";");
+
   return (
-    <path
-      d={d}
-      stroke={color}
-      strokeWidth={w}
-      fill={fill}
-      opacity={opacity}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
+    <g>
+      {!still && (
+        <animateTransform
+          attributeName="transform"
+          type={type}
+          values={values.join(";")}
+          dur={`${dur}s`}
+          // A negative begin starts the loop part-way through, so things that
+          // share a rhythm don't all move in lockstep.
+          begin={`${-delay}s`}
+          repeatCount="indefinite"
+          calcMode={linear ? "linear" : "spline"}
+          keyTimes={keyTimes}
+          keySplines={linear ? undefined : Array(n - 1).fill(EASE).join(";")}
+          additive="sum"
+        />
+      )}
+      {children}
+    </g>
   );
 }
 
-/** Loose crosshatch shading, for anything that wants to read as solid. */
-export function Hatch({
+/** Fades a group in and out on a loop — blinking lamps, buzz lines. */
+export function Pulse({
+  dur,
+  delay = 0,
+  values = [0.2, 1, 0.2],
+  children,
+}: {
+  dur: number;
+  delay?: number;
+  values?: number[];
+  children: ReactNode;
+}) {
+  const still = useContext(StillContext);
+  const n = values.length;
+  return (
+    <g opacity={still ? values[Math.floor(n / 2)] : undefined}>
+      {!still && (
+        <animate
+          attributeName="opacity"
+          values={values.join(";")}
+          keyTimes={values.map((_, i) => r3(i / (n - 1))).join(";")}
+          dur={`${dur}s`}
+          begin={`${-delay}s`}
+          repeatCount="indefinite"
+          calcMode="spline"
+          keySplines={Array(n - 1).fill(EASE).join(";")}
+        />
+      )}
+      {children}
+    </g>
+  );
+}
+
+/**
+ * Carries something along a path on a loop, fading in at the start and out at
+ * the end — parts on a belt, trains on a track, droplets in a hose.
+ */
+export function Travel({
+  path,
+  dur,
+  delay = 0,
+  children,
+}: {
+  path: string;
+  dur: number;
+  delay?: number;
+  children: ReactNode;
+}) {
+  const still = useContext(StillContext);
+  if (still) {
+    // Parked where it would have been at the start of the loop — a frozen
+    // motion, so the browser does the path maths and nothing moves.
+    const at = r3(Math.min(0.85, Math.max(0.12, (delay / dur) % 1)));
+    return (
+      <g>
+        <animateMotion path={path} keyPoints={`${at};${at}`} keyTimes="0;1" calcMode="linear" dur="1s" fill="freeze" />
+        {children}
+      </g>
+    );
+  }
+  return (
+    <g opacity={0}>
+      <animateMotion path={path} dur={`${dur}s`} begin={`${-delay}s`} repeatCount="indefinite" />
+      <animate
+        attributeName="opacity"
+        values="0;1;1;0"
+        keyTimes="0;0.1;0.88;1"
+        dur={`${dur}s`}
+        begin={`${-delay}s`}
+        repeatCount="indefinite"
+      />
+      {children}
+    </g>
+  );
+}
+
+// ─── Lettering ───────────────────────────────────────────────────────────────
+
+export function Lettering({
   x,
   y,
-  w,
-  h,
-  seed = 7,
-  gap = 11,
+  size = 30,
   color = INK,
-  opacity = 0.3,
+  rotate = 0,
+  anchor = "middle",
+  scrawl = false,
+  opacity,
+  children,
 }: {
   x: number;
   y: number;
-  w: number;
-  h: number;
-  seed?: number;
-  gap?: number;
+  size?: number;
   color?: string;
+  rotate?: number;
+  anchor?: "start" | "middle" | "end";
+  scrawl?: boolean;
   opacity?: number;
+  children: ReactNode;
 }) {
-  const lines = [];
-  for (let i = 0, k = 0; i < w + h; i += gap, k++) {
-    const x1 = x + Math.max(0, i - h);
-    const y1 = y + Math.min(i, h);
-    const x2 = x + Math.min(i, w);
-    const y2 = y + Math.max(0, i - w);
-    lines.push(<Ink key={k} d={dLine(x1, y1, x2, y2, seed + k, 1.1)} w={1.3} color={color} opacity={opacity} />);
-  }
-  return <g>{lines}</g>;
+  return (
+    <text
+      x={x}
+      y={y}
+      fontSize={size}
+      fill={color}
+      stroke="none"
+      opacity={opacity}
+      textAnchor={anchor}
+      dominantBaseline="middle"
+      transform={rotate ? `rotate(${rotate} ${x} ${y})` : undefined}
+      style={scrawl ? SCRAWL_FONT : HAND_FONT}
+    >
+      {children}
+    </text>
+  );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // JACOB
-// Drawn in local coordinates with the feet at the origin, so a scene only has
-// to say where he stands. Limbs are nested groups rotated about their own
-// joint, which is what lets each scene animate an arm without re-authoring him.
+// The same kid as the journal — round head, black mop of hair, dot eyes —
+// drawn with his feet at the origin so a scene only says where he stands.
+// Each limb is a group pivoting on its own joint.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const HIP_Y = -88;
-const SHOULDER_Y = -168;
-const NECK_Y = -182;
-const HEAD_Y = -208;
-const HEAD_R = 25;
+const HIP_Y = -84;
+const SHOULDER_Y = -160;
+const NECK_Y = -174;
+const HEAD_Y = -205;
+const HEAD_R = 30;
 
 export interface Limb {
-  /** Joint position, relative to the shoulder / hip. */
+  /** Middle joint, relative to the shoulder / hip. */
   elbow: [number, number];
   /** End of the limb, relative to the shoulder / hip. */
   hand: [number, number];
-  animate?: MotionProps["animate"];
-  transition?: MotionProps["transition"];
+  /** Optional swing, in degrees about the joint, e.g. [0, 8, 0]. */
+  swing?: number[];
+  dur?: number;
+  delay?: number;
 }
 
-const STAND_ARM_L: Limb = { elbow: [-26, 34], hand: [-34, 72] };
-const STAND_ARM_R: Limb = { elbow: [26, 34], hand: [34, 72] };
-const STAND_LEG_L: Limb = { elbow: [-20, 44], hand: [-26, 88] };
-const STAND_LEG_R: Limb = { elbow: [20, 44], hand: [26, 88] };
+const STAND_ARM_L: Limb = { elbow: [-22, 36], hand: [-30, 74] };
+const STAND_ARM_R: Limb = { elbow: [22, 36], hand: [30, 74] };
+const STAND_LEG_L: Limb = { elbow: [-14, 42], hand: [-22, 84] };
+const STAND_LEG_R: Limb = { elbow: [14, 42], hand: [22, 84] };
 
-function LimbPath({ limb, seed, w }: { limb: Limb; seed: number; w: number }) {
-  return (
+function LimbShape({
+  limb,
+  prop,
+  foot,
+}: {
+  limb: Limb;
+  prop?: ReactNode;
+  /** Draw a shoe at the end, pointing away from the body. */
+  foot?: boolean;
+}) {
+  const [ex, ey] = limb.elbow;
+  const [hx, hy] = limb.hand;
+  const out = hx < 0 ? -1 : 1;
+  const shape = (
     <>
-      <Ink d={dLine(0, 0, limb.elbow[0], limb.elbow[1], seed, 1.6)} w={w} />
-      <Ink d={dLine(limb.elbow[0], limb.elbow[1], limb.hand[0], limb.hand[1], seed + 1, 1.6)} w={w} />
+      <path d={`M0 0 L${ex} ${ey} L${hx} ${hy}`} />
+      {foot && <path d={`M${hx} ${hy} l${out * 13} 0`} strokeWidth={5} />}
+      {prop}
     </>
+  );
+
+  if (!limb.swing) return shape;
+  return (
+    <Loop type="rotate" values={limb.swing.map(String)} dur={limb.dur ?? 2} delay={limb.delay}>
+      {shape}
+    </Loop>
+  );
+}
+
+/** The mop: a dome of hair with a jagged fringe, scaled from the journal's. */
+function hairPath(r: number) {
+  const k = r / 17;
+  const p = (x: number, y: number) => `${Math.round(x * k * 10) / 10} ${Math.round(y * k * 10) / 10}`;
+  return `M${p(-18, 1)} C${p(-19, -26)} ${p(19, -26)} ${p(18, 1)} L${p(14, -5)} L${p(10, -1)} L${p(4, -6)} L${p(0, -1)} L${p(-5, -6)} L${p(-9, -1)} L${p(-15, -5)} Z`;
+}
+const HAIR = hairPath(HEAD_R);
+
+export function Head({ look = 0, shades = false }: { look?: number; shades?: boolean }) {
+  return (
+    <g>
+      <circle cx={0} cy={0} r={HEAD_R} fill={PAPER} />
+      <path d={HAIR} fill={INK} strokeWidth={2} />
+      {shades ? (
+        <g fill={INK} stroke="none">
+          <ellipse cx={-10 + look} cy={6} rx={9} ry={6.5} />
+          <ellipse cx={10 + look} cy={6} rx={9} ry={6.5} />
+        </g>
+      ) : (
+        <g fill={INK} stroke="none">
+          <circle cx={-9 + look} cy={6} r={3.2} />
+          <circle cx={9 + look} cy={6} r={3.2} />
+        </g>
+      )}
+      <path d={`M${-5 + look} 17 q5 4 10 0`} strokeWidth={3} />
+    </g>
   );
 }
 
@@ -109,16 +308,15 @@ export function Jacob({
   y,
   scale = 1,
   flip = false,
-  seed = 3,
-  color = INK,
+  look = 0,
   armLeft = STAND_ARM_L,
   armRight = STAND_ARM_R,
   legLeft = STAND_LEG_L,
   legRight = STAND_LEG_R,
-  headTilt,
-  headTransition,
+  tilt,
+  tiltDur = 2,
   bob,
-  bobTransition,
+  bobDur = 2,
   headProp,
   armLeftProp,
   armRightProp,
@@ -127,74 +325,69 @@ export function Jacob({
   x: number;
   y: number;
   scale?: number;
+  /** Mirror him to face left. */
   flip?: boolean;
-  seed?: number;
-  color?: string;
+  /** Nudges the eyes; positive looks the way he is facing. */
+  look?: number;
   armLeft?: Limb;
   armRight?: Limb;
   legLeft?: Limb;
   legRight?: Limb;
-  headTilt?: MotionProps["animate"];
-  headTransition?: MotionProps["transition"];
-  bob?: MotionProps["animate"];
-  bobTransition?: MotionProps["transition"];
-  /** Worn on the head, so it follows the head tilt (headphones, hats). */
-  headProp?: React.ReactNode;
-  /** Held in a hand, so it follows the arm swing. Positioned by the scene
-   *  relative to the shoulder, matching that arm's `hand` offset. */
-  armLeftProp?: React.ReactNode;
-  armRightProp?: React.ReactNode;
-  /** Anything else in Jacob's local space that should not follow a limb. */
-  children?: React.ReactNode;
+  /** Head rotation keyframes in degrees, about the neck. */
+  tilt?: number[];
+  tiltDur?: number;
+  /** Whole-body vertical bob keyframes, in units. */
+  bob?: number[];
+  bobDur?: number;
+  /** Worn on the head, drawn about its centre; follows the tilt. */
+  headProp?: ReactNode;
+  /** Held in a hand, positioned relative to the shoulder; follows the swing. */
+  armLeftProp?: ReactNode;
+  armRightProp?: ReactNode;
+  children?: ReactNode;
 }) {
-  const s = flip ? -scale : scale;
+  const sx = flip ? -scale : scale;
+
+  const head = (
+    <g transform={`translate(0 ${HEAD_Y - NECK_Y})`}>
+      <Head look={look} />
+      {headProp}
+    </g>
+  );
+
+  const body = (
+    <>
+      <g transform={`translate(0 ${HIP_Y})`}>
+        <LimbShape limb={legLeft} foot />
+        <LimbShape limb={legRight} foot />
+      </g>
+      <path d={`M0 ${NECK_Y} L0 ${HIP_Y}`} />
+      <g transform={`translate(0 ${SHOULDER_Y})`}>
+        <LimbShape limb={armLeft} prop={armLeftProp} />
+        <LimbShape limb={armRight} prop={armRightProp} />
+      </g>
+      <g transform={`translate(0 ${NECK_Y})`}>
+        {tilt ? (
+          <Loop type="rotate" values={tilt.map(String)} dur={tiltDur}>
+            {head}
+          </Loop>
+        ) : (
+          head
+        )}
+      </g>
+      {children}
+    </>
+  );
 
   return (
-    <g transform={`translate(${x}, ${y}) scale(${s}, ${scale})`} style={{ color }}>
-      <motion.g animate={bob} transition={bobTransition}>
-        {/* Legs */}
-        <g transform={`translate(0, ${HIP_Y})`}>
-          <motion.g animate={legLeft.animate} transition={legLeft.transition}>
-            <LimbPath limb={legLeft} seed={seed + 10} w={2.8} />
-          </motion.g>
-          <motion.g animate={legRight.animate} transition={legRight.transition}>
-            <LimbPath limb={legRight} seed={seed + 20} w={2.8} />
-          </motion.g>
-        </g>
-
-        {/* Torso */}
-        <Ink d={dLine(0, NECK_Y, 0, HIP_Y, seed + 30, 2)} w={3} />
-
-        {/* Arms */}
-        <g transform={`translate(0, ${SHOULDER_Y})`}>
-          <motion.g animate={armLeft.animate} transition={armLeft.transition}>
-            <LimbPath limb={armLeft} seed={seed + 40} w={2.6} />
-            {armLeftProp}
-          </motion.g>
-          <motion.g animate={armRight.animate} transition={armRight.transition}>
-            <LimbPath limb={armRight} seed={seed + 50} w={2.6} />
-            {armRightProp}
-          </motion.g>
-        </g>
-
-        {/* Head — rotates about the neck */}
-        <g transform={`translate(0, ${NECK_Y})`}>
-          <motion.g animate={headTilt} transition={headTransition}>
-            {headProp}
-            <Ink d={dCircle(0, HEAD_Y - NECK_Y, HEAD_R, seed + 60, 1.5)} w={2.8} />
-            {/* Face — a couple of dots and a line, kept minimal on purpose */}
-            <circle cx={-8} cy={HEAD_Y - NECK_Y - 4} r={2.6} fill={color} />
-            <circle cx={9} cy={HEAD_Y - NECK_Y - 4} r={2.6} fill={color} />
-            <Ink d={dLine(-7, HEAD_Y - NECK_Y + 10, 8, HEAD_Y - NECK_Y + 11, seed + 70, 1)} w={2.1} />
-            {/* Hair — three quick flicks */}
-            <Ink d={dLine(-13, HEAD_Y - NECK_Y - 22, -17, HEAD_Y - NECK_Y - 33, seed + 80, 1.2)} w={2.2} />
-            <Ink d={dLine(0, HEAD_Y - NECK_Y - 26, -2, HEAD_Y - NECK_Y - 38, seed + 81, 1.2)} w={2.2} />
-            <Ink d={dLine(13, HEAD_Y - NECK_Y - 22, 16, HEAD_Y - NECK_Y - 32, seed + 82, 1.2)} w={2.2} />
-          </motion.g>
-        </g>
-
-        {children}
-      </motion.g>
+    <g transform={`translate(${x} ${y}) scale(${sx} ${scale})`}>
+      {bob ? (
+        <Loop type="translate" values={bob.map((v) => `0 ${v}`)} dur={bobDur}>
+          {body}
+        </Loop>
+      ) : (
+        body
+      )}
     </g>
   );
 }
@@ -208,43 +401,24 @@ export const RIG = {
   headR: HEAD_R,
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// SHARED PROPS
-// ─────────────────────────────────────────────────────────────────────────────
+// ─── Shared props ────────────────────────────────────────────────────────────
 
-/** A music note, used on the AIM Lab floor. */
-export function MusicNote({ x, y, seed = 1, color = INK }: { x: number; y: number; seed?: number; color?: string }) {
-  return (
-    <g transform={`translate(${x}, ${y})`}>
-      <Ink d={dCircle(0, 0, 6.5, seed, 1.2)} w={2.2} color={color} fill={color} />
-      <Ink d={dLine(6, -1, 7, -26, seed + 1, 1)} w={2.2} color={color} />
-      <Ink d={dPoly([[7, -26], [17, -22], [17, -14]], seed + 2, 1.2)} w={2.2} color={color} />
-    </g>
-  );
-}
-
-/** Headphones. Pass as Jacob's `headProp` so they tilt with the head. */
-export function Headphones({ color = INK }: { color?: string }) {
-  const top = HEAD_Y - NECK_Y;
+/** Headphones. Pass as Jacob's `headProp` so they tilt with his head. */
+export function Headphones() {
   return (
     <g>
-      <Ink d={dPoly([[-27, top - 4], [-24, top - 24], [0, top - 31], [24, top - 24], [27, top - 4]], 91, 1.4)} w={2.6} color={color} />
-      <Ink d={dRectLocal(-35, top - 8, 15, 24, 92)} w={2.6} color={color} />
-      <Ink d={dRectLocal(20, top - 8, 15, 24, 93)} w={2.6} color={color} />
+      <path d="M-33 -2 C-36 -62 36 -62 33 -2" strokeWidth={5} />
+      <rect x={-42} y={-10} width={15} height={28} rx={6} fill={TINT.pink} />
+      <rect x={27} y={-10} width={15} height={28} rx={6} fill={TINT.pink} />
     </g>
   );
 }
 
-function dRectLocal(x: number, y: number, w: number, h: number, seed: number) {
-  return dPoly(
-    [
-      [x, y],
-      [x + w, y],
-      [x + w, y + h],
-      [x, y + h],
-    ],
-    seed,
-    1.4,
-    true
+export function MusicNote({ color = INK }: { color?: string }) {
+  return (
+    <g stroke={color} fill={color}>
+      <ellipse cx={0} cy={0} rx={8} ry={6} transform="rotate(-20)" />
+      <path d="M7 -2 V-34 L22 -28 V-20" fill="none" strokeWidth={3.5} />
+    </g>
   );
 }

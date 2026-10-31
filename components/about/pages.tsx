@@ -2,6 +2,7 @@
 
 import { createContext, useContext, type ComponentType } from "react";
 import { Download, ExternalLink } from "lucide-react";
+import type { LeagueRank } from "@/lib/riot";
 import {
   CURRENTLY_WORKING_ON,
   GAMES,
@@ -54,7 +55,10 @@ import {
    Words live in data.ts. This file is layout.
    ─────────────────────────────────────────────────────────────────────────── */
 
-export const JournalContext = createContext({ portfolioReady: false });
+export const JournalContext = createContext<{ portfolioReady: boolean; leagueRank: LeagueRank | null }>({
+  portfolioReady: false,
+  leagueRank: null,
+});
 
 const body = "m-0 text-[23px] leading-[32px]";
 
@@ -258,12 +262,26 @@ function OutdoorsRight() {
 
 // ─── 5 · Games, left ────────────────────────────────────────────────────────
 
+const TIER_COLORS: Record<string, string> = {
+  IRON: "#5E5A5A",
+  BRONZE: "#8C5A3C",
+  SILVER: "#A8B2B8",
+  GOLD: "#D4AF37",
+  PLATINUM: "#3FB8AF",
+  EMERALD: "#2ECC71",
+  DIAMOND: "#576BCE",
+  MASTER: "#9D4DC4",
+  GRANDMASTER: "#E04848",
+  CHALLENGER: "#F4C874",
+};
+const UNRANKED_COLOR = "#808080";
+
 /** A value Jacob hasn't filled in yet reads as a dare rather than a gap. */
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value, color = PEN_RED }: { label: string; value: string; color?: string }) {
   return (
     <span className="inline-flex items-baseline gap-2">
       <span className="text-[20px] uppercase tracking-wide text-zinc-500">{label}:</span>
-      <span className="text-[30px] leading-none" style={{ color: PEN_RED }}>
+      <span className="text-[30px] leading-none" style={{ color }}>
         {value || "???"}
       </span>
       {!value && (
@@ -277,6 +295,8 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 function GamesLeft() {
   const { league, chess } = GAMES;
+  // Live from Riot when the API answers; otherwise whatever's typed in data.ts.
+  const { leagueRank } = useContext(JournalContext);
 
   return (
     <>
@@ -287,8 +307,17 @@ function GamesLeft() {
           <Highlight color="rgba(147,197,253,0.7)">{league.name}</Highlight>
         </p>
         <div className="mt-1">
-          <Stat label="rank" value={league.rank} />
+          <Stat
+            label="rank"
+            value={leagueRank?.label ?? league.rank}
+            color={leagueRank ? (TIER_COLORS[leagueRank.tier ?? ""] ?? UNRANKED_COLOR) : undefined}
+          />
         </div>
+        {leagueRank?.lp !== undefined && (
+          <Note size={21} color="#71717a">
+            {leagueRank.lp} LP · {leagueRank.wins}W / {leagueRank.losses}L
+          </Note>
+        )}
       </At>
       <At x={30} y={232} w={290}>
         <DoodleGamer className="w-full" />

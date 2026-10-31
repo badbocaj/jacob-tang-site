@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   AnimatePresence,
+  animate,
   motion,
   useAnimationFrame,
   useMotionValue,
@@ -18,17 +19,10 @@ import { VisorOverlay } from "./VisorOverlay";
 import { HudNav } from "./HudNav";
 import { SkyView } from "./SkyView";
 import { StatusCluster } from "./StatusCluster";
-import { RadarLoop } from "./RadarLoop";
 import { ProfilePanel } from "./ProfilePanel";
 import { Reticle, usePreciseCursor } from "./Reticle";
 import { Brackets } from "./HudPrimitives";
-import {
-  BOOT_LINES,
-  LADDER_TICKS,
-  NAV_TABS,
-  SYSTEM_READOUTS,
-  type NavTab,
-} from "./data";
+import { NAV_TABS, PROFILE, type NavTab } from "./data";
 
 /* ───────────────────────────────────────────────────────────────────────────
    THE COCKPIT
@@ -79,7 +73,6 @@ export default function Cockpit() {
 
   const [phase, setPhase] = useState<Phase>("dormant");
   const [engaging, setEngaging] = useState<NavTab | null>(null);
-  const [logLines, setLogLines] = useState(0);
   const [profileOpen, setProfileOpen] = useState(false);
   const [quickNav, setQuickNav] = useState(false);
   const [skyArmed, setSkyArmed] = useState(false);
@@ -114,6 +107,19 @@ export default function Cockpit() {
   const cityDrop = useTransform(pitch, [0, 1], ["0vh", "100vh"]);
   /** The canopy pitches with you, but only a little — it is bolted to you. */
   const canopyDrop = useTransform(pitch, [0, 1], [0, 34]);
+  /** The name plate owns the glass at rest and gets out of the way of the sky. */
+  const plateOpacity = useTransform(pitch, [0, 0.22], [1, 0]);
+  const plateY = useTransform(pitch, [0, 0.22], [0, -24]);
+
+  /** Mouse / touch route into the sky — same camera the arrow keys drive. */
+  const lookUp = useCallback(() => {
+    setHasLooked(true);
+    animate(pitch, 1, { type: "spring", stiffness: 60, damping: 16 });
+  }, [pitch]);
+  const lookDown = useCallback(() => {
+    animate(pitch, 0, { type: "spring", stiffness: 70, damping: 18 });
+    animate(yaw, 0, { type: "spring", stiffness: 70, damping: 18 });
+  }, [pitch, yaw]);
 
   const heldRef = useRef<Set<string>>(new Set());
   const armedRef = useRef(false);
@@ -200,13 +206,6 @@ export default function Cockpit() {
     const id = window.setTimeout(() => setPhase("online"), BOOT_MS);
     return () => window.clearTimeout(id);
   }, [phase]);
-
-  // Diagnostic lines printing one at a time as the visor seats.
-  useEffect(() => {
-    if (!booted || logLines >= BOOT_LINES.length) return;
-    const id = window.setTimeout(() => setLogLines((n) => n + 1), 130);
-    return () => window.clearTimeout(id);
-  }, [booted, logLines]);
 
   // Warm the routes the channel bar can reach.
   useEffect(() => {
@@ -315,8 +314,7 @@ export default function Cockpit() {
                 transition={{ ...SNAP, delay: 0.5 }}
                 className="font-mono text-xs uppercase tracking-label"
               >
-                <div className="text-cyan-100/90">JT-01 // FLIGHT DECK</div>
-                <div className="mt-1 text-cyan-300/40">HUD REV 2.6 · VISOR LOCKED</div>
+                <div className="text-cyan-100/80">JT-01 // FLIGHT DECK</div>
               </motion.div>
 
               {/* ── Quick nav ──────────────────────────────────────────────
@@ -362,116 +360,55 @@ export default function Cockpit() {
               </motion.div>
             </div>
 
-            {/* ── Left rail: system log ─────────────────────────────────── */}
+            {/* ── Name plate ────────────────────────────────────────────────
+                The one thing on the glass at rest. Everything else on the
+                deck is either a way out or decoration, so it stays quiet. */}
             <motion.div
-              className="absolute left-8 top-1/2 hidden -translate-y-1/2 2xl:block"
-              initial={{ opacity: 0, x: -16 }}
-              animate={{ opacity: phase === "online" ? 0.55 : 1, x: 0 }}
-              transition={{ ...SNAP, delay: 0.62 }}
+              className="absolute inset-x-0 top-[22%] flex justify-center px-6"
+              style={{ opacity: plateOpacity, y: plateY }}
             >
-              <div className="font-mono text-xs uppercase leading-relaxed tracking-label text-cyan-300/70">
-                <div className="mb-2 text-amber-300/70">SYS LOG</div>
-                {BOOT_LINES.slice(0, logLines).map((line) => (
-                  <motion.div
-                    key={line}
-                    initial={{ opacity: 0, x: -8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.16 }}
-                  >
-                    {line}
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* ── Right rail: telemetry ladder ──────────────────────────── */}
-            <motion.div
-              className="absolute right-8 top-1/2 hidden -translate-y-1/2 items-center gap-3 2xl:flex"
-              initial={{ opacity: 0, x: 16 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ ...SNAP, delay: 0.66 }}
-            >
-              <div className="flex flex-col items-end gap-2 font-mono text-xs uppercase tracking-label">
-                {SYSTEM_READOUTS.map((r) => (
-                  <div key={r.key} className="flex items-baseline gap-2">
-                    <span className="text-cyan-300/40">{r.key}</span>
-                    <span className="tabular-nums text-cyan-100/85">{r.value}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex flex-col items-end gap-[7px]">
-                {LADDER_TICKS.map((t) => (
-                  <span
-                    key={t}
-                    className="block h-px bg-cyan-300"
-                    style={{
-                      width: t % 3 === 0 ? 22 : 11,
-                      opacity: t === 6 ? 0.95 : 0.35,
-                    }}
-                  />
-                ))}
-              </div>
-            </motion.div>
-
-            {/* ── Bottom-left: orbital radar ────────────────────────────── */}
-            <motion.div
-              className="absolute bottom-5 left-4 hidden md:block sm:left-8"
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ ...SNAP, delay: 0.7 }}
-            >
-              <RadarLoop />
+              <motion.div
+                className="flex flex-col items-center text-center"
+                initial={{ opacity: 0, y: 12, filter: "blur(6px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                transition={{ ...SNAP, delay: 0.7 }}
+              >
+                <span className="font-mono text-xs uppercase tracking-label text-amber-300/80">
+                  PILOT ON DECK
+                </span>
+                <h1
+                  className="wide m-0 mt-3 font-display text-4xl font-bold uppercase tracking-tight text-cyan-50 sm:text-6xl"
+                  style={{ textShadow: "0 0 32px rgba(34,211,238,0.35)" }}
+                >
+                  {PROFILE.name}
+                </h1>
+                <p className="m-0 mt-3 font-mono text-xs uppercase leading-relaxed tracking-label text-cyan-200/60">
+                  <span className="block">Mechanical engineer</span>
+                  <span className="block">Structures · testing · propulsion</span>
+                </p>
+              </motion.div>
             </motion.div>
 
             {/* ── Bottom-centre: dash cluster ───────────────────────────────
-                Heading tape sitting above the one physical switch on the
-                desk. PILOT INFO is what deploys the dossier. */}
+                Two controls and nothing else: go look at the sky, or read
+                about the pilot. */}
             <motion.div
-              className="absolute inset-x-0 bottom-6 flex flex-col items-center gap-6"
+              className="absolute inset-x-0 bottom-6 flex flex-col items-center gap-4"
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ ...SNAP, delay: 0.74 }}
             >
-              <LookPrompt armed={skyArmed} nudged={hasLooked} />
-
-              <div className="relative hidden items-end gap-[9px] sm:flex">
-                {Array.from({ length: 21 }, (_, i) => (
-                  <span
-                    key={i}
-                    className="block w-px bg-cyan-300"
-                    style={{ height: i % 5 === 0 ? 12 : 6, opacity: i % 5 === 0 ? 0.7 : 0.3 }}
-                  />
-                ))}
-                <span
-                  className="absolute left-1/2 -top-4 -translate-x-1/2 font-mono text-xs tabular-nums tracking-label text-amber-300"
-                  style={{ textShadow: "0 0 12px rgba(251,191,36,0.7)" }}
-                >
-                  284
-                </span>
-                <span className="absolute left-1/2 -bottom-3 h-2 w-2 -translate-x-1/2 rotate-45 border-l border-t border-amber-300" />
-              </div>
+              <LookControl
+                armed={skyArmed}
+                nudged={hasLooked}
+                onUp={lookUp}
+                onDown={lookDown}
+              />
 
               <PilotInfoSwitch
                 active={profileOpen}
                 onClick={() => setProfileOpen((v) => !v)}
               />
-            </motion.div>
-
-            {/* ── Bottom-right: mode line ───────────────────────────────── */}
-            <motion.div
-              className="absolute bottom-5 right-4 hidden text-right font-mono text-xs uppercase leading-relaxed tracking-label md:block sm:right-8"
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ ...SNAP, delay: 0.78 }}
-            >
-              <div className="text-amber-300/90">
-                {skyArmed ? "MODE :: SKY SWEEP" : "MODE :: STANDBY ORBIT"}
-              </div>
-              <div className="text-cyan-300/45">
-                {skyArmed ? "MOUSE = TRIGGER · ↓ = BACK TO DECK" : "↑ ↓ ← → = LOOK · MOUSE = TRIGGER"}
-              </div>
-              <div className="text-cyan-300/25">PARALLAX ACTIVE · TRACKING OPERATOR</div>
             </motion.div>
           </div>
         </motion.div>
@@ -660,54 +597,62 @@ function QuickNavCheckbox({
 }
 
 /* ───────────────────────────────────────────────────────────────────────────
-   The nudge toward the sky.
+   The way into the sky — and back out.
 
-   Before the operator has touched the arrow keys this blinks and spells the
-   whole thing out. After that it stops shouting and becomes a state readout,
-   because a hint you have already taken is just noise on the glass.
+   A real button, so mouse and touch get there too; the arrow keys still work
+   and are shown as the shortcut. Before the first look the ↑ key blinks. Once
+   the sky is up, the same strip says how to fire and how to come back down.
    ─────────────────────────────────────────────────────────────────────────── */
 
-function LookPrompt({ armed, nudged }: { armed: boolean; nudged: boolean }) {
-  return (
-    <AnimatePresence initial={false}>
-      {/* Once the sky is up, fire control owns this strip of glass — two
-          instruction lines stacked on each other would just be clutter. */}
-      {!armed && (
-        <motion.div
-          key="look"
-          className="flex items-center gap-2.5 overflow-hidden font-mono text-xs uppercase tracking-label"
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          exit={{ opacity: 0, height: 0 }}
-          transition={{ duration: 0.2 }}
-        >
-          <span className="flex items-end gap-[3px]">
-            {["↑", "↓", "←", "→"].map((k) => (
-              <span
-                key={k}
-                className={`flex h-5 w-5 items-center justify-center border text-[10px] leading-none ${
-                  !nudged && k === "↑" ? "cockpit-prompt" : ""
-                }`}
-                style={{
-                  borderColor: k === "↑" ? "rgba(251,191,36,0.7)" : "rgba(34,211,238,0.35)",
-                  color: k === "↑" ? "#fde68a" : "rgba(165,243,252,0.6)",
-                  background: "rgba(2,10,18,0.75)",
-                }}
-              >
-                {k}
-              </span>
-            ))}
-          </span>
+function LookControl({
+  armed,
+  nudged,
+  onUp,
+  onDown,
+}: {
+  armed: boolean;
+  nudged: boolean;
+  onUp: () => void;
+  onDown: () => void;
+}) {
+  const key = armed ? "↓" : "↑";
 
-          <span
-            className="text-cyan-100/80"
-            style={{ textShadow: "0 0 10px rgba(34,211,238,0.45)" }}
-          >
-            HOLD ↑ TO LOOK UP AT THE SKY
-          </span>
-        </motion.div>
-      )}
-    </AnimatePresence>
+  return (
+    <motion.button
+      type="button"
+      data-hud-target
+      onClick={armed ? onDown : onUp}
+      whileHover={{ scale: 1.04 }}
+      whileTap={{ scale: 0.97 }}
+      transition={SNAP}
+      className="pointer-events-auto flex items-center gap-2.5 px-2 py-1 font-mono text-xs uppercase tracking-label outline-none focus-visible:ring-1 focus-visible:ring-cyan-200"
+    >
+      <span
+        className={`flex h-5 w-5 items-center justify-center border text-xs leading-none ${
+          !nudged && !armed ? "cockpit-prompt" : ""
+        }`}
+        style={{
+          borderColor: "rgba(251,191,36,0.7)",
+          color: "#fde68a",
+          background: "rgba(2,10,18,0.75)",
+        }}
+      >
+        {key}
+      </span>
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.span
+          key={armed ? "armed" : "deck"}
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -4 }}
+          transition={{ duration: 0.15 }}
+          className="text-cyan-100/80"
+          style={{ textShadow: "0 0 10px rgba(34,211,238,0.45)" }}
+        >
+          {armed ? "Click a rock to open it · back to deck" : "Look up · every rock is a page"}
+        </motion.span>
+      </AnimatePresence>
+    </motion.button>
   );
 }
 

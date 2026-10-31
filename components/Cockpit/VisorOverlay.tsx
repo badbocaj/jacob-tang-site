@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { CSSProperties } from "react";
 
 /* ───────────────────────────────────────────────────────────────────────────
    The visor itself.
@@ -47,21 +46,9 @@ export function VisorOverlay({ booting }: { booting: boolean }) {
 
         {/* Holographic gridlines ─────────────────────────────────────────── */}
         <div className="cockpit-holo absolute inset-0">
-          {/* Horizon ladder */}
-          <div
-            className="absolute inset-x-0 top-0 h-full opacity-[0.16]"
-            style={{
-              backgroundImage: `repeating-linear-gradient(180deg, ${GRID_LINE} 0px, ${GRID_LINE} 1px, transparent 1px, transparent 78px)`,
-              maskImage:
-                "radial-gradient(90% 70% at 50% 50%, #000 20%, transparent 82%)",
-              WebkitMaskImage:
-                "radial-gradient(90% 70% at 50% 50%, #000 20%, transparent 82%)",
-            }}
-          />
-
           {/* Receding floor grid across the glareshield */}
           <div
-            className="absolute inset-x-0 bottom-0 h-[32%] opacity-25"
+            className="absolute inset-x-0 bottom-0 h-[32%] opacity-15"
             style={{
               transform: "perspective(320px) rotateX(62deg)",
               transformOrigin: "50% 100%",
@@ -72,13 +59,9 @@ export function VisorOverlay({ booting }: { booting: boolean }) {
               WebkitMaskImage: "linear-gradient(180deg, transparent, #000 70%)",
             }}
           />
-
-          {/* Boresight hairlines */}
-          <div className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-cyan-300/10" />
-          <div className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-cyan-300/10" />
         </div>
 
-        <div className="cockpit-scanlines absolute inset-0 opacity-70" />
+        <div className="cockpit-scanlines absolute inset-0 opacity-30" />
 
         {/* Leading edge of the plate — the bright line that drags it down */}
         <motion.div
@@ -89,20 +72,6 @@ export function VisorOverlay({ booting }: { booting: boolean }) {
           transition={{ delay: 0.6, duration: 0.5 }}
         />
 
-        {/* Servo latches biting shut on both sides */}
-        {(["left", "right"] as const).map((side) => (
-          <motion.div
-            key={side}
-            className="absolute top-1/2 h-16 w-4 -translate-y-1/2"
-            style={{ [side]: "1.1vw" } as CSSProperties}
-            initial={{ opacity: 0, scaleY: 0.2 }}
-            animate={{ opacity: 1, scaleY: 1 }}
-            transition={{ delay: 0.34, type: "spring", stiffness: 400, damping: 20 }}
-          >
-            <div className="h-full w-full border-y-2 border-cyan-300/70" />
-            <div className="absolute inset-y-3 left-1/2 w-px -translate-x-1/2 bg-cyan-300/40" />
-          </motion.div>
-        ))}
       </motion.div>
 
       {/* Lock flash — a single frame of white as the plate seats */}

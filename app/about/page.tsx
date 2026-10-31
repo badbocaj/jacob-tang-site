@@ -5,15 +5,17 @@ import Link from "next/link";
 
 import Journal from "@/components/about/Journal";
 import { PORTFOLIO } from "@/components/about/data";
+import { getLeagueRank } from "@/lib/riot";
 
 export const metadata: Metadata = {
   title: "About — Jacob Tang",
   description: "Jacob's journal: what he's building, what he does outside, what he plays, and how he got here.",
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
   // The folder on page one only lights up once the PDF is actually there.
   const portfolioReady = existsSync(path.join(process.cwd(), PORTFOLIO.diskPath));
+  const leagueRank = await getLeagueRank();
 
   return (
     <div
@@ -42,7 +44,7 @@ export default function AboutPage() {
       </div>
 
       <div className="mx-auto max-w-[1140px]">
-        <Journal portfolioReady={portfolioReady} />
+        <Journal portfolioReady={portfolioReady} leagueRank={leagueRank} />
       </div>
     </div>
   );

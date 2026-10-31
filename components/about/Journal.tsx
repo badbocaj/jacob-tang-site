@@ -10,6 +10,7 @@ import {
   type MotionValue,
 } from "framer-motion";
 import { JournalDefs } from "./Doodles";
+import type { LeagueRank } from "@/lib/riot";
 import { JournalContext, PAGES, SPREADS } from "./pages";
 import { BlankLeaf, PAGE_H, PAGE_W, Paper, PRINT, SCRAWL } from "./Paper";
 
@@ -57,7 +58,13 @@ function renderPage(i: number): ReactNode {
 /** The first page of whichever spread `page` sits in. */
 const spreadStart = (page: number) => page - (page % 2);
 
-export default function Journal({ portfolioReady }: { portfolioReady: boolean }) {
+export default function Journal({
+  portfolioReady,
+  leagueRank,
+}: {
+  portfolioReady: boolean;
+  leagueRank: LeagueRank | null;
+}) {
   const reduceMotion = useReducedMotion();
   const frameRef = useRef<HTMLDivElement>(null);
 
@@ -222,7 +229,7 @@ export default function Journal({ portfolioReady }: { portfolioReady: boolean })
   }
 
   return (
-    <JournalContext.Provider value={{ portfolioReady }}>
+    <JournalContext.Provider value={{ portfolioReady, leagueRank }}>
       <JournalDefs />
 
       <div ref={frameRef} className="w-full">

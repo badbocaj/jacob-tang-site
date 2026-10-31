@@ -174,7 +174,9 @@ export function CityBackdrop({ powered }: { powered: boolean }) {
 
       {/* Rain on the far side of the glass */}
       <div className="absolute inset-0">
-        {RAIN.map((r, i) => (
+        {/* A third of the generated drops: enough to read as weather, not
+            enough to stripe the whole view. */}
+        {RAIN.filter((_, i) => i % 3 === 0).map((r, i) => (
           <span
             key={i}
             className="cockpit-rain absolute top-0 w-px"
@@ -182,7 +184,7 @@ export function CityBackdrop({ powered }: { powered: boolean }) {
               {
                 left: `${r.left}%`,
                 height: `${r.len}px`,
-                opacity: r.o,
+                opacity: r.o * 0.6,
                 background:
                   "linear-gradient(180deg, transparent, rgba(186,230,253,0.95))",
                 animationDuration: `${r.dur}s`,

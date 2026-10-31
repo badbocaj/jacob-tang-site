@@ -17,3 +17,5 @@ Depending on which folder we are working in, adopt the following personas:
 * **Zone C: The Lab (`/projects` / HPFRT / Liquid Propulsion)**
   * **Vibe:** "Low-Fidelity Engineering." 
   * **Tone:** Grounded in actual physical engineering (thermodynamics, aerodynamics, CAD), but keep the tone light. Talk about the late nights, the math that didn't work, and the thrill of building physical hardware.
+
+test

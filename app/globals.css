@@ -57,6 +57,10 @@ body {
   background-color: #05070a;
   color: white;
   min-height: 100vh;
+  /* Off-screen entrance offsets (cards sliding in from x: 30) must not widen
+     the page. clip, not hidden: it does not create a scroll container, so
+     position: sticky keeps working. */
+  overflow-x: clip;
   font-family: var(--font-sans);
 }
 

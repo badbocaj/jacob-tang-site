@@ -556,6 +556,13 @@ function TravelPhoto({
 }) {
   const [errored, setErrored] = useState(false);
 
+  // A missing file can fail before React hydrates, in which case onError never
+  // fires and the browser's broken-image box is left on the polaroid. Check the
+  // element as soon as React attaches to it.
+  const checkLoaded = useCallback((img: HTMLImageElement | null) => {
+    if (img && img.complete && img.naturalWidth === 0) setErrored(true);
+  }, []);
+
   if (errored) {
     return (
       <div
@@ -576,7 +583,7 @@ function TravelPhoto({
           <span className="font-mono text-xs tracking-label text-white/20 uppercase">
             [ undeveloped ]
           </span>
-          <span className="font-mono text-xs text-white/10 tracking-label">{src}</span>
+          <span className="max-w-full truncate px-3 font-mono text-xs text-white/10">{src.split("/").pop()}</span>
         </div>
       </div>
     );
@@ -585,6 +592,7 @@ function TravelPhoto({
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
+      ref={checkLoaded}
       src={src}
       alt={alt}
       className={`w-full ${fill ? "h-full" : "aspect-square"} object-cover`}

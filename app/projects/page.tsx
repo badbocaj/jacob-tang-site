@@ -1,415 +1,307 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
+import Link from "next/link";
+import { MotionConfig, motion } from "framer-motion";
+import { ArrowUpRight } from "lucide-react";
 
-// ─── Config ───────────────────────────────────────────────────────────────────
+/* ───────────────────────────────────────────────────────────────────────────
+   THE LAB — project index.
 
-const PROJECT_COUNT = 3;
-const TARGET_PROJECT = "MAIIA";
-const PING_COORDS = [
-  { r: 0.4, theta: 45 },
-  { r: 0.8, theta: 135 },
-  { r: 0.5, theta: 280 },
+   This used to be a full-screen radar that swept, locked onto one project and
+   auto-flew you there, which meant the other two were only reachable by URL.
+   The radar stays (it is a good idea) but now it is a legend: every ping is a
+   project, every project is a tile, and hovering one lights up the other.
+
+   Look: blueprint paper. Ruled grid, hairline frames, figure captions.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+type Art = "wing" | "engine" | "classified";
+
+interface Project {
+  id: string;
+  codename: string;
+  title: string;
+  status: string;
+  role: string;
+  blurb: string;
+  href: string;
+  art: Art;
+  /** Ping position on the radar, polar: r in 0–1, theta in degrees. */
+  ping: { r: number; theta: number };
+}
+
+const PROJECTS: Project[] = [
+  {
+    id: "ARCHIVE_02",
+    codename: "HPFRT",
+    title: "Human-powered aircraft",
+    status: "Active · 2024",
+    role: "Structures researcher",
+    blurb:
+      "A student-built airplane that flies on legs alone. My part: designing and validating the structure that keeps it in one piece.",
+    href: "/projects/hpfrt",
+    art: "wing",
+    ping: { r: 0.8, theta: 135 },
+  },
+  {
+    id: "ARCHIVE_03",
+    codename: "LIQUID_PROP",
+    title: "Bipropellant rocket engine",
+    status: "Active · 2024–25",
+    role: "University propulsion team",
+    blurb:
+      "Design, build and hotfire a liquid bipropellant engine. The hard part is the injector and keeping the chamber from cooking itself.",
+    href: "/projects/liquid-prop",
+    art: "engine",
+    ping: { r: 0.4, theta: 45 },
+  },
+  {
+    id: "ARCHIVE_01",
+    codename: "MAIIA",
+    title: "Write-up in progress",
+    status: "Filed · 2024",
+    role: "Details pending",
+    blurb: "Declassification pending. The hardware exists; the paragraph about it does not yet.",
+    href: "/projects/maiia",
+    art: "classified",
+    ping: { r: 0.5, theta: 280 },
+  },
 ];
 
-// ─── Internal constants ───────────────────────────────────────────────────────
-
-const TARGET_IDX = PING_COORDS.length - 1;
-// 280° / 1.7°per-frame ≈ 165f = 2.75s scan + 0.7s lock + 0.5s expand ≈ 4.0s total
-const SWEEP_SPEED = 1.7;
-const LOCK_THRESHOLD = 2;
-
-type Phase = "scanning" | "locked" | "expanding";
-
-interface PingState {
-  active: boolean;
-  opacity: number;
-  pulsePhase: number;
-}
-
-// ─── Math helpers ─────────────────────────────────────────────────────────────
-
-function normalizeAngle(a: number): number {
-  return ((a % 360) + 360) % 360;
-}
-
-function toRad(deg: number): number {
-  return (deg * Math.PI) / 180;
-}
-
-// ─── Canvas drawing helpers ───────────────────────────────────────────────────
-
-function drawBase(ctx: CanvasRenderingContext2D, cx: number, cy: number, R: number) {
-  for (let i = 1; i <= 4; i++) {
-    const r = (R * i) / 4;
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    if (i === 4) {
-      ctx.strokeStyle = "rgba(34,211,238,0.55)";
-      ctx.lineWidth = 1.5;
-      ctx.shadowBlur = 10;
-      ctx.shadowColor = "rgba(34,211,238,0.35)";
-    } else {
-      ctx.strokeStyle = "rgba(34,211,238,0.14)";
-      ctx.lineWidth = 0.7;
-      ctx.shadowBlur = 0;
-    }
-    ctx.stroke();
-    ctx.shadowBlur = 0;
-
-    if (i < 4) {
-      ctx.font = "9px monospace";
-      ctx.fillStyle = "rgba(34,211,238,0.28)";
-      ctx.textAlign = "left";
-      ctx.textBaseline = "middle";
-      ctx.fillText(`${i * 25}km`, cx + r + 5, cy - 3);
-    }
-  }
-
-  ctx.setLineDash([4, 6]);
-  ctx.strokeStyle = "rgba(34,211,238,0.1)";
-  ctx.lineWidth = 0.5;
-  ctx.beginPath(); ctx.moveTo(cx - R, cy); ctx.lineTo(cx + R, cy); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(cx, cy - R); ctx.lineTo(cx, cy + R); ctx.stroke();
-  ctx.setLineDash([]);
-
-  for (const deg of [45, 135, 225, 315]) {
-    const rad = toRad(deg);
-    ctx.setLineDash([2, 9]);
-    ctx.strokeStyle = "rgba(34,211,238,0.06)";
-    ctx.lineWidth = 0.5;
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.lineTo(cx + R * Math.cos(rad), cy + R * Math.sin(rad));
-    ctx.stroke();
-    ctx.setLineDash([]);
-  }
-
-  for (let i = 0; i < 72; i++) {
-    const deg = i * 5;
-    const rad = toRad(deg);
-    const major = i % 9 === 0;
-    const inner = R * (major ? 0.92 : 0.965);
-    ctx.beginPath();
-    ctx.moveTo(cx + inner * Math.cos(rad), cy + inner * Math.sin(rad));
-    ctx.lineTo(cx + R * Math.cos(rad), cy + R * Math.sin(rad));
-    ctx.strokeStyle = major ? "rgba(34,211,238,0.55)" : "rgba(34,211,238,0.2)";
-    ctx.lineWidth = major ? 1.5 : 0.5;
-    ctx.stroke();
-  }
-
-  const dist = R + 20;
-  ctx.font = "bold 11px monospace";
-  ctx.fillStyle = "rgba(34,211,238,0.5)";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText("N", cx, cy - dist);
-  ctx.fillText("E", cx + dist, cy);
-  ctx.fillText("S", cx, cy + dist);
-  ctx.fillText("W", cx - dist, cy);
-
-  ctx.beginPath();
-  ctx.arc(cx, cy, 3, 0, Math.PI * 2);
-  ctx.fillStyle = "rgba(34,211,238,0.9)";
-  ctx.shadowBlur = 8;
-  ctx.shadowColor = "#22d3ee";
-  ctx.fill();
-  ctx.shadowBlur = 0;
-}
-
-function drawSweep(ctx: CanvasRenderingContext2D, cx: number, cy: number, R: number, angleDeg: number) {
-  const angleRad = toRad(angleDeg);
-  const trailRad = toRad(70);
-
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(cx, cy, R, 0, Math.PI * 2);
-  ctx.clip();
-
-  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
-  grad.addColorStop(0, "rgba(34,211,238,0.22)");
-  grad.addColorStop(0.55, "rgba(34,211,238,0.1)");
-  grad.addColorStop(1, "rgba(34,211,238,0)");
-
-  ctx.beginPath();
-  ctx.moveTo(cx, cy);
-  ctx.arc(cx, cy, R, angleRad - trailRad, angleRad);
-  ctx.closePath();
-  ctx.fillStyle = grad;
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.moveTo(cx, cy);
-  ctx.lineTo(cx + R * Math.cos(angleRad), cy + R * Math.sin(angleRad));
-  ctx.strokeStyle = "rgba(34,211,238,0.92)";
-  ctx.lineWidth = 2;
-  ctx.shadowBlur = 14;
-  ctx.shadowColor = "#22d3ee";
-  ctx.stroke();
-  ctx.shadowBlur = 0;
-
-  ctx.restore();
-}
-
-function drawPing(ctx: CanvasRenderingContext2D, px: number, py: number, opacity: number, pulsePhase: number) {
-  const pulse = (Math.sin(pulsePhase) + 1) / 2;
-  const ringR = 5 + pulse * 11;
-
-  ctx.beginPath();
-  ctx.arc(px, py, ringR, 0, Math.PI * 2);
-  ctx.strokeStyle = `rgba(34,211,238,${opacity * 0.55 * (1 - pulse * 0.85)})`;
-  ctx.lineWidth = 1;
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.arc(px, py, 2.5, 0, Math.PI * 2);
-  ctx.fillStyle = `rgba(255,255,255,${opacity * 0.7})`;
-  ctx.shadowBlur = 12 * opacity;
-  ctx.shadowColor = "#22d3ee";
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.arc(px, py, 3.5, 0, Math.PI * 2);
-  ctx.fillStyle = `rgba(34,211,238,${opacity})`;
-  ctx.shadowBlur = 16 * opacity;
-  ctx.shadowColor = "#22d3ee";
-  ctx.fill();
-  ctx.shadowBlur = 0;
-}
-
-function drawTargetBracket(ctx: CanvasRenderingContext2D, px: number, py: number, frame: number) {
-  const sz = 17;
-  const arm = 8;
-  const pulse = 0.65 + 0.35 * Math.sin(frame * 0.09);
-
-  ctx.strokeStyle = `rgba(34,211,238,${pulse})`;
-  ctx.lineWidth = 2;
-  ctx.lineCap = "round";
-  ctx.shadowBlur = 20;
-  ctx.shadowColor = "#22d3ee";
-
-  ctx.beginPath(); ctx.moveTo(px - sz + arm, py - sz); ctx.lineTo(px - sz, py - sz); ctx.lineTo(px - sz, py - sz + arm); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(px + sz - arm, py - sz); ctx.lineTo(px + sz, py - sz); ctx.lineTo(px + sz, py - sz + arm); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(px - sz, py + sz - arm); ctx.lineTo(px - sz, py + sz); ctx.lineTo(px - sz + arm, py + sz); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(px + sz - arm, py + sz); ctx.lineTo(px + sz, py + sz); ctx.lineTo(px + sz, py + sz - arm); ctx.stroke();
-
-  ctx.shadowBlur = 0;
-  ctx.lineCap = "butt";
-
-  ctx.font = `bold 10px monospace`;
-  ctx.fillStyle = `rgba(34,211,238,${pulse})`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "top";
-  ctx.shadowBlur = 8;
-  ctx.shadowColor = "#22d3ee";
-  ctx.fillText(TARGET_PROJECT, px, py + sz + 6);
-  ctx.shadowBlur = 0;
-}
-
-// ─── Component ────────────────────────────────────────────────────────────────
+const BLUE = "rgb(125 211 252)"; // sky-300
 
 export default function ProjectsPage() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const router = useRouter();
-
-  const sweepAngleRef = useRef(0);
-  const pingsRef = useRef<PingState[]>(
-    PING_COORDS.map(() => ({ active: false, opacity: 0, pulsePhase: 0 }))
-  );
-  const phaseRef = useRef<Phase>("scanning");
-  const lockTriggeredRef = useRef(false);
-  const frameRef = useRef(0);
-  const rafRef = useRef<number>(0);
-  const redirectedRef = useRef(false);
-
-  const [phase, setPhase] = useState<Phase>("scanning");
-  const [terminalLines, setTerminalLines] = useState<string[]>([]);
-  const [expandRadius, setExpandRadius] = useState(0);
-
-  const addLine = useCallback((line: string) => {
-    setTerminalLines((prev) => [...prev, line]);
-  }, []);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    resize();
-    window.addEventListener("resize", resize);
-
-    const draw = () => {
-      const w = canvas.width;
-      const h = canvas.height;
-      const cx = w / 2;
-      const cy = h / 2;
-      const R = Math.min(w, h) * 0.38;
-
-      ctx.clearRect(0, 0, w, h);
-      ctx.fillStyle = "#000";
-      ctx.fillRect(0, 0, w, h);
-
-      frameRef.current++;
-      drawBase(ctx, cx, cy, R);
-
-      if (phaseRef.current === "scanning") {
-        sweepAngleRef.current = (sweepAngleRef.current + SWEEP_SPEED) % 360;
-
-        PING_COORDS.forEach((ping, i) => {
-          if (!pingsRef.current[i].active) {
-            const diff = normalizeAngle(sweepAngleRef.current - ping.theta);
-            if (diff < 4 && diff >= 0) {
-              pingsRef.current[i].active = true;
-            }
-          }
-        });
-
-        if (!lockTriggeredRef.current) {
-          const target = PING_COORDS[TARGET_IDX];
-          const diff = normalizeAngle(sweepAngleRef.current - target.theta);
-          if (diff < LOCK_THRESHOLD && diff >= 0 && pingsRef.current[TARGET_IDX].active) {
-            lockTriggeredRef.current = true;
-            phaseRef.current = "locked";
-            setPhase("locked");
-          }
-        }
-
-        drawSweep(ctx, cx, cy, R, sweepAngleRef.current);
-      }
-
-      pingsRef.current.forEach((ping, i) => {
-        if (ping.active) {
-          ping.pulsePhase += 0.07;
-          if (ping.opacity < 1) ping.opacity = Math.min(1, ping.opacity + 0.05);
-        }
-        if (ping.opacity > 0) {
-          const coord = PING_COORDS[i];
-          const px = cx + coord.r * R * Math.cos(toRad(coord.theta));
-          const py = cy + coord.r * R * Math.sin(toRad(coord.theta));
-          drawPing(ctx, px, py, ping.opacity, ping.pulsePhase);
-        }
-      });
-
-      if (phaseRef.current === "locked" || phaseRef.current === "expanding") {
-        const coord = PING_COORDS[TARGET_IDX];
-        const px = cx + coord.r * R * Math.cos(toRad(coord.theta));
-        const py = cy + coord.r * R * Math.sin(toRad(coord.theta));
-        drawTargetBracket(ctx, px, py, frameRef.current);
-      }
-
-      rafRef.current = requestAnimationFrame(draw);
-    };
-
-    draw();
-
-    return () => {
-      cancelAnimationFrame(rafRef.current);
-      window.removeEventListener("resize", resize);
-    };
-  }, []);
-
-  useEffect(() => {
-    const t1 = setTimeout(() => addLine("> SCANNING_SECTOR..."), 300);
-    const t2 = setTimeout(() => addLine(`> ${PROJECT_COUNT} SIGNATURES DETECTED.`), 2000);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, [addLine]);
-
-  useEffect(() => {
-    if (phase !== "locked") return;
-    addLine(`> LOCKING_ON: [${TARGET_PROJECT}] // INITIALIZING_DATA_STREAM...`);
-    const t = setTimeout(() => {
-      phaseRef.current = "expanding";
-      setPhase("expanding");
-    }, 700);
-    return () => clearTimeout(t);
-  }, [phase, addLine]);
-
-  useEffect(() => {
-    if (phase !== "expanding") return;
-    let raf: number;
-    const maxR = Math.hypot(window.innerWidth, window.innerHeight);
-    let r = 0;
-    const speed = maxR / 32;
-
-    const step = () => {
-      r = Math.min(r + speed, maxR + 20);
-      setExpandRadius(r);
-      if (r < maxR + 20) {
-        raf = requestAnimationFrame(step);
-      } else if (!redirectedRef.current) {
-        redirectedRef.current = true;
-        router.push("/projects/maiia");
-      }
-    };
-    raf = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(raf);
-  }, [phase, router]);
+  const [hot, setHot] = useState<string | null>(null);
 
   return (
-    <div className="fixed inset-0 z-[60] overflow-hidden bg-black">
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
-
-      <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-6 py-3 border-b border-cyan-400/10">
-        <span className="font-mono text-xs text-cyan-400/40 tracking-label uppercase">
-          SECTOR_SCAN :: ACTIVE
-        </span>
-        <span className="font-mono text-xs text-cyan-400/25 tracking-label">
-          {phase === "scanning" ? "SWEEPING..." : phase === "locked" ? "TARGET ACQUIRED" : "ENGAGING..."}
-        </span>
-      </div>
-
-      {phase === "expanding" && (
+    <MotionConfig reducedMotion="user">
+      <main className="relative min-h-screen bg-[#050b16] pt-16 text-white">
+        {/* Blueprint grid, fading out toward the bottom */}
         <div
-          className="absolute pointer-events-none rounded-full"
-          style={{
-            width: expandRadius * 2,
-            height: expandRadius * 2,
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            background: "radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(34,211,238,0.95) 40%, rgba(34,211,238,0) 100%)",
-            boxShadow: "0 0 100px rgba(34,211,238,0.7), 0 0 40px rgba(255,255,255,0.5)",
-          }}
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(125,211,252,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(125,211,252,0.07)_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:linear-gradient(180deg,#000_40%,transparent)]"
         />
+
+        <div className="relative mx-auto w-full max-w-7xl px-5 pb-24 pt-14 sm:px-8 md:pt-20">
+          {/* ── Header: title block + radar legend ─────────────────────── */}
+          <header className="grid gap-10 border-b border-sky-300/20 pb-10 md:grid-cols-[1fr_auto] md:items-end">
+            <div>
+              <p className="m-0 font-mono text-xs uppercase tracking-label text-sky-300/70">
+                Zone C · The Lab
+              </p>
+              <h1 className="wide m-0 mt-4 text-4xl font-bold uppercase leading-none tracking-tight sm:text-6xl">
+                Hardware,
+                <br />
+                <span className="text-sky-300">math,</span> failures.
+              </h1>
+              <p className="m-0 mt-6 max-w-xl text-base leading-relaxed text-zinc-400">
+                Things I&apos;ve helped design, build, break and rebuild. Each one is
+                written up with the numbers, the sketches and the part where the math
+                didn&apos;t work the first time.
+              </p>
+            </div>
+
+            <Radar projects={PROJECTS} hot={hot} onHot={setHot} />
+          </header>
+
+          {/* ── Index ──────────────────────────────────────────────────── */}
+          <div className="mt-10 grid gap-3 md:grid-cols-3">
+            {PROJECTS.map((p, i) => (
+              <motion.div
+                key={p.id}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: i * 0.06 }}
+              >
+                <Link
+                  href={p.href}
+                  onMouseEnter={() => setHot(p.id)}
+                  onMouseLeave={() => setHot(null)}
+                  onFocus={() => setHot(p.id)}
+                  onBlur={() => setHot(null)}
+                  className={`group flex h-full flex-col border bg-[#071426]/80 no-underline backdrop-blur-sm transition-colors ${
+                    hot === p.id ? "border-sky-300/70" : "border-sky-300/20"
+                  }`}
+                >
+                  {/* Drawing */}
+                  <div className="relative aspect-[4/3] border-b border-sky-300/20">
+                    <ProjectArt art={p.art} hot={hot === p.id} />
+                    <span className="absolute left-3 top-3 font-mono text-xs uppercase tracking-label text-sky-300/60">
+                      Fig. {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <ArrowUpRight
+                      className="absolute right-3 top-3 h-5 w-5 text-sky-200 transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1"
+                      strokeWidth={1.75}
+                    />
+                  </div>
+
+                  {/* Title block, like the corner of a drawing sheet */}
+                  <div className="flex flex-1 flex-col p-5">
+                    <div className="flex items-baseline justify-between gap-3 font-mono text-xs uppercase tracking-label">
+                      <span className="text-sky-300">{p.codename}</span>
+                      <span className="text-zinc-500">{p.status}</span>
+                    </div>
+                    <h2 className="wide m-0 mt-3 text-2xl font-bold uppercase leading-tight tracking-tight text-white">
+                      {p.title}
+                    </h2>
+                    <p className="m-0 mt-3 flex-1 text-sm leading-relaxed text-zinc-400">{p.blurb}</p>
+                    <p className="m-0 mt-5 border-t border-sky-300/10 pt-3 font-mono text-xs uppercase tracking-label text-zinc-500">
+                      Role · {p.role}
+                    </p>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </main>
+    </MotionConfig>
+  );
+}
+
+/* ── Radar legend ──────────────────────────────────────────────────────── */
+
+function Radar({
+  projects,
+  hot,
+  onHot,
+}: {
+  projects: Project[];
+  hot: string | null;
+  onHot: (id: string | null) => void;
+}) {
+  const R = 90;
+  const toXY = (r: number, theta: number) => {
+    const rad = (theta * Math.PI) / 180;
+    return { x: r * R * Math.cos(rad), y: r * R * Math.sin(rad) };
+  };
+
+  return (
+    <div className="relative mx-auto w-56 md:mx-0">
+      <svg viewBox="-110 -110 220 220" className="block h-56 w-56" aria-hidden>
+        {[0.25, 0.5, 0.75, 1].map((f) => (
+          <circle
+            key={f}
+            r={R * f}
+            fill="none"
+            stroke={BLUE}
+            strokeOpacity={f === 1 ? 0.5 : 0.15}
+          />
+        ))}
+        <path d={`M${-R} 0 H${R} M0 ${-R} V${R}`} stroke={BLUE} strokeOpacity={0.12} strokeDasharray="3 5" />
+
+        {/* sweep */}
+        <motion.g
+          animate={{ rotate: 360 }}
+          transition={{ duration: 6, ease: "linear", repeat: Infinity }}
+        >
+          <defs>
+            <linearGradient id="lab-sweep" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stopColor={BLUE} stopOpacity="0" />
+              <stop offset="1" stopColor={BLUE} stopOpacity="0.28" />
+            </linearGradient>
+          </defs>
+          <path d={`M0 0 L${R} 0 A${R} ${R} 0 0 0 ${R * Math.cos(-0.9)} ${R * Math.sin(-0.9)} Z`} fill="url(#lab-sweep)" />
+          <line x1="0" y1="0" x2={R} y2="0" stroke={BLUE} strokeOpacity="0.8" />
+        </motion.g>
+
+        <circle r="2.5" fill={BLUE} />
+      </svg>
+
+      {/* Pings are real links, layered over the drawing */}
+      {projects.map((p) => {
+        const { x, y } = toXY(p.ping.r, p.ping.theta);
+        const isHot = hot === p.id;
+        return (
+          <Link
+            key={p.id}
+            href={p.href}
+            aria-label={p.codename}
+            onMouseEnter={() => onHot(p.id)}
+            onMouseLeave={() => onHot(null)}
+            className="absolute flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 no-underline"
+            style={{ left: `${50 + (x / 220) * 100}%`, top: `${50 + (y / 220) * 100}%` }}
+          >
+            <span className="relative flex h-3 w-3 items-center justify-center">
+              <span className="absolute inset-0 animate-ping rounded-full bg-sky-300/40" />
+              <span className={`relative h-2 w-2 rounded-full ${isHot ? "bg-white" : "bg-sky-300"}`} />
+            </span>
+          </Link>
+        );
+      })}
+
+      <p className="m-0 mt-2 text-center font-mono text-xs uppercase tracking-label text-sky-300/50">
+        {hot ? projects.find((p) => p.id === hot)?.codename : `${projects.length} signatures`}
+      </p>
+    </div>
+  );
+}
+
+/* ── Line drawings ─────────────────────────────────────────────────────── */
+
+function ProjectArt({ art, hot }: { art: Art; hot: boolean }) {
+  const common = {
+    fill: "none",
+    stroke: BLUE,
+    strokeWidth: 1.2,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+  };
+
+  return (
+    <svg
+      viewBox="0 0 300 225"
+      className={`absolute inset-0 h-full w-full transition-opacity duration-500 ${hot ? "opacity-100" : "opacity-70"}`}
+      aria-hidden
+    >
+      {art === "wing" && (
+        <g {...common}>
+          {/* Wing panel in plan view: spar plus a row of ribs */}
+          <path d="M30 120 L270 96 L270 132 L30 150 Z" />
+          <path d="M30 134 L270 112" strokeDasharray="6 4" strokeOpacity="0.7" />
+          {Array.from({ length: 11 }, (_, i) => {
+            const x = 50 + i * 21;
+            const t = (x - 30) / 240;
+            const top = 120 - t * 24;
+            const bot = 150 - t * 18;
+            return <path key={i} d={`M${x} ${top} L${x} ${bot}`} strokeOpacity="0.55" />;
+          })}
+          {/* Rib section, drawn big */}
+          <path d="M70 60 Q120 34 200 50 Q230 56 236 62 Q200 70 120 70 Q86 70 70 60 Z" />
+          <circle cx="128" cy="57" r="6" />
+          <path d="M70 80 H236 M70 76 V84 M236 76 V84" strokeOpacity="0.5" />
+          <text x="153" y="94" fill={BLUE} fillOpacity="0.6" fontSize="9" fontFamily="monospace" textAnchor="middle" stroke="none">
+            RIB SECTION
+          </text>
+        </g>
       )}
 
-      <div className="absolute bottom-8 left-8 z-10 space-y-1">
-        {terminalLines.map((line, i) => {
-          const isLockLine = line.startsWith("> LOCKING_ON");
-          const isOld = i < terminalLines.length - 1 && !isLockLine;
-          return (
-            <div
-              key={i}
-              className={
-                isLockLine
-                  ? "font-mono text-xs text-white animate-pulse"
-                  : isOld
-                  ? "font-mono text-xs text-cyan-400/45"
-                  : "font-mono text-xs text-cyan-300"
-              }
-              style={{
-                textShadow: isLockLine
-                  ? "0 0 14px rgba(255,255,255,0.9)"
-                  : "0 0 10px rgba(34,211,238,0.7)",
-              }}
-            >
-              {line}
-            </div>
-          );
-        })}
-        {phase === "scanning" && (
-          <span
-            className="inline-block w-[7px] h-[12px] bg-cyan-400"
-            style={{ animation: "pulse 0.9s step-start infinite" }}
-          />
-        )}
-      </div>
-    </div>
+      {art === "engine" && (
+        <g {...common}>
+          {/* Chamber, throat, bell, injector plate */}
+          <path d="M120 40 H180 V96 Q180 106 166 112 L162 116 Q198 146 212 196 H88 Q102 146 138 116 L134 112 Q120 106 120 96 Z" />
+          <path d="M112 40 H188 M116 34 H184" />
+          <path d="M150 18 V34" strokeDasharray="3 3" strokeOpacity="0.7" />
+          <path d="M150 116 V196" strokeDasharray="8 4 2 4" strokeOpacity="0.4" />
+          <path d="M226 116 H240 M226 196 H240 M233 116 V196" strokeOpacity="0.5" />
+          <text x="246" y="160" fill={BLUE} fillOpacity="0.6" fontSize="9" fontFamily="monospace" stroke="none">
+            Ae/At
+          </text>
+        </g>
+      )}
+
+      {art === "classified" && (
+        <g {...common}>
+          <rect x="70" y="50" width="160" height="120" strokeDasharray="5 5" strokeOpacity="0.6" />
+          <path d="M70 50 L230 170 M230 50 L70 170" strokeOpacity="0.25" />
+          <rect x="96" y="98" width="108" height="24" fill="#050b16" stroke={BLUE} />
+          <text x="150" y="114" fill={BLUE} fontSize="10" fontFamily="monospace" textAnchor="middle" stroke="none">
+            REDACTED
+          </text>
+        </g>
+      )}
+    </svg>
   );
 }

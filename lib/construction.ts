@@ -22,7 +22,12 @@
  * of the site still point at /funny — sealing both means neither leaks.
  */
 export const LOCKED_SECTIONS = [
-  "/projects",
+  // The Lab index is open; the individual write-ups stay sealed until their
+  // placeholder specs and text are replaced with the real thing.
+  "/projects/hpfrt",
+  "/projects/liquid-prop",
+  "/projects/maiia",
+  "/projects/liquid-propulsion",
   "/movies",
   "/fun",
   "/funny",
@@ -53,5 +58,6 @@ export const OPEN_SECTIONS: { label: string; href: string; sub: string }[] = [
   { label: "COCKPIT", href: "/cockpit", sub: "FLIGHT DECK" },
   { label: "ABOUT", href: "/about", sub: "OPERATOR DOSSIER" },
   { label: "PROFESSIONAL", href: "/professional", sub: "MISSION LOG" },
+  { label: "PROJECTS", href: "/projects", sub: "THE LAB" },
   { label: "TRAVEL", href: "/travel", sub: "NAV ARCHIVE" },
 ];

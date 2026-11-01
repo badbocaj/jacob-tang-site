@@ -1,307 +1,324 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import Link from "next/link";
-import { MotionConfig, motion } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
+import { AnimatePresence, MotionConfig, motion } from "framer-motion";
+import { ArrowRight } from "lucide-react";
+
+import { Sky } from "@/components/lab/Sky";
+import { LightSwitch } from "@/components/lab/LightSwitch";
+import { Drawing, type DrawingKey } from "@/components/lab/Drawings";
 
 /* ───────────────────────────────────────────────────────────────────────────
-   THE LAB — project index.
+   THE LAB
 
-   This used to be a full-screen radar that swept, locked onto one project and
-   auto-flew you there, which meant the other two were only reachable by URL.
-   The radar stays (it is a good idea) but now it is a legend: every ping is a
-   project, every project is a tile, and hovering one lights up the other.
+   One light switch runs the whole page.
+     ON   daylight, a sun, paper-white — the hardware
+     OFF  night, stars, a moon, the Milky Way — the software
 
-   Look: blueprint paper. Ruled grid, hairline frames, figure captions.
+   Work, school and side projects live together; the only split is what they
+   are made of. Everything below the sky (cards, drawings, links) takes its
+   colours from the same two themes, so nothing is left lit when the lights
+   go out. Shortcut: press L.
    ─────────────────────────────────────────────────────────────────────────── */
 
-type Art = "wing" | "engine" | "classified";
+type Mode = "hardware" | "software";
 
 interface Project {
-  id: string;
-  codename: string;
+  key: string;
   title: string;
-  status: string;
-  role: string;
+  org?: string;
+  context: "Work" | "School" | "Side";
+  year: string;
+  role?: string;
   blurb: string;
-  href: string;
-  art: Art;
-  /** Ping position on the radar, polar: r in 0–1, theta in degrees. */
-  ping: { r: number; theta: number };
+  drawing: DrawingKey;
+  link?: { href: string; label: string };
+  status?: string;
+  /** Optional headline number, e.g. "47 g joint · 22% lighter". Shown big. */
+  stat?: string;
 }
 
-const PROJECTS: Project[] = [
-  {
-    id: "ARCHIVE_02",
-    codename: "HPFRT",
-    title: "Human-powered aircraft",
-    status: "Active · 2024",
-    role: "Structures researcher",
-    blurb:
-      "A student-built airplane that flies on legs alone. My part: designing and validating the structure that keeps it in one piece.",
-    href: "/projects/hpfrt",
-    art: "wing",
-    ping: { r: 0.8, theta: 135 },
-  },
-  {
-    id: "ARCHIVE_03",
-    codename: "LIQUID_PROP",
-    title: "Bipropellant rocket engine",
-    status: "Active · 2024–25",
-    role: "University propulsion team",
-    blurb:
-      "Design, build and hotfire a liquid bipropellant engine. The hard part is the injector and keeping the chamber from cooking itself.",
-    href: "/projects/liquid-prop",
-    art: "engine",
-    ping: { r: 0.4, theta: 45 },
-  },
-  {
-    id: "ARCHIVE_01",
-    codename: "MAIIA",
-    title: "Write-up in progress",
-    status: "Filed · 2024",
-    role: "Details pending",
-    blurb: "Declassification pending. The hardware exists; the paragraph about it does not yet.",
-    href: "/projects/maiia",
-    art: "classified",
-    ping: { r: 0.5, theta: 280 },
-  },
-];
+/* EDIT ME — the words on this page live here. Each project also takes an
+   optional `stat`: one real number (load, mass, thrust, users) is the best
+   thing you can add to a row. */
+const PROJECTS: Record<Mode, Project[]> = {
+  hardware: [
+    {
+      key: "vital",
+      title: "Pressurization drivetrain",
+      org: "Vital Lyfe",
+      context: "Work",
+      year: "2026",
+      role: "Mechanical engineering intern",
+      blurb:
+        "Owned the pressurization drivetrain subsystem end to end for Vital Lyfe's water-filtration system: motor, reduction, and the pressure it all has to hold.",
+      drawing: "drivetrain",
+      link: { href: "/professional", label: "See the comic panel" },
+    },
+    {
+      key: "hpfrt",
+      title: "Human-powered flight",
+      org: "Human Powered Flight Research Team",
+      context: "School",
+      year: "2024",
+      role: "Structures researcher",
+      blurb:
+        "A student-built airplane that flies on one person's pedaling. I worked on the wing spar and the boom joints, the parts that carry the biggest loads in the airframe.",
+      drawing: "aircraft",
+      link: { href: "/projects/hpfrt", label: "Read the write-up" },
+    },
+    {
+      key: "lpl",
+      title: "Liquid rocket engine",
+      org: "Liquid Propulsion Lab",
+      context: "School",
+      year: "2024–25",
+      role: "Propulsion team",
+      blurb:
+        "A student-designed liquid bipropellant engine: injector, chamber and nozzle, designed and built in-house and headed for the test stand.",
+      drawing: "engine",
+      link: { href: "/projects/liquid-prop", label: "Read the write-up" },
+    },
+  ],
+  software: [
+    {
+      key: "maiia",
+      title: "MAIIA",
+      context: "Side",
+      year: "2024",
+      blurb: "Write-up in progress.",
+      drawing: "terminal",
+      link: { href: "/projects/maiia", label: "Open the file" },
+    },
+    {
+      key: "site",
+      title: "tangjacob.com",
+      org: "This website",
+      context: "Side",
+      year: "2026",
+      role: "Design + build",
+      blurb:
+        "The site you're on. Next.js, Tailwind and Framer Motion, built mostly to learn how to work with Claude Code. The light switch up there is part of it.",
+      drawing: "browser",
+      link: { href: "/", label: "Back to the front door" },
+    },
+    {
+      key: "pantry",
+      title: "Ingredients Tracker",
+      context: "Side",
+      year: "2026",
+      role: "Solo build",
+      blurb:
+        "Logs what's in my kitchen as have, running low, or gone. Next up: an AI agent that hunts for cheap recipes and suggests meals from what's already on the shelf.",
+      drawing: "pantry",
+      status: "In progress",
+    },
+  ],
+};
 
-const BLUE = "rgb(125 211 252)"; // sky-300
+const THEME: Record<Mode, Record<string, string>> = {
+  hardware: {
+    "--bg": "#f4f1ea",
+    "--ink": "#18181b",
+    "--muted": "#57534e",
+    "--faint": "rgba(24,24,27,0.12)",
+    "--card": "#fbfaf6",
+    "--line": "#1e3a8a",
+    "--accent": "#b45309",
+  },
+  software: {
+    "--bg": "#060914",
+    "--ink": "#e5e7eb",
+    "--muted": "#94a3b8",
+    "--faint": "rgba(148,163,184,0.16)",
+    "--card": "rgba(15,23,42,0.55)",
+    "--line": "#c7d2fe",
+    "--accent": "#a5b4fc",
+  },
+};
 
-export default function ProjectsPage() {
-  const [hot, setHot] = useState<string | null>(null);
+const EASE = [0.22, 1, 0.36, 1] as const;
+
+export default function LabPage() {
+  const [mode, setMode] = useState<Mode>("hardware");
+  const night = mode === "software";
+
+  const flip = useCallback(() => setMode((m) => (m === "hardware" ? "software" : "hardware")), []);
+
+  // L for lights.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key === "l" || e.key === "L") flip();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [flip]);
+
+  const projects = PROJECTS[mode];
 
   return (
     <MotionConfig reducedMotion="user">
-      <main className="relative min-h-screen bg-[#050b16] pt-16 text-white">
-        {/* Blueprint grid, fading out toward the bottom */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(125,211,252,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(125,211,252,0.07)_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:linear-gradient(180deg,#000_40%,transparent)]"
-        />
+      <main
+        className="relative min-h-screen bg-[var(--bg)] pt-16 text-[var(--ink)] transition-colors duration-700"
+        style={THEME[mode] as CSSProperties}
+      >
+        {/* ── Sky + hero ──────────────────────────────────────────────── */}
+        <section className="relative overflow-hidden">
+          <Sky night={night} />
 
-        <div className="relative mx-auto w-full max-w-7xl px-5 pb-24 pt-14 sm:px-8 md:pt-20">
-          {/* ── Header: title block + radar legend ─────────────────────── */}
-          <header className="grid gap-10 border-b border-sky-300/20 pb-10 md:grid-cols-[1fr_auto] md:items-end">
+          <div className="relative mx-auto grid min-h-[30rem] w-full max-w-6xl gap-10 px-5 pb-16 pt-20 sm:px-8 md:min-h-[34rem] md:grid-cols-[1fr_auto] md:items-end md:pt-28">
             <div>
-              <p className="m-0 font-mono text-xs uppercase tracking-label text-sky-300/70">
-                Zone C · The Lab
+              <p className="m-0 font-mono text-xs uppercase tracking-label text-[var(--muted)] transition-colors duration-700">
+                The Lab · {PROJECTS.hardware.length + PROJECTS.software.length} projects
               </p>
-              <h1 className="wide m-0 mt-4 text-4xl font-bold uppercase leading-none tracking-tight sm:text-6xl">
-                Hardware,
-                <br />
-                <span className="text-sky-300">math,</span> failures.
-              </h1>
-              <p className="m-0 mt-6 max-w-xl text-base leading-relaxed text-zinc-400">
-                Things I&apos;ve helped design, build, break and rebuild. Each one is
-                written up with the numbers, the sketches and the part where the math
-                didn&apos;t work the first time.
+
+              <div className="relative mt-4 h-14 overflow-hidden sm:h-20">
+                <AnimatePresence mode="popLayout" initial={false}>
+                  <motion.h1
+                    key={mode}
+                    className="wide absolute inset-x-0 top-0 m-0 text-5xl font-bold uppercase leading-none tracking-tight sm:text-6xl"
+                    initial={{ y: night ? "100%" : "-100%", opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: night ? "-100%" : "100%", opacity: 0 }}
+                    transition={{ duration: 0.6, ease: EASE }}
+                  >
+                    {night ? "Software." : "Hardware."}
+                  </motion.h1>
+                </AnimatePresence>
+              </div>
+
+              <p className="m-0 mt-4 max-w-md text-lg leading-relaxed text-[var(--muted)] transition-colors duration-700">
+                {night
+                  ? "Things that run after dark. Flip the lights back on for the physical stuff."
+                  : "Things you could drop on your foot. Flip the lights off for the code."}
               </p>
             </div>
 
-            <Radar projects={PROJECTS} hot={hot} onHot={setHot} />
-          </header>
-
-          {/* ── Index ──────────────────────────────────────────────────── */}
-          <div className="mt-10 grid gap-3 md:grid-cols-3">
-            {PROJECTS.map((p, i) => (
-              <motion.div
-                key={p.id}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: i * 0.06 }}
+            <div className="relative justify-self-start md:justify-self-end">
+              <LightSwitch on={!night} onToggle={flip} dark={night} />
+              <span
+                className="absolute -bottom-9 right-0 -rotate-3 whitespace-nowrap font-hand text-xl text-[var(--muted)] transition-colors duration-700"
+                aria-hidden
               >
-                <Link
-                  href={p.href}
-                  onMouseEnter={() => setHot(p.id)}
-                  onMouseLeave={() => setHot(null)}
-                  onFocus={() => setHot(p.id)}
-                  onBlur={() => setHot(null)}
-                  className={`group flex h-full flex-col border bg-[#071426]/80 no-underline backdrop-blur-sm transition-colors ${
-                    hot === p.id ? "border-sky-300/70" : "border-sky-300/20"
-                  }`}
-                >
-                  {/* Drawing */}
-                  <div className="relative aspect-[4/3] border-b border-sky-300/20">
-                    <ProjectArt art={p.art} hot={hot === p.id} />
-                    <span className="absolute left-3 top-3 font-mono text-xs uppercase tracking-label text-sky-300/60">
-                      Fig. {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <ArrowUpRight
-                      className="absolute right-3 top-3 h-5 w-5 text-sky-200 transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1"
-                      strokeWidth={1.75}
-                    />
-                  </div>
-
-                  {/* Title block, like the corner of a drawing sheet */}
-                  <div className="flex flex-1 flex-col p-5">
-                    <div className="flex items-baseline justify-between gap-3 font-mono text-xs uppercase tracking-label">
-                      <span className="text-sky-300">{p.codename}</span>
-                      <span className="text-zinc-500">{p.status}</span>
-                    </div>
-                    <h2 className="wide m-0 mt-3 text-2xl font-bold uppercase leading-tight tracking-tight text-white">
-                      {p.title}
-                    </h2>
-                    <p className="m-0 mt-3 flex-1 text-sm leading-relaxed text-zinc-400">{p.blurb}</p>
-                    <p className="m-0 mt-5 border-t border-sky-300/10 pt-3 font-mono text-xs uppercase tracking-label text-zinc-500">
-                      Role · {p.role}
-                    </p>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
+                {night ? "lights back on? (or press L)" : "flip me (or press L)"}
+              </span>
+            </div>
           </div>
-        </div>
+        </section>
+
+        {/* ── Projects ────────────────────────────────────────────────── */}
+        <section className="relative mx-auto w-full max-w-6xl px-5 pb-24 sm:px-8">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.ol
+              key={mode}
+              className="m-0 list-none p-0"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.45, ease: EASE }}
+            >
+              {projects.map((p, i) => (
+                <ProjectRow key={p.key} project={p} index={i} night={night} />
+              ))}
+            </motion.ol>
+          </AnimatePresence>
+
+          <div className="mt-6 flex justify-center border-t border-[var(--faint)] pt-10 transition-colors duration-700">
+            <button
+              type="button"
+              onClick={() => {
+                flip();
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              className="group flex items-center gap-2 font-mono text-xs uppercase tracking-label text-[var(--muted)] transition-colors hover:text-[var(--ink)]"
+            >
+              {night ? "Lights on — show me the hardware" : "Lights off — show me the software"}
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </button>
+          </div>
+        </section>
       </main>
     </MotionConfig>
   );
 }
 
-/* ── Radar legend ──────────────────────────────────────────────────────── */
-
-function Radar({
-  projects,
-  hot,
-  onHot,
-}: {
-  projects: Project[];
-  hot: string | null;
-  onHot: (id: string | null) => void;
-}) {
-  const R = 90;
-  const toXY = (r: number, theta: number) => {
-    const rad = (theta * Math.PI) / 180;
-    return { x: r * R * Math.cos(rad), y: r * R * Math.sin(rad) };
-  };
+function ProjectRow({ project: p, index, night }: { project: Project; index: number; night: boolean }) {
+  const flipSide = index % 2 === 1;
 
   return (
-    <div className="relative mx-auto w-56 md:mx-0">
-      <svg viewBox="-110 -110 220 220" className="block h-56 w-56" aria-hidden>
-        {[0.25, 0.5, 0.75, 1].map((f) => (
-          <circle
-            key={f}
-            r={R * f}
-            fill="none"
-            stroke={BLUE}
-            strokeOpacity={f === 1 ? 0.5 : 0.15}
-          />
-        ))}
-        <path d={`M${-R} 0 H${R} M0 ${-R} V${R}`} stroke={BLUE} strokeOpacity={0.12} strokeDasharray="3 5" />
-
-        {/* sweep */}
-        <motion.g
-          animate={{ rotate: 360 }}
-          transition={{ duration: 6, ease: "linear", repeat: Infinity }}
-        >
-          <defs>
-            <linearGradient id="lab-sweep" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0" stopColor={BLUE} stopOpacity="0" />
-              <stop offset="1" stopColor={BLUE} stopOpacity="0.28" />
-            </linearGradient>
-          </defs>
-          <path d={`M0 0 L${R} 0 A${R} ${R} 0 0 0 ${R * Math.cos(-0.9)} ${R * Math.sin(-0.9)} Z`} fill="url(#lab-sweep)" />
-          <line x1="0" y1="0" x2={R} y2="0" stroke={BLUE} strokeOpacity="0.8" />
-        </motion.g>
-
-        <circle r="2.5" fill={BLUE} />
-      </svg>
-
-      {/* Pings are real links, layered over the drawing */}
-      {projects.map((p) => {
-        const { x, y } = toXY(p.ping.r, p.ping.theta);
-        const isHot = hot === p.id;
-        return (
-          <Link
-            key={p.id}
-            href={p.href}
-            aria-label={p.codename}
-            onMouseEnter={() => onHot(p.id)}
-            onMouseLeave={() => onHot(null)}
-            className="absolute flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 no-underline"
-            style={{ left: `${50 + (x / 220) * 100}%`, top: `${50 + (y / 220) * 100}%` }}
-          >
-            <span className="relative flex h-3 w-3 items-center justify-center">
-              <span className="absolute inset-0 animate-ping rounded-full bg-sky-300/40" />
-              <span className={`relative h-2 w-2 rounded-full ${isHot ? "bg-white" : "bg-sky-300"}`} />
-            </span>
-          </Link>
-        );
-      })}
-
-      <p className="m-0 mt-2 text-center font-mono text-xs uppercase tracking-label text-sky-300/50">
-        {hot ? projects.find((p) => p.id === hot)?.codename : `${projects.length} signatures`}
-      </p>
-    </div>
-  );
-}
-
-/* ── Line drawings ─────────────────────────────────────────────────────── */
-
-function ProjectArt({ art, hot }: { art: Art; hot: boolean }) {
-  const common = {
-    fill: "none",
-    stroke: BLUE,
-    strokeWidth: 1.2,
-    strokeLinecap: "round" as const,
-    strokeLinejoin: "round" as const,
-  };
-
-  return (
-    <svg
-      viewBox="0 0 300 225"
-      className={`absolute inset-0 h-full w-full transition-opacity duration-500 ${hot ? "opacity-100" : "opacity-70"}`}
-      aria-hidden
+    <motion.li
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.25 }}
+      transition={{ duration: 0.6, ease: EASE, delay: index * 0.05 }}
+      className="grid items-center gap-8 border-t border-[var(--faint)] py-12 transition-colors duration-700 md:grid-cols-12 md:gap-12 md:py-16"
     >
-      {art === "wing" && (
-        <g {...common}>
-          {/* Wing panel in plan view: spar plus a row of ribs */}
-          <path d="M30 120 L270 96 L270 132 L30 150 Z" />
-          <path d="M30 134 L270 112" strokeDasharray="6 4" strokeOpacity="0.7" />
-          {Array.from({ length: 11 }, (_, i) => {
-            const x = 50 + i * 21;
-            const t = (x - 30) / 240;
-            const top = 120 - t * 24;
-            const bot = 150 - t * 18;
-            return <path key={i} d={`M${x} ${top} L${x} ${bot}`} strokeOpacity="0.55" />;
-          })}
-          {/* Rib section, drawn big */}
-          <path d="M70 60 Q120 34 200 50 Q230 56 236 62 Q200 70 120 70 Q86 70 70 60 Z" />
-          <circle cx="128" cy="57" r="6" />
-          <path d="M70 80 H236 M70 76 V84 M236 76 V84" strokeOpacity="0.5" />
-          <text x="153" y="94" fill={BLUE} fillOpacity="0.6" fontSize="9" fontFamily="monospace" textAnchor="middle" stroke="none">
-            RIB SECTION
-          </text>
-        </g>
-      )}
+      {/* Drawing */}
+      <figure
+        className={`relative m-0 aspect-[4/3] border border-[var(--faint)] bg-[var(--card)] transition-colors duration-700 md:col-span-5 ${
+          flipSide ? "md:order-2" : ""
+        }`}
+      >
+        <Drawing
+          kind={p.drawing}
+          className="absolute inset-0 h-full w-full p-4 text-[var(--line)] transition-[color,filter] duration-700"
+        />
+        {night && (
+          <div className="pointer-events-none absolute inset-0 shadow-[inset_0_0_60px_rgba(165,180,252,0.08)]" />
+        )}
+        <figcaption className="absolute bottom-3 left-3 font-mono text-xs uppercase tracking-label text-[var(--muted)]">
+          Fig. {String(index + 1).padStart(2, "0")}
+        </figcaption>
+      </figure>
 
-      {art === "engine" && (
-        <g {...common}>
-          {/* Chamber, throat, bell, injector plate */}
-          <path d="M120 40 H180 V96 Q180 106 166 112 L162 116 Q198 146 212 196 H88 Q102 146 138 116 L134 112 Q120 106 120 96 Z" />
-          <path d="M112 40 H188 M116 34 H184" />
-          <path d="M150 18 V34" strokeDasharray="3 3" strokeOpacity="0.7" />
-          <path d="M150 116 V196" strokeDasharray="8 4 2 4" strokeOpacity="0.4" />
-          <path d="M226 116 H240 M226 196 H240 M233 116 V196" strokeOpacity="0.5" />
-          <text x="246" y="160" fill={BLUE} fillOpacity="0.6" fontSize="9" fontFamily="monospace" stroke="none">
-            Ae/At
-          </text>
-        </g>
-      )}
+      {/* Words */}
+      <div className={`md:col-span-7 ${flipSide ? "md:order-1" : ""}`}>
+        <p className="m-0 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs uppercase tracking-label text-[var(--muted)]">
+          <span className="text-[var(--accent)]">{String(index + 1).padStart(2, "0")}</span>
+          <span>{p.context}</span>
+          <span aria-hidden>·</span>
+          <span>{p.year}</span>
+          {p.org && (
+            <>
+              <span aria-hidden>·</span>
+              <span>{p.org}</span>
+            </>
+          )}
+        </p>
 
-      {art === "classified" && (
-        <g {...common}>
-          <rect x="70" y="50" width="160" height="120" strokeDasharray="5 5" strokeOpacity="0.6" />
-          <path d="M70 50 L230 170 M230 50 L70 170" strokeOpacity="0.25" />
-          <rect x="96" y="98" width="108" height="24" fill="#050b16" stroke={BLUE} />
-          <text x="150" y="114" fill={BLUE} fontSize="10" fontFamily="monospace" textAnchor="middle" stroke="none">
-            REDACTED
-          </text>
-        </g>
-      )}
-    </svg>
+        <h2 className="wide m-0 mt-3 text-4xl font-bold uppercase leading-tight tracking-tight">{p.title}</h2>
+
+        {p.role && (
+          <p className="m-0 mt-2 font-mono text-xs uppercase tracking-label text-[var(--muted)]">{p.role}</p>
+        )}
+
+        <p className="m-0 mt-5 max-w-xl text-lg leading-relaxed text-[var(--muted)]">{p.blurb}</p>
+
+        {p.stat && (
+          <p className="m-0 mt-5 border-l-2 border-[var(--accent)] pl-3 font-mono text-sm uppercase tracking-label text-[var(--ink)]">
+            {p.stat}
+          </p>
+        )}
+
+        <div className="mt-6">
+          {p.link ? (
+            <Link
+              href={p.link.href}
+              className="group inline-flex items-center gap-2 border-b border-[var(--ink)] pb-1 text-sm font-semibold text-[var(--ink)] no-underline"
+            >
+              {p.link.label}
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+          ) : (
+            <span className="inline-flex items-center gap-2 border border-[var(--faint)] px-2.5 py-1 font-mono text-xs uppercase tracking-label text-[var(--accent)]">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--accent)]" />
+              {p.status}
+            </span>
+          )}
+        </div>
+      </div>
+    </motion.li>
   );
 }

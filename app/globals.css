@@ -244,6 +244,15 @@ body {
   cursor: none;
 }
 
+/* ── The Lab: night-sky twinkle ─────────────────────────────────────────── */
+@keyframes lab-twinkle {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.25; }
+}
+.lab-twinkle {
+  animation: lab-twinkle 3.6s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cockpit-rain,
   .cockpit-traffic,
@@ -256,7 +265,8 @@ body {
   .cockpit-prompt,
   .cockpit-lockblink,
   .cockpit-strobe,
-  .cockpit-reticle-spin {
+  .cockpit-reticle-spin,
+  .lab-twinkle {
     animation: none !important;
   }
   .cockpit-root--reticle,

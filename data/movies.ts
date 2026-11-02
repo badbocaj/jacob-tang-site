@@ -19,6 +19,7 @@ export interface Film {
 }
 
 export const FILMS = {
+  inception: { tmdbId: 27205, title: "Inception", year: 2010, director: "Christopher Nolan", tint: "#2b3440" },
   interstellar: { tmdbId: 157336, title: "Interstellar", year: 2014, director: "Christopher Nolan", tint: "#1e3a5f" },
   oldboy: { tmdbId: 670, title: "Oldboy", year: 2003, director: "Park Chan-wook", tint: "#5b1d1d" },
   martian: { tmdbId: 286217, title: "The Martian", year: 2015, director: "Ridley Scott", tint: "#8a3b12" },
@@ -37,7 +38,7 @@ export interface Favorite {
 }
 
 export const TOP_FOUR: Favorite[] = [
-  { film: "interstellar", blurb: "" },
+  { film: "inception", blurb: "" },
   { film: "oldboy", blurb: "" },
   { film: "martian", blurb: "" },
   { film: "basterds", blurb: "" },

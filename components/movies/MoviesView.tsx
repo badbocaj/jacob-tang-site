@@ -136,6 +136,13 @@ export default function MoviesView({
             >
               Follow along on Letterboxd ↗
             </a>
+            <p className="m-0 mt-4 text-xs text-stone-600">
+              Posters via{" "}
+              <a href="https://www.themoviedb.org/" target="_blank" rel="noreferrer" className="text-stone-500 underline-offset-2 hover:underline">
+                TMDB
+              </a>
+              . This site uses the TMDB API but is not endorsed or certified by TMDB.
+            </p>
           </footer>
         </div>
 

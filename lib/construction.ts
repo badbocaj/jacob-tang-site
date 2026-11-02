@@ -28,7 +28,6 @@ export const LOCKED_SECTIONS = [
   "/projects/liquid-prop",
   "/projects/maiia",
   "/projects/liquid-propulsion",
-  "/movies",
   "/fun",
   "/funny",
 ] as const;
@@ -60,4 +59,5 @@ export const OPEN_SECTIONS: { label: string; href: string; sub: string }[] = [
   { label: "PROFESSIONAL", href: "/professional", sub: "MISSION LOG" },
   { label: "PROJECTS", href: "/projects", sub: "THE LAB" },
   { label: "TRAVEL", href: "/travel", sub: "NAV ARCHIVE" },
+  { label: "MOVIES", href: "/movies", sub: "MEDIA CACHE" },
 ];

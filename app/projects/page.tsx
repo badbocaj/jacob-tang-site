@@ -146,6 +146,15 @@ export default function LabPage() {
 
   const flip = useCallback(() => setMode((m) => (m === "hardware" ? "software" : "hardware")), []);
 
+  // Tell the floating nav which way the switch is, so it dims with the room.
+  useEffect(() => {
+    const root = document.documentElement;
+    root.dataset.labMode = night ? "night" : "day";
+    return () => {
+      delete root.dataset.labMode;
+    };
+  }, [night]);
+
   // L for lights.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -161,14 +170,14 @@ export default function LabPage() {
   return (
     <MotionConfig reducedMotion="user">
       <main
-        className="relative min-h-screen bg-[var(--bg)] pt-16 text-[var(--ink)] transition-colors duration-700"
+        className="relative min-h-screen bg-[var(--bg)] text-[var(--ink)] transition-colors duration-700"
         style={THEME[mode] as CSSProperties}
       >
         {/* ── Sky + hero ──────────────────────────────────────────────── */}
         <section className="relative overflow-hidden">
           <Sky night={night} />
 
-          <div className="relative mx-auto grid min-h-[30rem] w-full max-w-6xl gap-10 px-5 pb-16 pt-20 sm:px-8 md:min-h-[34rem] md:grid-cols-[1fr_auto] md:items-end md:pt-28">
+          <div className="relative mx-auto grid min-h-[30rem] w-full max-w-6xl gap-10 px-5 pb-16 pt-36 sm:px-8 md:min-h-[38rem] md:grid-cols-[1fr_auto] md:items-end md:pt-44">
             <div>
               <p className="m-0 font-mono text-xs uppercase tracking-label text-[var(--muted)] transition-colors duration-700">
                 The Lab · {PROJECTS.hardware.length + PROJECTS.software.length} projects

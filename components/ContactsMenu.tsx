@@ -42,7 +42,7 @@ export function ContactsMenu({ className = "" }: { className?: string }) {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="true"
-        className="flex items-center gap-2 whitespace-nowrap rounded-full border border-white/20 bg-black/50 px-4 py-2 font-mono text-xs uppercase tracking-label text-white backdrop-blur-md transition-colors hover:bg-white hover:text-black"
+        className="flex h-11 items-center gap-2 whitespace-nowrap rounded-full border border-[var(--nav-border,rgba(255,255,255,0.2))] bg-[var(--nav-bg,rgba(0,0,0,0.5))] px-4 font-mono text-xs uppercase tracking-label text-[var(--nav-ink,#fff)] backdrop-blur-md transition-colors hover:bg-[var(--nav-active-bg,#fff)] hover:text-[var(--nav-active-ink,#000)]"
       >
         Contacts
         <ChevronDown
@@ -58,23 +58,23 @@ export function ContactsMenu({ className = "" }: { className?: string }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.98 }}
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
-            className="absolute right-0 top-full z-50 mt-3 w-72 origin-top-right border border-white/10 bg-zinc-950/95 p-2 shadow-2xl backdrop-blur-xl"
+            className="absolute right-0 top-full z-50 mt-3 w-72 origin-top-right rounded-2xl border border-[var(--nav-border,rgba(255,255,255,0.1))] bg-[var(--nav-panel,rgba(9,9,11,0.95))] p-2 shadow-2xl backdrop-blur-xl"
           >
             {CONTACTS.map((c) => (
               <a
                 key={c.label}
                 href={c.href}
                 {...(c.external ? { target: "_blank", rel: "noreferrer" } : {})}
-                className="group flex items-center justify-between px-3 py-3 no-underline transition-colors hover:bg-white/5"
+                className="group flex items-center justify-between rounded-xl px-3 py-3 no-underline transition-colors hover:bg-[var(--nav-border,rgba(255,255,255,0.06))]"
               >
                 <span>
-                  <span className="block text-sm font-bold uppercase tracking-label text-white">
+                  <span className="block text-sm font-bold uppercase tracking-label text-[var(--nav-ink,#fff)]">
                     {c.label}
                   </span>
-                  <span className="mt-1 block font-mono text-xs text-zinc-500">{c.sub}</span>
+                  <span className="mt-1 block font-mono text-xs text-[var(--nav-muted,#71717a)]">{c.sub}</span>
                 </span>
                 <ArrowUpRight
-                  className="h-4 w-4 text-zinc-600 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-white"
+                  className="h-4 w-4 text-[var(--nav-muted,#52525b)] transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[var(--nav-ink,#fff)]"
                   strokeWidth={2}
                 />
               </a>

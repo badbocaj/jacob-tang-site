@@ -244,6 +244,66 @@ body {
   cursor: none;
 }
 
+/* ── Site navigation themes ───────────────────────────────────────────────
+   The floating nav reads these, so it can match the page it sits on.
+   ContactsMenu reads them too, with fallbacks for pages without a nav. */
+.site-nav {
+  --nav-bg: rgba(12, 12, 14, 0.62);
+  --nav-ink: #fafafa;
+  --nav-muted: #a1a1aa;
+  --nav-border: rgba(255, 255, 255, 0.12);
+  --nav-active-bg: #fafafa;
+  --nav-active-ink: #0a0a0a;
+  --nav-sheet: rgba(5, 5, 7, 0.96);
+  --nav-panel: rgba(12, 12, 14, 0.96);
+  color: var(--nav-ink);
+}
+.site-nav[data-theme="paper"] {
+  --nav-bg: rgba(253, 251, 243, 0.92);
+  --nav-ink: #1f2328;
+  --nav-muted: #5b5f66;
+  --nav-border: rgba(31, 35, 40, 0.14);
+  --nav-active-bg: #1f2328;
+  --nav-active-ink: #fdfbf3;
+  --nav-sheet: rgba(253, 251, 243, 0.98);
+  --nav-panel: #fdfbf3;
+}
+.site-nav[data-theme="travel"] {
+  --nav-bg: rgba(10, 10, 12, 0.62);
+  --nav-active-bg: #fbbf24;
+  --nav-active-ink: #0a0a0a;
+  --nav-border: rgba(251, 191, 36, 0.2);
+}
+.site-nav[data-theme="lab"] {
+  --nav-bg: rgba(255, 255, 255, 0.55);
+  --nav-ink: #18181b;
+  --nav-muted: #52525b;
+  --nav-border: rgba(24, 24, 27, 0.1);
+  --nav-active-bg: #18181b;
+  --nav-active-ink: #f4f1ea;
+  --nav-sheet: rgba(244, 241, 234, 0.98);
+  --nav-panel: #fbfaf6;
+}
+html[data-lab-mode="night"] .site-nav[data-theme="lab"] {
+  --nav-bg: rgba(15, 20, 40, 0.55);
+  --nav-ink: #e5e7eb;
+  --nav-muted: #94a3b8;
+  --nav-border: rgba(165, 180, 252, 0.18);
+  --nav-active-bg: #c7d2fe;
+  --nav-active-ink: #060914;
+  --nav-sheet: rgba(6, 9, 20, 0.97);
+  --nav-panel: #0d1226;
+}
+.nav-glass {
+  background: var(--nav-bg);
+  color: var(--nav-ink);
+  border: 1px solid var(--nav-border);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
+  transition: background-color 0.6s, color 0.6s, border-color 0.6s;
+}
+
 /* ── The Lab: night-sky twinkle ─────────────────────────────────────────── */
 @keyframes lab-twinkle {
   0%, 100% { opacity: 1; }

@@ -112,7 +112,7 @@ export function Sky({ night }: { night: boolean }) {
           haze, and the thin starburst spikes that eyelashes and the pupil
           edge diffract around any very bright point. */}
       <motion.div
-        className="absolute right-[8%] top-[6%] h-14 w-14 sm:right-[12%] sm:top-[16%] sm:h-24 sm:w-24"
+        className="absolute right-[8%] top-[15%] h-14 w-14 sm:right-[12%] sm:top-[20%] sm:h-24 sm:w-24"
         initial={false}
         animate={night ? { y: 260, opacity: 0, scale: 0.9 } : { y: 0, opacity: 1, scale: 1 }}
         transition={{ duration: 1.1, ease: EASE }}
@@ -209,7 +209,7 @@ export function Sky({ night }: { night: boolean }) {
 
       {/* Moon: rises where the sun went down */}
       <motion.div
-        className="absolute right-[9%] top-[5%] h-12 w-12 sm:right-[13%] sm:top-[15%] sm:h-24 sm:w-24"
+        className="absolute right-[9%] top-[14%] h-12 w-12 sm:right-[13%] sm:top-[19%] sm:h-24 sm:w-24"
         initial={false}
         animate={night ? { y: 0, opacity: 1, rotate: 0 } : { y: 220, opacity: 0, rotate: -20 }}
         transition={{ duration: 1.2, ease: EASE, delay: night ? 0.25 : 0 }}

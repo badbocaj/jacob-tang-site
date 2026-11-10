@@ -25,7 +25,7 @@ export const SPECS: { label: string; value: string; accent?: boolean }[] = [
   { label: "Type", value: "Mechanical engineer" },
   { label: "Speciality", value: "Structures · testing · propulsion" },
   { label: "Base", value: "LAX" },
-  { label: "Current post", value: "Vital Lyfe" },
+  { label: "Current post", value: "USC" },
   { label: "Status", value: "Operational", accent: true },
 ];
 
@@ -38,7 +38,7 @@ export const HEADING = {
 
 export const PILOT = {
   title: "The pilot",
-  note: "Mechanical engineer: structures, testing, propulsion. Builds rocket test stands at USC and interns at Vital Lyfe.",
+  note: "Mechanical engineer: structures, testing, propulsion. Interned at Vital Lyfe and currently exploring mechatronics and software.",
 };
 
 // ─── 06 fuel tanks · 07 engines ─────────────────────────────────────────────
@@ -60,7 +60,7 @@ export const FUEL: FuelTank[] = [
 
 export const MOTTO = {
   /** The last line is drawn in the accent colour. */
-  lines: ["Build it.", "Break it.", "Repeat."],
+  lines: ["Try Building.", "Fail.", "Repeat."],
   note: "Nothing works the first time. That is what the second time is for.",
 };
 
@@ -113,8 +113,8 @@ export interface Sport {
 
 export const SPORTS = {
   pickleball: { name: "Pickleball", note: "Dink responsibly." },
-  golf: { name: "Golf", note: "The ball goes where it wants. I go find it." },
-  hiking: { name: "Hiking", note: "Will walk uphill for a good view." },
+  golf: { name: "Golf", note: "Shoulder is currently post op. Still a 30 handicap." },
+  hiking: { name: "Hiking", note: "Will walk uphill both ways for a view." },
 } satisfies Record<string, Sport>;
 
 export interface Photo {
@@ -155,14 +155,14 @@ export const GAMES = {
   chess: {
     name: "Chess",
     /** e.g. "1450" */
-    elo: "",
+    elo: "1400",
     /** e.g. "chess.com rapid" */
     site: "",
-    note: "Will resign with dignity. Eventually.",
+    note: "Will resign after losing a pawn.",
   },
   catan: {
     name: "Catan",
-    note: "I have wood. I will not be trading it.",
+    note: "I hate sheep.",
   },
 };
 
@@ -183,8 +183,8 @@ export const TIMELINE: TimelineStop[] = [
   { when: "May 2024", what: "Structures Researcher", where: "AIM Lab @ UH" },
   { when: "Aug 2024", what: "Researcher", where: "CURVE @ USC" },
   { when: "May 2025", what: "Quality Engineering Intern", where: "L3Harris" },
-  { when: "Jan 2026", what: "Mechanical Engineering Intern", where: "Vital Lyfe", active: true },
-  { when: "Now", what: "Building rocket test stands", where: "USC", active: true },
+  { when: "Jan 2026", what: "Mechanical Engineering Intern", where: "Vital Lyfe", active: false },
+  { when: "Now", what: "Exploring mechatronics and software", where: "USC", active: true },
   { when: "Next", what: "Trajectory undecided", where: "Still working out where this goes", future: true },
 ];
 

@@ -138,7 +138,7 @@ function WorkLeft() {
       <At x={40} y={560} w={300}>
         <Note size={23}>want the whole work history?</Note>
         <div className="mt-2">
-          <NoteLink href="/professional">it&apos;s a comic now</NoteLink>
+          <NoteLink href="/professional">it&apos;s a mission log now</NoteLink>
         </div>
       </At>
     </>

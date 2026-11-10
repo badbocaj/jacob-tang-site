@@ -120,7 +120,7 @@ function Hero() {
         >
           Fig. 01 — In the lab
           <br />
-          <span className="text-zinc-600">Rib sections, one at a time</span>
+          <span className="text-zinc-600">Making a wing section</span>
         </motion.p>
       </div>
 
@@ -158,7 +158,7 @@ function Channels() {
           href="/about"
           index="01"
           label="About"
-          sub="Jacob, as a rocket. Scroll to take it apart."
+          sub="Scroll to see more."
           className="min-h-[420px] md:col-span-2 md:row-span-2"
           delay={0}
         >

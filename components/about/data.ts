@@ -33,7 +33,7 @@ export const SPECS: { label: string; value: string; accent?: boolean }[] = [
 
 export const HEADING = {
   title: "Where it's pointed",
-  note: "Next burn: Build Engineer at SpaceX. Not there yet. The pointy end is aimed at it anyway.",
+  note: "Up, for now. No destination locked in yet. Still working out where the next burn should go.",
 };
 
 export const PILOT = {
@@ -185,7 +185,7 @@ export const TIMELINE: TimelineStop[] = [
   { when: "May 2025", what: "Quality Engineering Intern", where: "L3Harris" },
   { when: "Jan 2026", what: "Mechanical Engineering Intern", where: "Vital Lyfe", active: true },
   { when: "Now", what: "Building rocket test stands", where: "USC", active: true },
-  { when: "Next", what: "Build Engineer", where: "SpaceX", future: true },
+  { when: "Next", what: "Trajectory undecided", where: "Still working out where this goes", future: true },
 ];
 
 /** Pictures of me. The first one sits beside the crew capsule. */

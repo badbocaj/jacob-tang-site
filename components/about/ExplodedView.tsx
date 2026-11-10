@@ -355,7 +355,7 @@ function MissionProfile() {
               </span>
               <span className="text-base font-semibold leading-snug text-[#f3ead7]">{stop.what}</span>
               <span className="text-sm leading-snug text-stone-300">
-                {stop.where} · {stop.future ? "planned" : stop.when.toLowerCase()}
+                {stop.future ? stop.where : `${stop.where} · ${stop.when.toLowerCase()}`}
               </span>
             </li>
           );

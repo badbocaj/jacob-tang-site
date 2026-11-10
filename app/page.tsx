@@ -7,6 +7,7 @@ import { MotionConfig, motion } from "framer-motion"
 import { ArrowDown, ArrowUpRight, Lock } from "lucide-react"
 
 import { ContactsMenu } from "@/components/ContactsMenu"
+import { FILMS, TOP_FOUR } from "@/data/movies"
 import { isLocked } from "@/lib/construction"
 
 /* ───────────────────────────────────────────────────────────────────────────
@@ -143,7 +144,7 @@ function Hero() {
 /* ── 2. CHANNELS ─────────────────────────────────────────────────────────── */
 
 function Channels() {
-  const lockedCount = ["/projects"].filter(isLocked).length
+  const lockedCount = ["/projects", "/movies"].filter(isLocked).length
 
   return (
     <section id="channels" className="mx-auto w-full max-w-7xl scroll-mt-8 px-5 py-24 sm:px-8 md:py-32">
@@ -152,7 +153,7 @@ function Channels() {
           Pick a channel
         </h2>
         <p className="m-0 font-mono text-xs uppercase tracking-label text-zinc-500">
-          05 channels{lockedCount > 0 ? ` · ${lockedCount} under construction` : ""}
+          06 channels{lockedCount > 0 ? ` · ${lockedCount} under construction` : ""}
         </p>
       </div>
 
@@ -216,6 +217,18 @@ function Channels() {
           delay={0.2}
         >
           <BlueprintArt />
+        </Tile>
+
+        <Tile
+          href="/movies"
+          index="06"
+          label="Movies"
+          sub="Top 4, hot takes, recent watches"
+          className="md:col-span-3"
+          locked={isLocked("/movies")}
+          delay={0.25}
+        >
+          <TicketArt />
         </Tile>
       </div>
     </section>
@@ -393,6 +406,34 @@ function BlueprintArt() {
       </svg>
       {/* hazard tape across the corner */}
       <div className="absolute -right-10 top-16 w-56 rotate-45 bg-[repeating-linear-gradient(45deg,#fbbf24_0,#fbbf24_10px,#0a0a0a_10px,#0a0a0a_20px)] py-1 opacity-80" />
+    </div>
+  )
+}
+
+function TicketArt() {
+  return (
+    <div className="absolute inset-0 bg-[#0d0b09]">
+      {/* projector beam from the top edge, same glow as /movies */}
+      <div className="absolute inset-0 bg-[radial-gradient(50%_90%_at_50%_0%,rgba(255,236,200,0.14),transparent_70%)]" />
+      {/* the top 4, as a fanned row of ticket stubs */}
+      <div className="absolute inset-y-0 right-0 hidden items-center gap-3 pr-10 sm:flex md:pr-16">
+        {TOP_FOUR.map((fav, i) => {
+          const film = FILMS[fav.film]
+          return (
+            <div
+              key={fav.film}
+              style={{ rotate: `${[-5, 3, -2, 6][i % 4]}deg` }}
+              className="relative flex h-36 w-24 flex-col justify-between border-l-2 border-dashed border-[#1f2328]/30 bg-[#f1e6cf] p-2.5 text-[#1f2328] shadow-lg shadow-black/50 transition-transform duration-500 group-hover:-translate-y-2 md:h-44 md:w-28"
+            >
+              <span className="font-mono text-[10px] uppercase tracking-label text-[#c2412d]">
+                Admit one
+              </span>
+              <span className="text-sm font-bold uppercase leading-tight">{film.title}</span>
+              <span className="font-mono text-[10px] uppercase tracking-label text-zinc-500">{film.year}</span>
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }

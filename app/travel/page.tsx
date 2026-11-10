@@ -331,39 +331,42 @@ function TemporalLoom({ onComplete }: { onComplete: () => void }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // PEOPLE REGISTRY
 // Add each person once here. Initials are auto-derived from their name.
+// Only people with an `image` (a finished drawing) appear on the CREW panel.
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface Person {
   name: string;
-  image: string;
+  /** Path to their stick-figure drawing in /public/people. Leave it off until
+   *  the drawing exists: people without one stay off the CREW panel. */
+  image?: string;
 }
 
 const PEOPLE: Record<string, Person> = {
   // e.g. alice: { name: "Alice Brown", image: "/people/alice.png" },
-  justinyang: { name: "Justin Yang", image: "/people/justinyang.png" },
-  shreyesbharat: { name: "Shreyes Keshav Bharat", image: "/people/shreyesbharat.png" },
-  loganvines: { name: "Logan Vines", image: "/people/loganvines.png" },
-  andrewhuang: { name: "Andrew Huang", image: "/people/andrewhuang.png" },
-  saatvikkumar: { name: "Saatvik Kumar", image: "/people/saatvikkumar.png" },
-  dorianhawkins: { name: "Dorian Hawkins", image: "/people/dorianhawkins.png" },
-  maxsong: { name: "Max Song", image: "/people/maxsong.png" },
-  jinqiuwei: { name: "Jinqiu Wei", image: "/people/jinqiuwei.png" },
-  vincentalcantara: { name: "Vincent Alcantara", image: "/people/vincentalcantara.png" },
-  danielhan: { name: "Daniel Han", image: "/people/danielhan.png" },
-  pranavlingareddy: { name: "Pranav Lingareddy", image: "/people/pranavlingareddy.png" },
-  tonyfernandes: { name: "Tony Fernandes", image: "/people/tonyfernandes.png" },
-  saimhasan: { name: "Saim Hasan", image: "/people/saimhasan.png" },
-  charlestang: { name: "Charles Tang", image: "/people/charlestang.png" },
-  mom: { name: "Mom", image: "/people/mom.png" },
-  dad: { name: "Dad", image: "/people/dad.png" },
-  blakejanowitz: { name: "Blake Janowitz", image: "/people/blakejanowitz.png" },
-  aidanjanowitz: { name: "Aidan Janowitz", image: "/people/aidanjanowitz.png" },
-  unclepaul: { name: "Uncle Paul", image: "/people/unclepaul.png" },
-  auntlin: { name: "Aunt Lin", image: "/people/auntlin.png" },
-  sophiewojcik: { name: "Sophie Wojcik", image: "/people/sophiewojcik.png" },
-  joywang: { name: "Joy Wang", image: "/people/joywang.png" },
-  justinsunwoo: { name: "Justin Sunwoo", image: "/people/justinsunwoo.png" },
-  noahpinales: { name: "Noah Pinales", image: "/people/noahpinales.png" },
+  justinyang: { name: "Justin Yang" },
+  shreyesbharat: { name: "Shreyes Keshav Bharat", image: "/people/ShreyesBharat.jpg" },
+  loganvines: { name: "Logan Vines" },
+  andrewhuang: { name: "Andrew Huang" },
+  saatvikkumar: { name: "Saatvik Kumar" },
+  dorianhawkins: { name: "Dorian Hawkins" },
+  maxsong: { name: "Max Song" },
+  jinqiuwei: { name: "Jinqiu Wei", image: "/people/JinqiuWei.jpg" },
+  vincentalcantara: { name: "Vincent Alcantara" },
+  danielhan: { name: "Daniel Han" },
+  pranavlingareddy: { name: "Pranav Lingareddy" },
+  tonyfernandes: { name: "Tony Fernandes" },
+  saimhasan: { name: "Saim Hasan" },
+  charlestang: { name: "Charles Tang" },
+  mom: { name: "Mom" },
+  dad: { name: "Dad" },
+  blakejanowitz: { name: "Blake Janowitz" },
+  aidanjanowitz: { name: "Aidan Janowitz" },
+  unclepaul: { name: "Uncle Paul" },
+  auntlin: { name: "Aunt Lin" },
+  sophiewojcik: { name: "Sophie Wojcik" },
+  joywang: { name: "Joy Wang" },
+  justinsunwoo: { name: "Justin Sunwoo" },
+  noahpinales: { name: "Noah Pinales" },
 
 
 
@@ -371,6 +374,44 @@ const PEOPLE: Record<string, Person> = {
 
 
 };
+
+/**
+ * A crew member's drawing. People without a drawing yet (or whose file is
+ * missing) get a plain stand-in stick figure instead of a broken image. The
+ * ref check covers files that fail before React hydrates, when onError never
+ * fires.
+ */
+function PersonFigure({ src, alt, className }: { src: string; alt: string; className: string }) {
+  const [errored, setErrored] = useState(false);
+  const checkLoaded = useCallback((img: HTMLImageElement | null) => {
+    if (img && img.complete && img.naturalWidth === 0) setErrored(true);
+  }, []);
+
+  if (errored) {
+    return (
+      <svg viewBox="0 0 40 72" className={className} role="img" aria-label={alt}>
+        <g fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="2" strokeLinecap="round">
+          <circle cx="20" cy="12" r="8" />
+          <path d="M20 20 V46 M20 46 L12 66 M20 46 L28 66 M20 28 L9 38 M20 28 L31 38" />
+        </g>
+      </svg>
+    );
+  }
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img ref={checkLoaded} src={src} alt={alt} className={className} onError={() => setErrored(true)} />
+  );
+}
+
+type DrawnPerson = Person & { key: string; image: string };
+
+/** The crew members for an entry who have a drawing, in listed order. */
+function drawnCrew(keys: string[]): DrawnPerson[] {
+  return keys
+    .map((k) => (PEOPLE[k] ? { key: k, ...PEOPLE[k] } : null))
+    .filter((p): p is DrawnPerson => Boolean(p?.image));
+}
 
 function getInitials(name: string): string {
   return name
@@ -606,9 +647,7 @@ function TravelPhoto({
 // ─────────────────────────────────────────────────────────────────────────────
 
 function PeoplePanel({ peopleKeys }: { peopleKeys: string[] }) {
-  const people = peopleKeys
-    .map((k) => (PEOPLE[k] ? { key: k, ...PEOPLE[k] } : null))
-    .filter(Boolean) as (Person & { key: string })[];
+  const people = drawnCrew(peopleKeys);
 
   if (people.length === 0) {
     return (
@@ -630,11 +669,10 @@ function PeoplePanel({ peopleKeys }: { peopleKeys: string[] }) {
         >
           {/* image fills all available flex space */}
           <div className="flex-1 min-h-0 w-full relative">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <PersonFigure
               src={person.image}
               alt={person.name}
-              className="absolute inset-0 w-full h-full object-contain"
+              className="absolute inset-0 w-full h-full object-contain mix-blend-screen"
             />
           </div>
           {/* initials pinned below */}
@@ -853,6 +891,9 @@ function TemporalModal({ log, onClose }: { log: TravelLog; onClose: () => void }
         <div className="flex flex-col sm:flex-row" style={{ maxHeight: "80vh" }}>
 
           {/* ── PEOPLE PANEL ─────────────────────────────────────────────── */}
+          {/* Shown for solo trips and for trips with at least one drawn crew
+              member; trips whose crew hasn't been drawn yet skip it. */}
+          {(log.people.length === 0 || drawnCrew(log.people).length > 0) && (
           <div className="flex-shrink-0 sm:w-28 border-b sm:border-b-0 sm:border-r border-amber-400/10 bg-zinc-900/40">
 
             {/* Mobile: horizontal strip */}
@@ -863,13 +904,10 @@ function TemporalModal({ log, onClose }: { log: TravelLog; onClose: () => void }
               {log.people.length === 0 ? (
                 <span className="font-mono text-xs text-zinc-700">solo mission</span>
               ) : (
-                log.people.map((k) => {
-                  const p = PEOPLE[k];
-                  if (!p) return null;
+                drawnCrew(log.people).map((p) => {
                   return (
-                    <div key={k} className="flex flex-col items-center gap-0.5 flex-shrink-0">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={p.image} alt={p.name} className="w-9 h-9 object-contain" />
+                    <div key={p.key} className="flex flex-col items-center gap-0.5 flex-shrink-0">
+                      <PersonFigure src={p.image} alt={p.name} className="w-9 h-9 object-contain mix-blend-screen" />
                       <span className="font-mono text-xs text-amber-400/60">
                         {getInitials(p.name)}
                       </span>
@@ -889,6 +927,7 @@ function TemporalModal({ log, onClose }: { log: TravelLog; onClose: () => void }
               </div>
             </div>
           </div>
+          )}
 
           {/* ── PHOTO PANEL ──────────────────────────────────────────────── */}
           <div className="flex-shrink-0 sm:w-64 bg-zinc-900 border-b sm:border-b-0 sm:border-r border-amber-400/10">

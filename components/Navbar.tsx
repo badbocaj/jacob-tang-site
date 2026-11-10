@@ -13,17 +13,17 @@ import { ContactsMenu } from "@/components/ContactsMenu"
    Site navigation — a floating pill instead of a black slab.
 
    • It takes its colours from the page it sits on (see .site-nav themes in
-     globals.css): cream paper over the journal pages, dark glass elsewhere,
-     and on the Lab it follows the light switch between day and night.
+     globals.css): dark glass by default, an amber pill on the travel log and
+     the service record, and on the Lab it follows the light switch between
+     day and night.
    • It tucks away while you scroll down and comes back the moment you scroll
      up, so it never sits on top of what you are reading.
    • Sealed sections are left out entirely and show up on their own once they
-     are unlocked in lib/construction.ts. /personalized is reachable from the
-     cockpit's OVERRIDE rock, which is the fun way to find it anyway.
+     are unlocked in lib/construction.ts. /personalized is not linked from
+     anywhere now that the cockpit is gone; it is reachable by URL only.
    ─────────────────────────────────────────────────────────────────────────── */
 
 const ALL_ITEMS = [
-  { label: "Cockpit", href: "/cockpit" },
   { label: "About", href: "/about" },
   { label: "Professional", href: "/professional" },
   { label: "Projects", href: "/projects" },
@@ -76,9 +76,6 @@ export const Navbar = () => {
       window.removeEventListener("keydown", onKey)
     }
   }, [menuOpen])
-
-  // Home and the cockpit carry their own chrome.
-  if (pathname === "/" || pathname === "/cockpit") return null
 
   const theme = themeFor(pathname)
   const hidden = tucked && !menuOpen

@@ -2,7 +2,7 @@
 
 import { useState, useSyncExternalStore, type CSSProperties, type ReactElement } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Brackets } from "@/components/Cockpit/HudPrimitives";
+import { Brackets } from "@/components/HudPrimitives";
 import { HAND_FONT, INK, PAPER, PEN, StillContext } from "./Doodle";
 import { FLOOR_Y, HEAD_TOP_Y, JACOB_X, JOBS, ROOM_H, ROOM_W, type Job, type SceneKey } from "./facilityConfig";
 import VitalLyfeScene from "./scenes/VitalLyfeScene";

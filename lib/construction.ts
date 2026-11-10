@@ -2,8 +2,8 @@
    TEMPORARY SECTION LOCK
 
    Sections that are built but not ready to be shown. Everything about the
-   lock — the middleware rewrite, the navbar treatment, the cockpit channel
-   labels — reads from this one list.
+   lock — the middleware rewrite, the navbar treatment, the landing page
+   tiles — reads from this one list.
 
    TO SHIP A SECTION: delete its entry from LOCKED_SECTIONS.
    TO REMOVE THE LOCK ENTIRELY: empty the list, then delete middleware.ts,
@@ -54,8 +54,7 @@ export function sectionLabel(pathname: string): string {
 
 /** The channels that are still open, for the "go here instead" offer. */
 export const OPEN_SECTIONS: { label: string; href: string; sub: string }[] = [
-  { label: "COCKPIT", href: "/cockpit", sub: "FLIGHT DECK" },
-  { label: "ABOUT", href: "/about", sub: "OPERATOR DOSSIER" },
+  { label: "ABOUT", href: "/about", sub: "EXPLODED VIEW" },
   { label: "PROFESSIONAL", href: "/professional", sub: "MISSION LOG" },
   { label: "PROJECTS", href: "/projects", sub: "THE LAB" },
   { label: "TRAVEL", href: "/travel", sub: "NAV ARCHIVE" },

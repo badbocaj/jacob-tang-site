@@ -6,7 +6,9 @@ import Link from "next/link"
 import { MotionConfig, motion } from "framer-motion"
 import { ArrowDown, ArrowUpRight, Lock } from "lucide-react"
 
-import { ContactsMenu } from "@/components/ContactsMenu"
+import { AssembledRocket, RocketDefs } from "@/components/about/RocketParts"
+import { Brackets } from "@/components/HudPrimitives"
+import { JOBS } from "@/components/professional/facilityConfig"
 import { FILMS, TOP_FOUR } from "@/data/movies"
 import { isLocked } from "@/lib/construction"
 
@@ -16,9 +18,13 @@ import { isLocked } from "@/lib/construction"
    Three beats, top to bottom:
      1. Hero      — a real photo from the lab, one line of poster type, and the
                     roommate's hot take scribbled on top like a margin note.
-     2. Channels  — every section as a tile (Anduril-style bento), so the
-                    cockpit is the fun way in rather than the only way in.
+     2. Channels  — every section as a tile (Anduril-style bento). Each tile
+                    is a glimpse of the page behind it: the rocket still in
+                    one piece, the service record's terminal, the Lab with
+                    the lights off.
      3. Sign-off  — the original "why this exists" note, plus contacts.
+
+   The site nav floats over the hero, so this page has no top bar of its own.
    ─────────────────────────────────────────────────────────────────────────── */
 
 const EASE = [0.22, 1, 0.36, 1] as const
@@ -57,17 +63,6 @@ function Hero() {
       {/* Darken the edges so the type always has something to sit on */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/10 to-black" />
       <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent" />
-
-      {/* Top bar */}
-      <header className="relative z-20 flex items-start justify-between p-5 sm:p-8 md:p-10">
-        <Link href="/" className="no-underline">
-          <span className="block text-xl font-bold uppercase text-white">Jacob Tang&apos;s</span>
-          <span className="mt-1 block font-mono text-xs uppercase tracking-label text-zinc-400">
-            Persolio
-          </span>
-        </Link>
-        <ContactsMenu />
-      </header>
 
       {/* Poster block, anchored low-left */}
       <div className="relative z-10 mt-auto grid min-w-0 gap-10 px-5 pb-24 sm:px-8 md:grid-cols-[1fr_auto] md:items-end md:px-10 md:pb-28">
@@ -153,80 +148,62 @@ function Channels() {
           Pick a channel
         </h2>
         <p className="m-0 font-mono text-xs uppercase tracking-label text-zinc-500">
-          06 channels{lockedCount > 0 ? ` · ${lockedCount} under construction` : ""}
+          05 channels{lockedCount > 0 ? ` · ${lockedCount} under construction` : ""}
         </p>
       </div>
 
       <div className="mt-6 grid auto-rows-[minmax(240px,auto)] grid-cols-1 gap-3 md:grid-cols-3">
-        {/* Cockpit — the big one */}
+        {/* About — the big one: the rocket, still in one piece */}
         <Tile
-          href="/cockpit"
+          href="/about"
           index="01"
-          label="Board the cockpit"
-          sub="The fun way in. Look up, shoot a rock, open a page."
-          className="min-h-[360px] md:col-span-2 md:row-span-2"
+          label="About"
+          sub="Jacob, as a rocket. Scroll to take it apart."
+          className="min-h-[420px] md:col-span-2 md:row-span-2"
           delay={0}
         >
-          <CockpitArt />
-        </Tile>
-
-        <Tile href="/about" index="02" label="About" sub="The journal" delay={0.05}>
-          <Image
-            src="/about.png"
-            alt=""
-            fill
-            sizes="(min-width: 768px) 33vw, 100vw"
-            className="object-cover opacity-70 transition-all duration-700 group-hover:scale-105 group-hover:opacity-90"
-          />
+          <RocketArt />
         </Tile>
 
         <Tile
           href="/professional"
-          index="03"
+          index="02"
           label="Professional"
-          sub="Work history, as a comic"
-          tone="paper"
-          delay={0.1}
+          sub={`Service record · ${JOBS.length} missions logged`}
+          delay={0.05}
         >
-          <PaperArt />
+          <ServiceRecordArt />
         </Tile>
 
         <Tile
-          href="/travel"
-          index="04"
-          label="Travel"
-          sub="Trips, people, bad bets"
-          className="md:col-span-2"
-          delay={0.15}
+          href="/projects"
+          index="03"
+          label="The Lab"
+          sub="Projects · lights off for the code"
+          locked={isLocked("/projects")}
+          delay={0.1}
         >
+          <NightLabArt />
+        </Tile>
+
+        <Tile href="/travel" index="04" label="Travel" sub="Trips, people, bad bets" delay={0.15}>
           <Image
             src="/travel/Cover/japan-cover.jpg"
             alt=""
             fill
-            sizes="(min-width: 768px) 66vw, 100vw"
+            sizes="(min-width: 768px) 33vw, 100vw"
             className="object-cover object-[50%_40%] opacity-60 transition-all duration-700 group-hover:scale-105 group-hover:opacity-80"
           />
         </Tile>
 
         <Tile
-          href="/projects"
-          index="05"
-          label="The Lab"
-          sub="Projects · hardware, math, failures"
-          locked={isLocked("/projects")}
-          delay={0.2}
-        >
-          <BlueprintArt />
-        </Tile>
-
-        <Tile
           href="/movies"
-          index="06"
+          index="05"
           label="Movies"
           sub="Top 4, hot takes, recent watches"
-          className="md:col-span-3"
+          className="md:col-span-2"
           locked={isLocked("/movies")}
-          delay={0.25}
+          delay={0.2}
         >
           <TicketArt />
         </Tile>
@@ -241,7 +218,6 @@ function Tile({
   label,
   sub,
   className = "",
-  tone = "dark",
   locked = false,
   delay = 0,
   children,
@@ -251,13 +227,10 @@ function Tile({
   label: string
   sub: string
   className?: string
-  tone?: "dark" | "paper"
   locked?: boolean
   delay?: number
   children?: ReactNode
 }) {
-  const paper = tone === "paper"
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
@@ -268,30 +241,20 @@ function Tile({
     >
       <Link
         href={href}
-        className={`group relative flex h-full min-h-[240px] flex-col justify-between overflow-hidden border p-5 no-underline transition-colors sm:p-6 ${
-          paper
-            ? "border-transparent bg-[#f3ede1] text-zinc-900"
-            : "border-white/10 bg-zinc-950 text-white hover:border-white/30"
-        }`}
+        className="group relative flex h-full min-h-[240px] flex-col justify-between overflow-hidden border border-white/10 bg-zinc-950 p-5 text-white no-underline transition-colors hover:border-white/30 sm:p-6"
       >
         <div className="pointer-events-none absolute inset-0">{children}</div>
-        {!paper && (
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-        )}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
 
         <div className="relative flex items-start justify-between">
-          <span className={`font-mono text-xs tracking-label ${paper ? "text-zinc-500" : "text-zinc-400"}`}>
-            {index}
-          </span>
+          <span className="font-mono text-xs tracking-label text-zinc-400">{index}</span>
           {locked ? (
             <span className="flex items-center gap-1.5 border border-amber-300/40 bg-black/60 px-2 py-1 font-mono text-xs uppercase tracking-label text-amber-300">
               <Lock className="h-3 w-3" strokeWidth={2.5} /> Soon
             </span>
           ) : (
             <ArrowUpRight
-              className={`h-5 w-5 transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1 ${
-                paper ? "text-zinc-700" : "text-white"
-              }`}
+              className="h-5 w-5 text-white transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1"
               strokeWidth={1.75}
             />
           )}
@@ -305,107 +268,98 @@ function Tile({
           >
             {label}
           </h3>
-          <p className={`m-0 mt-2 font-mono text-xs uppercase tracking-label ${paper ? "text-zinc-600" : "text-zinc-400"}`}>
-            {sub}
-          </p>
+          <p className="m-0 mt-2 font-mono text-xs uppercase tracking-label text-zinc-400">{sub}</p>
         </div>
       </Link>
     </motion.div>
   )
 }
 
-/* Tile artwork — drawn, not photographed, so each one hints at its zone. */
+/* Tile artwork — each one is a glimpse of the page behind it. */
 
-function CockpitArt() {
+/** /about before you scroll: the rocket, still in one piece. */
+function RocketArt() {
   return (
-    <div className="absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_110%,rgba(34,211,238,0.22),transparent_60%),linear-gradient(180deg,#01030a,#071227)]">
-      <svg
-        viewBox="0 0 800 500"
-        preserveAspectRatio="xMidYMid slice"
-        className="absolute inset-0 h-full w-full text-cyan-300 transition-transform duration-700 group-hover:scale-[1.03]"
-        aria-hidden
-      >
-        {/* canopy struts + dash arc */}
-        <path d="M60 0 L190 500 M740 0 L610 500" stroke="currentColor" strokeOpacity="0.18" strokeWidth="2" fill="none" />
-        <path d="M0 360 Q400 300 800 360" stroke="currentColor" strokeOpacity="0.35" strokeWidth="1.5" fill="none" />
-        {/* reticle */}
-        <g transform="translate(400 170)" stroke="currentColor" fill="none">
-          <circle r="34" strokeOpacity="0.5" />
-          <circle r="3" fill="currentColor" stroke="none" fillOpacity="0.8" />
-          <path d="M-56 0 H-42 M42 0 H56 M0 -56 V-42 M0 42 V56" strokeOpacity="0.7" />
-        </g>
-        {/* a few rocks */}
-        {[
-          [190, 110, 0.8],
-          [600, 90, 1],
-          [560, 230, 0.7],
-        ].map(([x, y, s]) => (
-          <path
-            key={`${x}-${y}`}
-            transform={`translate(${x} ${y}) scale(${s})`}
-            d="M-18 -8 L-6 -20 L14 -16 L22 0 L12 18 L-10 20 L-22 6 Z"
-            stroke="currentColor"
-            strokeOpacity="0.55"
-            fill="rgba(34,211,238,0.06)"
-          />
-        ))}
-      </svg>
-      <span className="absolute left-1/2 top-[calc(34%+64px)] -translate-x-1/2 whitespace-nowrap font-mono text-xs uppercase tracking-label text-cyan-200/60">
-        JT-01 // Flight deck
+    <div className="absolute inset-0 bg-[#0b0a09]">
+      {/* the same isometric grid the page sits on */}
+      <div className="absolute inset-0 bg-[repeating-linear-gradient(30deg,rgba(243,234,215,0.05)_0_1px,transparent_1px_56px),repeating-linear-gradient(150deg,rgba(243,234,215,0.05)_0_1px,transparent_1px_56px)]" />
+      <RocketDefs />
+      {/* On hover the parts ease apart, a hint of what scrolling does. */}
+      <AssembledRocket
+        className="absolute right-[8%] top-[6%] h-[88%] w-auto md:right-[16%]"
+        partClassName="transition-[translate] duration-500 ease-out group-hover:translate-y-[calc(var(--i)*7px)]"
+      />
+      <span className="absolute left-5 top-14 font-mono text-xs uppercase tracking-label text-[#ff6a3d] sm:left-6">
+        JT-01 // Exploded view
       </span>
     </div>
   )
 }
 
-function PaperArt() {
+/** /professional's amber terminal, with the mission list on screen. */
+function ServiceRecordArt() {
+  const newestFirst = [...JOBS].reverse()
   return (
-    <div className="absolute inset-0">
-      {/* ruled lines */}
-      <div className="absolute inset-0 bg-[repeating-linear-gradient(180deg,transparent_0,transparent_27px,rgba(37,99,235,0.12)_27px,rgba(37,99,235,0.12)_28px)]" />
-      <div className="absolute inset-y-0 left-10 w-px bg-rose-400/40" />
-      {/* a stick figure, waving */}
-      <svg
-        viewBox="0 0 120 140"
-        className="absolute right-6 top-8 h-24 w-20 text-zinc-800 transition-transform duration-500 group-hover:-rotate-3"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-        aria-hidden
-      >
-        <circle cx="60" cy="26" r="14" />
-        <path d="M60 40 V92 M60 92 L44 128 M60 92 L76 128 M60 56 L38 74 M60 56 L84 34" />
-        <path d="M90 22 l6 -6 M94 30 l8 -2" strokeWidth="1.8" />
-      </svg>
-      <span
-        className="absolute right-28 top-10 -rotate-6 text-xl text-zinc-600"
-        style={{ fontFamily: "var(--ff-journal)" }}
-      >
-        (no capes.)
-      </span>
+    <div className="absolute inset-0 bg-[#0d0b09]">
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(243,234,215,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(243,234,215,0.04)_1px,transparent_1px)] bg-[size:48px_48px]" />
+      <div className="absolute inset-x-5 bottom-24 top-12 overflow-hidden border border-amber-400/25 bg-[#16120d]/85 px-4 py-3 transition-colors duration-500 group-hover:border-amber-400/60 sm:inset-x-6">
+        <Brackets size={12} thickness={2} color="#fbbf24" />
+        <p className="m-0 font-mono text-xs uppercase tracking-label text-amber-400">JT-01 // Pilot file</p>
+        <ul className="m-0 mt-2 grid list-none grid-cols-2 gap-x-4 gap-y-1 p-0 font-mono text-xs uppercase tracking-wider text-stone-300">
+          {newestFirst.map((job, i) => (
+            <li key={job.key} className="flex min-w-0 gap-2.5">
+              <span className="text-amber-400">{String(JOBS.length - i).padStart(2, "0")}</span>
+              <span className="truncate">{job.company}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   )
 }
 
-function BlueprintArt() {
+/** A handful of fixed stars: x, y, radius, opacity on a 300×200 board. */
+const NIGHT_STARS: [number, number, number, number][] = [
+  [18, 22, 0.9, 0.8], [46, 96, 0.6, 0.5], [64, 34, 0.7, 0.7], [92, 142, 0.8, 0.5], [108, 18, 0.6, 0.6],
+  [124, 78, 1, 0.9], [142, 44, 0.6, 0.5], [156, 122, 0.7, 0.6], [171, 26, 0.9, 0.8], [188, 92, 0.6, 0.5],
+  [204, 14, 0.7, 0.6], [226, 58, 0.6, 0.4], [262, 20, 0.8, 0.7], [284, 104, 0.6, 0.5], [34, 152, 0.7, 0.4],
+]
+
+/** /projects with the lights off: night sky, moon up, switch flipped to software. */
+function NightLabArt() {
   return (
-    <div className="absolute inset-0 bg-[#06101f]">
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(96,165,250,0.12)_1px,transparent_1px),linear-gradient(90deg,rgba(96,165,250,0.12)_1px,transparent_1px)] bg-[size:24px_24px]" />
+    <div className="absolute inset-0 bg-[linear-gradient(180deg,#02040c_0%,#070c1f_60%,#060914_100%)]">
       <svg
         viewBox="0 0 300 200"
-        className="absolute inset-0 h-full w-full text-sky-300 opacity-60 transition-opacity duration-500 group-hover:opacity-90"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.2"
+        preserveAspectRatio="xMidYMid slice"
+        className="absolute inset-0 h-full w-full"
         aria-hidden
       >
-        {/* a little engine: chamber, throat, bell */}
-        <path d="M120 40 H180 V90 Q180 100 166 106 L162 110 Q200 140 214 176 H86 Q100 140 138 110 L134 106 Q120 100 120 90 Z" />
-        <path d="M150 20 V40 M110 40 H190" strokeDasharray="4 4" strokeOpacity="0.6" />
-        <path d="M86 186 H214 M86 182 V190 M214 182 V190" strokeOpacity="0.6" />
+        <defs>
+          <mask id="home-crescent">
+            <rect width="300" height="200" fill="#fff" />
+            <circle cx="88" cy="56" r="20" fill="#000" />
+          </mask>
+        </defs>
+        {NIGHT_STARS.map(([x, y, r, o]) => (
+          <circle key={`${x}-${y}`} cx={x} cy={y} r={r} fill="#e0e7ff" opacity={o} />
+        ))}
+        <circle cx="80" cy="62" r="34" fill="rgba(226,232,240,0.07)" />
+        <circle cx="80" cy="62" r="21" fill="#f1f5f9" mask="url(#home-crescent)" />
       </svg>
-      {/* hazard tape across the corner */}
-      <div className="absolute -right-10 top-16 w-56 rotate-45 bg-[repeating-linear-gradient(45deg,#fbbf24_0,#fbbf24_10px,#0a0a0a_10px,#0a0a0a_20px)] py-1 opacity-80" />
+
+      {/* The wall switch, paddle down: off, software */}
+      <div className="absolute right-6 top-[42%] flex -translate-y-1/2 items-center gap-3">
+        <div className="flex h-24 flex-col justify-between py-3 text-right font-mono text-xs uppercase tracking-label">
+          <span className="text-slate-300/40">On · HW</span>
+          <span className="text-[#a5b4fc]">Off · SW</span>
+        </div>
+        <div className="relative h-24 w-16 rounded-lg border border-slate-400/35 bg-[#1b2033] shadow-[0_14px_40px_rgba(0,0,0,0.45)]">
+          <div className="absolute left-1/2 top-1/2 h-14 w-7 -translate-x-1/2 -translate-y-1/2 rounded bg-[#11152a] shadow-[inset_0_2px_6px_rgba(0,0,0,0.2)]">
+            <div className="absolute inset-x-0.5 bottom-0.5 h-7 rounded-[3px] border border-slate-400/35 bg-[#262c44] shadow-[0_-4px_0_rgba(0,0,0,0.28)] transition-transform duration-300 group-hover:-translate-y-0.5" />
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
@@ -472,8 +426,8 @@ function SignOff() {
           >
             LinkedIn ↗
           </a>
-          <Link href="/cockpit" className="mt-3 text-amber-300 no-underline transition-colors hover:text-amber-200">
-            Board the cockpit →
+          <Link href="/about" className="mt-3 text-amber-300 no-underline transition-colors hover:text-amber-200">
+            Take the rocket apart →
           </Link>
         </div>
       </div>

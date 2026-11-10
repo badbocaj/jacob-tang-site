@@ -5,14 +5,14 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Lock } from "lucide-react";
 
-import { Brackets } from "@/components/Cockpit/HudPrimitives";
+import { Brackets } from "@/components/HudPrimitives";
 import { OPEN_SECTIONS } from "@/lib/construction";
 
 /* ───────────────────────────────────────────────────────────────────────────
    Zone A — the sealed-channel transmission.
 
    A section that is built but not ready should feel like a door the operator
-   shut on purpose, not a page that fell over. So: the cockpit's own HUD
+   shut on purpose, not a page that fell over. So: the site's HUD
    vocabulary (mono caps, corner brackets, scanlines, amber for anything
    withheld), a computer with an attitude, and one low-fi barrier sketch
    parked in front of it all.

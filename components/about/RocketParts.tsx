@@ -216,6 +216,40 @@ export interface RocketPart {
   Art: () => ReactElement;
 }
 
+/**
+ * The whole rocket docked together in one drawing, for anywhere that wants
+ * it in one piece (the landing page tile). Needs <RocketDefs /> on the page.
+ * `partClassName` lands on every part, and each part gets a `--i` custom
+ * property from -3 (nose) to 3 (engines) for staggered hover effects.
+ */
+export function AssembledRocket({ className, partClassName }: { className?: string; partClassName?: string }) {
+  // Where each board sits so its top joint meets the joint above it.
+  const tops: number[] = [];
+  PARTS.forEach((part, i) => {
+    tops.push(i === 0 ? 0 : tops[i - 1] + PARTS[i - 1].bottom - part.top);
+  });
+  const last = PARTS.length - 1;
+  const height = tops[last] + PARTS[last].viewH;
+  const mid = (PARTS.length - 1) / 2;
+
+  return (
+    <svg viewBox={`0 0 360 ${height}`} className={className} aria-hidden>
+      {/* Bottom first, so each part overlaps the one below it. */}
+      {PARTS.map((_, n) => {
+        const i = last - n;
+        const { key, Art } = PARTS[i];
+        return (
+          <g key={key} transform={`translate(0 ${tops[i]})`}>
+            <g className={partClassName} style={{ ["--i" as string]: i - mid }}>
+              <Art />
+            </g>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
 /** Top of the stack first. */
 export const PARTS: RocketPart[] = [
   { key: "nose", name: "Nose cone", viewH: 160, top: 0, bottom: 130, Art: NoseCone },

@@ -180,8 +180,8 @@ export interface TimelineStop {
 
 /** Oldest first. Each stop is a stage in the mission profile. */
 export const TIMELINE: TimelineStop[] = [
+  { when: "Aug 2023", what: "Researcher", where: "CURVE @ USC" },
   { when: "May 2024", what: "Structures Researcher", where: "AIM Lab @ UH" },
-  { when: "Aug 2024", what: "Researcher", where: "CURVE @ USC" },
   { when: "May 2025", what: "Quality Engineering Intern", where: "L3Harris" },
   { when: "Jan 2026", what: "Mechanical Engineering Intern", where: "Vital Lyfe", active: false },
   { when: "Now", what: "Exploring mechatronics and software", where: "USC", active: true },

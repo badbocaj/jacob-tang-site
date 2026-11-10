@@ -44,24 +44,26 @@ export interface Job {
 }
 
 /**
- * Stand-in debrief copy. Replace `...TODO_DEBRIEF` on each job below with that
- * job's own `objective`, `did` and `tools`.
- */
-const TODO_DEBRIEF: Pick<Job, "objective" | "did" | "tools"> = {
-  objective: "[One line: what the team was trying to do]",
-  did: [
-    "[What you built or tested, with a number]",
-    "[The hardest problem and how you solved it]",
-    "[The result: what changed because of you]",
-  ],
-  tools: ["[Tool]", "[Tool]", "[Method]"],
-};
-
-/**
  * Chronological — mission 01 is the earliest job and the last entry is current.
  * The service record numbers them from this order and lists newest first.
  */
 export const JOBS: Job[] = [
+  {
+    key: "curve",
+    company: "CURVE @ USC",
+    title: "Researcher",
+    period: "Aug 2023 – May 2024",
+    location: "Los Angeles, CA",
+    hook: "Found solutions for LA traffic by secondhand experience.",
+    objective: "Develop an algorithm for utilitarian surge toll pricing.",
+    did: [
+      "Developed a program to run user studies on fair-pricing intuition",
+      "Identified pattern deltas between optimal and user-chosen pricing",
+      "Presented findings to 200+ people at a symposium",
+    ],
+    tools: ["Python"],
+    room: "Traffic Control",
+  },
   {
     key: "aim",
     company: "AIM Lab @ UH",
@@ -69,18 +71,15 @@ export const JOBS: Job[] = [
     period: "May 2024 – Aug 2024",
     location: "Houston, TX",
     hook: "Vibe-Researching",
-    ...TODO_DEBRIEF,
+    objective:
+      "Determine how thickness-altering manufacturing imperfections influence structural integrity.",
+    did: [
+      "Built a machine to deform plastic domes acoustically",
+      "Modeled thickness differences in an Abaqus vibration analysis",
+      "Reconstructed the domes with a CT scanner",
+    ],
+    tools: ["Abaqus", "FEA", "Prototyping"],
     room: "Shaker Lab",
-  },
-  {
-    key: "curve",
-    company: "CURVE @ USC",
-    title: "Researcher",
-    period: "Aug 2024 – May 2025",
-    location: "Los Angeles, CA",
-    hook: "Found solutions for LA traffic by secondhand experience.",
-    ...TODO_DEBRIEF,
-    room: "Traffic Control",
   },
   {
     key: "l3",
@@ -89,7 +88,13 @@ export const JOBS: Job[] = [
     period: "May 2025 – Aug 2025",
     location: "Clifton, NJ",
     hook: "Made the electronic warfare systems conform",
-    ...TODO_DEBRIEF,
+    objective: "Proof the electronic warfare boards.",
+    did: [
+      "Resolved non-conformances on boards and found long-term fixes",
+      "Moved the team onto Confluence so documentation lived in one place",
+      "Performed FAIs and served as the supplier's point of contact",
+    ],
+    tools: ["Electronics manufacturing", "FRACAS", "Confluence"],
     room: "Inspection Line",
   },
   {
@@ -98,8 +103,14 @@ export const JOBS: Job[] = [
     title: "Mechanical Engineering Intern",
     period: "Jan 2026 – Present",
     location: "Torrance, CA",
-    hook: "Solving the water crisis, clearly didn't solve traffic",
-    ...TODO_DEBRIEF,
+    hook: "Solving the water crisis",
+    objective: "Build a portable watermaker that can be manufactured at rate.",
+    did: [
+      "Designed, built, and tested injection-molded brackets",
+      "Sized the pump drivetrain pressurization system",
+      "Built a scrappy test rig prototype before real units arrived",
+    ],
+    tools: ["Siemens NX", "Excel", "Claude"],
     room: "Filtration Bay",
   },
 ];

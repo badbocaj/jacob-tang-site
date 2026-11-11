@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
@@ -37,6 +38,10 @@ interface Project {
   status?: string;
   /** Optional headline number, e.g. "47 g joint · 22% lighter". Shown big. */
   stat?: string;
+  /** A real photo replaces the line drawing. `blend` suits shots on a white
+      background: the white drops out into the card. `plate` suits dark renders,
+      shown as a dark print. Leave it off for an ordinary photo. */
+  photo?: { src: string; alt: string; look?: "blend" | "plate" };
 }
 
 /* EDIT ME — the words on this page live here. Each project also takes an
@@ -54,7 +59,12 @@ const PROJECTS: Record<Mode, Project[]> = {
       blurb:
         "Owned the pressurization drivetrain subsystem end to end for Vital Lyfe's water-filtration system: motor, reduction, and the pressure it all has to hold.",
       drawing: "drivetrain",
-      link: { href: "/professional", label: "See the comic panel" },
+      photo: {
+        src: "/projects/lab-vital-drivetrain.webp",
+        alt: "Cutaway render of the Vital Lyfe portable watermaker, with the high-pressure pump, membrane housing and sensors labelled",
+        look: "plate",
+      },
+      link: { href: "/professional", label: "See the service record" },
     },
     {
       key: "hpfrt",
@@ -66,6 +76,10 @@ const PROJECTS: Record<Mode, Project[]> = {
       blurb:
         "A student-built airplane that flies on one person's pedaling. I worked on the wing spar and the boom joints, the parts that carry the biggest loads in the airframe.",
       drawing: "aircraft",
+      photo: {
+        src: "/projects/lab-hpfrt-plane.webp",
+        alt: "The team's red and white aircraft parked on a cracked desert lakebed",
+      },
       link: { href: "/projects/hpfrt", label: "Read the write-up" },
     },
     {
@@ -76,8 +90,13 @@ const PROJECTS: Record<Mode, Project[]> = {
       year: "2024–25",
       role: "Propulsion team",
       blurb:
-        "A student-designed liquid bipropellant engine: injector, chamber and nozzle, designed and built in-house and headed for the test stand.",
+        "A student team building a liquid bipropellant hopper vehicle. I worked on WFTS, the water flow test stand that characterizes components before they're fired.",
       drawing: "engine",
+      photo: {
+        src: "/projects/lab-lpl-wfts.webp",
+        alt: "The water flow test stand: a black steel frame holding tanks, plumbing, pressure gauges and a control laptop",
+        look: "blend",
+      },
       link: { href: "/projects/liquid-prop", label: "Read the write-up" },
     },
   ],
@@ -266,18 +285,38 @@ function ProjectRow({ project: p, index, night }: { project: Project; index: num
     >
       {/* Drawing */}
       <figure
-        className={`relative m-0 aspect-[4/3] border border-[var(--faint)] bg-[var(--card)] transition-colors duration-700 md:col-span-5 ${
+        className={`relative m-0 aspect-[4/3] overflow-hidden border border-[var(--faint)] bg-[var(--card)] transition-colors duration-700 md:col-span-5 ${
           flipSide ? "md:order-2" : ""
         }`}
       >
-        <Drawing
-          kind={p.drawing}
-          className="absolute inset-0 h-full w-full p-4 text-[var(--line)] transition-[color,filter] duration-700"
-        />
+        {p.photo ? (
+          <Image
+            src={p.photo.src}
+            alt={p.photo.alt}
+            fill
+            sizes="(min-width: 768px) 40vw, 100vw"
+            className={
+              p.photo.look === "blend"
+                ? "object-contain p-3 mix-blend-multiply"
+                : "object-cover"
+            }
+          />
+        ) : (
+          <Drawing
+            kind={p.drawing}
+            className="absolute inset-0 h-full w-full p-4 text-[var(--line)] transition-[color,filter] duration-700"
+          />
+        )}
         {night && (
           <div className="pointer-events-none absolute inset-0 shadow-[inset_0_0_60px_rgba(165,180,252,0.08)]" />
         )}
-        <figcaption className="absolute bottom-3 left-3 font-mono text-xs uppercase tracking-label text-[var(--muted)]">
+        <figcaption
+          className={`absolute bottom-3 left-3 font-mono text-xs uppercase tracking-label ${
+            p.photo && p.photo.look !== "blend"
+              ? "bg-[#0b0a09]/55 px-1.5 py-0.5 text-stone-200"
+              : "text-[var(--muted)]"
+          }`}
+        >
           Fig. {String(index + 1).padStart(2, "0")}
         </figcaption>
       </figure>

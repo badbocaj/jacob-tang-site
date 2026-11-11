@@ -62,14 +62,14 @@ const PROJECTS: Record<Mode, Project[]> = {
       year: "2026",
       role: "Mechanical engineering intern",
       blurb:
-        "Owned the pressurization drivetrain subsystem end to end for Vital Lyfe's water-filtration system: motor, reduction, and the pressure it all has to hold.",
+        "Owned the high-pressure pump drivetrain of a portable seawater desalinator end to end: the brackets, the pump that turns motor torque into 50 to 100 bar, and the rig that tested it.",
       drawing: "drivetrain",
       photo: {
         src: "/projects/lab-vital-drivetrain.webp",
         alt: "Cutaway render of the Vital Lyfe portable watermaker, with the high-pressure pump, membrane housing and sensors labelled",
         look: "plate",
       },
-      link: { href: "/professional", label: "See the service record" },
+      link: { href: "/projects/vital", label: "Read the write-up" },
     },
     {
       key: "hpfrt",

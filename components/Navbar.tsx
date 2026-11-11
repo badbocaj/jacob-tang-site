@@ -8,6 +8,7 @@ import { Menu, X } from "lucide-react"
 
 import { isLocked } from "@/lib/construction"
 import { ContactsMenu } from "@/components/ContactsMenu"
+import { CASE_STUDY_PATHS } from "@/components/casestudy/registry"
 
 /* ───────────────────────────────────────────────────────────────────────────
    Site navigation — a floating pill instead of a black slab.
@@ -37,7 +38,7 @@ const NAV_ITEMS = ALL_ITEMS.filter((item) => !isLocked(item.href))
 type NavTheme = "dark" | "paper" | "travel" | "lab"
 
 function themeFor(pathname: string): NavTheme {
-  if (pathname === "/projects") return "lab"
+  if (pathname === "/projects" || CASE_STUDY_PATHS.includes(pathname)) return "lab"
   // The service record shares travel's dark glass and amber active pill.
   if (pathname.startsWith("/travel") || pathname.startsWith("/professional")) return "travel"
   return "dark"

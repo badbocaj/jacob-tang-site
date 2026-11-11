@@ -25,7 +25,6 @@ export const LOCKED_SECTIONS = [
   // The Lab index is open; the individual write-ups stay sealed until their
   // placeholder specs and text are replaced with the real thing.
   "/projects/hpfrt",
-  "/projects/liquid-prop",
   "/projects/maiia",
   "/projects/liquid-propulsion",
   "/fun",

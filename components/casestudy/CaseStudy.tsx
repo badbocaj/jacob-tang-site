@@ -202,8 +202,11 @@ export function CaseStudy({ data, signature }: { data: CaseStudyData; signature?
 
         <Section id="lessons" n={n("lessons")} label={labels.lessons}>
           <div className="grid gap-8 sm:grid-cols-2">
-            <Lesson title="What broke" body={data.lessons.broke} />
-            <Lesson title="What I'd do differently" body={data.lessons.differently} />
+            <Lesson title={data.lessons.brokeTitle ?? "What broke"} body={data.lessons.broke} />
+            <Lesson
+              title={data.lessons.differentlyTitle ?? "What I'd do differently"}
+              body={data.lessons.differently}
+            />
           </div>
         </Section>
 

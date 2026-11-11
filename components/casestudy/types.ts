@@ -74,5 +74,6 @@ export interface CaseStudyData {
   analysis: { headline: string; notes: Fact[] };
   testing: { headline: string; tests: TestRun[] };
   results: Stat[];
-  lessons: { broke: string; differently: string };
+  /** Titles default to "What broke" and "What I'd do differently". */
+  lessons: { broke: string; differently: string; brokeTitle?: string; differentlyTitle?: string };
 }

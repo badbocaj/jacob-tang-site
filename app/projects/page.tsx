@@ -89,11 +89,11 @@ const PROJECTS: Record<Mode, Project[]> = {
     },
     {
       key: "lpl",
-      title: "Liquid rocket engine",
+      title: "Water flow test stand",
       org: "Liquid Propulsion Lab",
       context: "School",
       year: "2024–25",
-      role: "Propulsion team",
+      role: "Member",
       blurb:
         "A student team building a liquid bipropellant hopper vehicle. I worked on WFTS, the water flow test stand that characterizes components before they're fired.",
       drawing: "engine",

@@ -6,7 +6,7 @@ import type { CaseSide } from "./types";
 export const LAB_PROJECTS: { key: string; title: string; side: CaseSide; href?: string }[] = [
   { key: "vital", title: "Pressurization drivetrain", side: "hardware", href: "/projects/vital" },
   { key: "hpfrt", title: "Human-powered flight", side: "hardware", href: "/projects/hpfrt" },
-  { key: "lpl", title: "Liquid rocket engine", side: "hardware" },
+  { key: "lpl", title: "Water flow test stand", side: "hardware", href: "/projects/liquid-prop" },
   { key: "maiia", title: "MAIIA", side: "software" },
   { key: "site", title: "tangjacob.com", side: "software" },
   { key: "pantry", title: "Ingredients Tracker", side: "software" },

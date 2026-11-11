@@ -9,6 +9,7 @@ import { ArrowRight } from "lucide-react";
 import { Sky } from "@/components/lab/Sky";
 import { LightSwitch } from "@/components/lab/LightSwitch";
 import { Drawing, type DrawingKey } from "@/components/lab/Drawings";
+import { AssembledRocket, RocketDefs } from "@/components/about/RocketParts";
 
 /* ───────────────────────────────────────────────────────────────────────────
    THE LAB
@@ -42,6 +43,10 @@ interface Project {
       background: the white drops out into the card. `plate` suits dark renders,
       shown as a dark print. Leave it off for an ordinary photo. */
   photo?: { src: string; alt: string; look?: "blend" | "plate" };
+  /** A YouTube video id. Plays in the frame instead of a drawing or photo. */
+  youtube?: { id: string; title: string };
+  /** Shows the assembled rocket from /about in the frame. */
+  rocket?: boolean;
 }
 
 /* EDIT ME — the words on this page live here. Each project also takes an
@@ -106,8 +111,10 @@ const PROJECTS: Record<Mode, Project[]> = {
       title: "MAIIA",
       context: "Side",
       year: "2024",
-      blurb: "Write-up in progress.",
+      blurb:
+        "My roommate Denys has a blind grandmother whose English isn't very good. MAIIA was made to help people like her, using AI to turn visual media into audio descriptions. We were one of the first to solve this before AI got exponentially better.",
       drawing: "terminal",
+      youtube: { id: "iVFS4_airkQ", title: "MAIIA demo" },
       link: { href: "/projects/maiia", label: "Open the file" },
     },
     {
@@ -120,6 +127,7 @@ const PROJECTS: Record<Mode, Project[]> = {
       blurb:
         "The site you're on. Next.js, Tailwind and Framer Motion, built mostly to learn how to work with Claude Code. The light switch up there is part of it.",
       drawing: "browser",
+      rocket: true,
       link: { href: "/", label: "Back to the front door" },
     },
     {
@@ -289,7 +297,24 @@ function ProjectRow({ project: p, index, night }: { project: Project; index: num
           flipSide ? "md:order-2" : ""
         }`}
       >
-        {p.photo ? (
+        {p.youtube ? (
+          <iframe
+            src={`https://www.youtube-nocookie.com/embed/${p.youtube.id}`}
+            title={p.youtube.title}
+            loading="lazy"
+            allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+            referrerPolicy="strict-origin-when-cross-origin"
+            className="absolute inset-0 h-full w-full bg-black"
+          />
+        ) : p.rocket ? (
+          <div className="absolute inset-0 bg-[#0b0a09]">
+            {/* the same isometric grid /about sits on */}
+            <div className="absolute inset-0 bg-[repeating-linear-gradient(30deg,rgba(243,234,215,0.05)_0_1px,transparent_1px_56px),repeating-linear-gradient(150deg,rgba(243,234,215,0.05)_0_1px,transparent_1px_56px)]" />
+            <RocketDefs />
+            <AssembledRocket className="absolute left-1/2 top-[6%] h-[88%] w-auto -translate-x-1/2" />
+          </div>
+        ) : p.photo ? (
           <Image
             src={p.photo.src}
             alt={p.photo.alt}
@@ -310,15 +335,17 @@ function ProjectRow({ project: p, index, night }: { project: Project; index: num
         {night && (
           <div className="pointer-events-none absolute inset-0 shadow-[inset_0_0_60px_rgba(165,180,252,0.08)]" />
         )}
+        {!p.youtube && (
         <figcaption
           className={`absolute bottom-3 left-3 font-mono text-xs uppercase tracking-label ${
-            p.photo && p.photo.look !== "blend"
+            p.rocket || (p.photo && p.photo.look !== "blend")
               ? "bg-[#0b0a09]/55 px-1.5 py-0.5 text-stone-200"
               : "text-[var(--muted)]"
           }`}
         >
           Fig. {String(index + 1).padStart(2, "0")}
         </figcaption>
+        )}
       </figure>
 
       {/* Words */}

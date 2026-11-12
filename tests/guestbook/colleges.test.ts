@@ -47,6 +47,44 @@ describe("searchCollegeOptions", () => {
   });
 });
 
+describe("searchCollegeOptions: how people actually type their school", () => {
+  const first = (q: string) => searchCollegeOptions(q)[0].label;
+
+  it("finds common short forms", () => {
+    expect(first("georgia tech")).toBe("Georgia Institute of Technology");
+    expect(first("NYU")).toBe("New York University");
+    expect(first("virginia tech")).toBe("Virginia Polytechnic Institute and State University");
+    expect(first("UIUC")).toBe("University of Illinois Urbana-Champaign");
+    expect(first("UNC")).toBe("University of North Carolina at Chapel Hill");
+    expect(first("CMU")).toBe("Carnegie Mellon University");
+    expect(first("UC Berkeley")).toBe("University of California-Berkeley");
+    expect(first("UCSD")).toBe("University of California-San Diego");
+    expect(first("cal poly")).toBe("California Polytechnic State University-San Luis Obispo");
+  });
+
+  it("puts the main campus first", () => {
+    expect(first("penn state")).toBe("Pennsylvania State University");
+    expect(first("purdue university")).toBe("Purdue University");
+    expect(first("texas a&m")).toBe("Texas A & M University-College Station");
+  });
+
+  it("ignores punctuation in queries and names", () => {
+    expect(searchCollegeOptions("st johns").map((o) => o.label)).toContain("St. John's University-New York");
+    expect(first("texas a and m")).toBe("Texas A & M University-College Station");
+  });
+
+  it("skips mid-word matches for short queries", () => {
+    const labels = searchCollegeOptions("unc").map((o) => o.label);
+    expect(labels.some((l) => /acupuncture/i.test(l))).toBe(false);
+    expect(searchCollegeOptions("uc").some((o) => /education/i.test(o.label))).toBe(false);
+  });
+
+  it("drops '-Main Campus' from names and leaves out system offices", () => {
+    const all = ["main campus", "system office"].flatMap((q) => searchCollegeOptions(q, 50));
+    expect(all.filter((o) => o.sub)).toEqual([]);
+  });
+});
+
 describe("getCollege / collegeExists", () => {
   it("knows real ids and rejects unknown ones", () => {
     expect(collegeExists("123961")).toBe(true);

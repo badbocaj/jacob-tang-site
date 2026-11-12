@@ -21,16 +21,65 @@ const STATES = new Set(
     "NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY").split(" "),
 );
 
-/** Short forms people type that IPEDS names don't contain. Keyed by UNITID. */
+/** Short forms people type that IPEDS names don't contain. Keyed by the cleaned name (see clean()). */
 const ALIASES: Record<string, string[]> = {
-  "123961": ["USC"], // University of Southern California
-  "218663": ["USC"], // University of South Carolina-Columbia
-  "110662": ["UCLA"],
-  "166683": ["MIT"],
-  "110635": ["Berkeley", "Cal"],
-  "243780": ["Purdue"],
-  "228778": ["UT Austin"],
+  "University of Southern California": ["USC"],
+  "University of South Carolina-Columbia": ["USC"],
+  "University of California-Los Angeles": ["UCLA"],
+  "University of California-Berkeley": ["Berkeley", "Cal", "UC Berkeley", "UCB"],
+  "University of California-San Diego": ["UCSD", "UC San Diego"],
+  "University of California-Irvine": ["UCI", "UC Irvine"],
+  "University of California-Santa Barbara": ["UCSB", "UC Santa Barbara"],
+  "University of California-Davis": ["UCD", "UC Davis"],
+  "University of California-Santa Cruz": ["UCSC", "UC Santa Cruz"],
+  "University of California-Riverside": ["UCR", "UC Riverside"],
+  "Massachusetts Institute of Technology": ["MIT"],
+  "California Institute of Technology": ["Caltech"],
+  "Purdue University": ["Purdue"],
+  "The University of Texas at Austin": ["UT Austin", "UT"],
+  "New York University": ["NYU"],
+  "Georgia Institute of Technology": ["Georgia Tech", "GT", "GaTech"],
+  "Virginia Polytechnic Institute and State University": ["Virginia Tech", "VT"],
+  "Pennsylvania State University": ["Penn State", "PSU"],
+  "University of Pennsylvania": ["UPenn", "Penn"],
+  "University of Illinois Urbana-Champaign": ["UIUC", "Illinois"],
+  "University of Michigan-Ann Arbor": ["UMich", "U of M", "Michigan"],
+  "University of North Carolina at Chapel Hill": ["UNC", "UNC Chapel Hill"],
+  "Carnegie Mellon University": ["CMU"],
+  "Texas A & M University-College Station": ["Texas A&M", "TAMU"],
+  "California Polytechnic State University-San Luis Obispo": ["Cal Poly", "Cal Poly SLO"],
+  "California State Polytechnic University-Pomona": ["Cal Poly Pomona", "CPP"],
+  "University of Washington-Seattle Campus": ["UW", "UDub"],
+  "University of Wisconsin-Madison": ["UW", "UW Madison"],
+  "Boston University": ["BU"],
+  "Boston College": ["BC"],
+  "Rensselaer Polytechnic Institute": ["RPI"],
+  "Worcester Polytechnic Institute": ["WPI"],
+  "Ohio State University": ["OSU", "Ohio State"],
+  "Oregon State University": ["OSU"],
+  "Oklahoma State University": ["OSU"],
+  "University of Colorado Boulder": ["CU Boulder", "CU"],
+  "San Diego State University": ["SDSU"],
+  "San Jose State University": ["SJSU"],
+  "California State University-Long Beach": ["CSULB", "Long Beach State", "Cal State Long Beach"],
+  "California State University-Fullerton": ["CSUF", "Cal State Fullerton"],
+  "University of South Florida": ["USF"],
+  "University of Central Florida": ["UCF"],
+  "University of Florida": ["UF"],
+  "Florida State University": ["FSU"],
+  "Johns Hopkins University": ["JHU", "Hopkins"],
+  "University of Virginia": ["UVA"],
+  "University of Maryland-College Park": ["UMD"],
+  "George Washington University": ["GWU", "GW"],
+  "Arizona State University Campus Immersion": ["ASU", "Arizona State"],
+  "Embry-Riddle Aeronautical University-Daytona Beach": ["ERAU", "Embry-Riddle"],
+  "Embry-Riddle Aeronautical University-Prescott": ["ERAU", "Embry-Riddle"],
 };
+
+/** "Purdue University-Main Campus" → "Purdue University". */
+const clean = (name: string) => name.trim().replace(/\s*-?\s*Main Campus$/i, "");
+/** Administrative offices, not schools anyone attended. */
+const isOffice = (name: string) => /\b(System Offices?|Central Office)\b/i.test(name);
 
 type Row = Record<string, string>;
 
@@ -44,22 +93,23 @@ const colleges = rows
       Number(r.HLOFFER) >= 5 &&
       STATES.has(r.STABBR) &&
       Number.isFinite(Number.parseFloat(r.LATITUDE)) &&
-      Number.isFinite(Number.parseFloat(r.LONGITUD)),
+      Number.isFinite(Number.parseFloat(r.LONGITUD)) &&
+      !isOffice(r.INSTNM),
   )
   .map((r) => ({
     id: r.UNITID,
-    name: r.INSTNM.trim(),
+    name: clean(r.INSTNM),
     city: r.CITY.trim(),
     state: r.STABBR,
     lat: Number.parseFloat(r.LATITUDE),
     lng: Number.parseFloat(r.LONGITUD),
-    aliases: ALIASES[r.UNITID] ?? [],
+    aliases: ALIASES[clean(r.INSTNM)] ?? [],
   }))
   .sort((a, b) => a.name.localeCompare(b.name));
 
-const ids = new Set(colleges.map((c) => c.id));
-const missing = Object.keys(ALIASES).filter((id) => !ids.has(id));
-if (missing.length) throw new Error(`Aliased UNITIDs not in the output: ${missing.join(", ")}`);
+const names = new Set(colleges.map((c) => c.name));
+const missing = Object.keys(ALIASES).filter((name) => !names.has(name));
+if (missing.length) throw new Error(`Aliased names not in the output: ${missing.join(" | ")}`);
 
 writeFileSync(OUT, JSON.stringify(colleges));
 console.log(`Wrote ${colleges.length} colleges to ${OUT}`);

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import NoteForm from "@/components/guestbook/NoteForm";
 import NoteWall from "@/components/guestbook/NoteWall";
 import { PingProvider } from "@/components/guestbook/PingContext";
 import Stats from "@/components/guestbook/Stats";
@@ -81,7 +82,7 @@ export default async function GuestbookPage() {
               <h2 id="sign-heading" className={`m-0 ${LABEL} font-normal text-[#7dffa0]`}>
                 Sign the log
               </h2>
-              {/* NoteForm (Task 8) */}
+              <NoteForm renderedAt={now} />
             </section>
             <section aria-labelledby="wall-heading" className="flex flex-col gap-4">
               <h2 id="wall-heading" className={`m-0 ${LABEL} font-normal text-[#7dffa0]`}>

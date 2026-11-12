@@ -37,7 +37,12 @@ export default function CollegePicker({
     if (!open) return;
     const request = ++latest.current;
     const timer = setTimeout(async () => {
-      const results = await searchCollegesAction(query);
+      let results: CollegeOption[];
+      try {
+        results = await searchCollegesAction(query);
+      } catch {
+        return; // network blip: keep the current list; the next keystroke retries
+      }
       if (request !== latest.current) return; // a newer query is in flight
       setOptions(results);
       setActive(0);

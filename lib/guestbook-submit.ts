@@ -1,3 +1,4 @@
+import { COMMS_DOWN_MESSAGE } from "./guestbook-client";
 import type { CleanNote, NoteInput, PublicNote } from "./guestbook-types";
 import { validateNote } from "./guestbook-validate";
 
@@ -8,7 +9,7 @@ import { validateNote } from "./guestbook-validate";
    ─────────────────────────────────────────────────────────────────────────── */
 
 export const SUCCESS_MESSAGE = "Transmission received. You are now part of the permanent record.";
-export const COMMS_DOWN_MESSAGE = "Comms down, try again in a minute.";
+export { COMMS_DOWN_MESSAGE };
 const RATE_LIMITED = "Easy, cadet. Try again in a bit.";
 
 const MIN_FILL_MS = 3000;

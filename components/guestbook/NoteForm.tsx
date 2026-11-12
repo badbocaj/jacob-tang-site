@@ -4,6 +4,7 @@ import { startTransition, useActionState, useId, useState, type FormEvent, type 
 
 import { submitNote } from "@/app/guestbook/actions";
 import type { CollegeOption } from "@/lib/colleges";
+import { settleSubmit } from "@/lib/guestbook-client";
 import type { SubmitState } from "@/lib/guestbook-submit";
 import { REASON_LABELS, REASONS, type NoteInput } from "@/lib/guestbook-types";
 import CollegePicker from "./CollegePicker";
@@ -45,7 +46,7 @@ export default function NoteForm({ renderedAt }: { renderedAt: number }) {
   const [feedback, setFeedback] = useState("");
 
   const [state, formAction, pending] = useActionState(async (prev: SubmitState, form: FormData) => {
-    const next = await submitNote(prev, form);
+    const next = await settleSubmit(() => submitNote(prev, form));
     if (next.status === "success") {
       setName("");
       setCollege(null);

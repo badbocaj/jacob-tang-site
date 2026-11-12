@@ -19,9 +19,15 @@ export default function DeleteButton({ id }: { id: number }) {
   return (
     <form action={deleteNoteAction}>
       <input type="hidden" name="id" value={id} />
+      {/* Always type="submit", and cancel the first click. Swapping the type on click
+          lets that same click submit, which skipped the confirm step entirely. */}
       <button
-        type={armed ? "submit" : "button"}
-        onClick={armed ? undefined : () => setArmed(true)}
+        type="submit"
+        onClick={(e) => {
+          if (armed) return;
+          e.preventDefault();
+          setArmed(true);
+        }}
         className={`inline-flex min-h-9 items-center border px-3 font-mono text-[11px] uppercase tracking-wider ${
           armed ? "border-[#ffb4a2] bg-[#ffb4a2] text-[#06110b]" : "border-[#ffb4a2]/60 text-[#ffb4a2]"
         }`}

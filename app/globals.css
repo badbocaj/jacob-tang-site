@@ -170,6 +170,16 @@ body {
   --nav-active-ink: #0a0a0a;
   --nav-border: rgba(251, 191, 36, 0.2);
 }
+.site-nav[data-theme="radar"] {
+  --nav-bg: rgba(6, 17, 11, 0.7);
+  --nav-ink: #c8ffd9;
+  --nav-muted: #6fa585;
+  --nav-border: rgba(125, 255, 160, 0.2);
+  --nav-active-bg: #7dffa0;
+  --nav-active-ink: #06110b;
+  --nav-sheet: rgba(6, 17, 11, 0.97);
+  --nav-panel: rgba(6, 17, 11, 0.97);
+}
 .site-nav[data-theme="lab"] {
   --nav-bg: rgba(255, 255, 255, 0.55);
   --nav-ink: #18181b;

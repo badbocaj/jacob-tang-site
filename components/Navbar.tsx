@@ -31,13 +31,15 @@ const ALL_ITEMS = [
   { label: "Travel", href: "/travel" },
   { label: "Movies", href: "/movies" },
   { label: "Funny", href: "/fun" },
+  { label: "Guestbook", href: "/guestbook" },
 ] as const
 
 const NAV_ITEMS = ALL_ITEMS.filter((item) => !isLocked(item.href))
 
-type NavTheme = "dark" | "paper" | "travel" | "lab"
+type NavTheme = "dark" | "paper" | "travel" | "lab" | "radar"
 
 function themeFor(pathname: string): NavTheme {
+  if (pathname.startsWith("/guestbook")) return "radar"
   if (pathname === "/projects" || CASE_STUDY_PATHS.includes(pathname)) return "lab"
   // The service record shares travel's dark glass and amber active pill.
   if (pathname.startsWith("/travel") || pathname.startsWith("/professional")) return "travel"

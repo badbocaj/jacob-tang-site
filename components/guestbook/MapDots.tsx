@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
+import { nextActiveDot, type DotEvent } from "@/lib/map-dot-state";
 import type { MapDot } from "@/lib/us-map";
 import { usePing } from "./PingContext";
 
@@ -18,6 +19,7 @@ export default function MapDots({ dots }: { dots: MapDot[] }) {
   const { pingId, pingKey } = usePing();
   const reduceMotion = useReducedMotion();
   const active = dots.find((d) => d.collegeId === activeId);
+  const on = (id: string, event: DotEvent) => () => setActiveId((current) => nextActiveDot(current, id, event));
 
   return (
     <>
@@ -38,11 +40,11 @@ export default function MapDots({ dots }: { dots: MapDot[] }) {
               role="button"
               aria-label={`${d.label}: ${count} ${count === 1 ? "visitor" : "visitors"}`}
               className="cursor-pointer outline-none [filter:drop-shadow(0_0_4px_rgba(125,255,160,.8))] focus-visible:stroke-[#c8ffd9] focus-visible:stroke-2"
-              onMouseEnter={() => setActiveId(d.collegeId)}
-              onMouseLeave={() => setActiveId((id) => (id === d.collegeId ? null : id))}
-              onFocus={() => setActiveId(d.collegeId)}
-              onBlur={() => setActiveId((id) => (id === d.collegeId ? null : id))}
-              onClick={() => setActiveId((id) => (id === d.collegeId ? null : d.collegeId))}
+              onMouseEnter={on(d.collegeId, "enter")}
+              onMouseLeave={on(d.collegeId, "leave")}
+              onFocus={on(d.collegeId, "focus")}
+              onBlur={on(d.collegeId, "blur")}
+              onClick={on(d.collegeId, "click")}
             />
           );
         })}

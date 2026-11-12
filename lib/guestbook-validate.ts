@@ -33,7 +33,7 @@ const ALLOWED = [
 const dataset = englishDataset.build();
 const profanity = new RegExpMatcher({
   ...dataset,
-  whitelistedTerms: [...dataset.whitelistedTerms, ...ALLOWED],
+  whitelistedTerms: [...(dataset.whitelistedTerms ?? []), ...ALLOWED],
   ...englishRecommendedTransformers,
 });
 const LINK = /(https?:\/\/|www\.|\b[a-z0-9-]+\.(com|net|org|io|co|xyz|ru|info|biz|me|ly|gg|app|dev)\b)/i;

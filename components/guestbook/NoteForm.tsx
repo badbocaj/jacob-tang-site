@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useId, useState, type ReactNode } from "react";
+import { startTransition, useActionState, useId, useState, type FormEvent, type ReactNode } from "react";
 
 import { submitNote } from "@/app/guestbook/actions";
 import type { CollegeOption } from "@/lib/colleges";
@@ -57,13 +57,22 @@ export default function NoteForm({ renderedAt }: { renderedAt: number }) {
     return next;
   }, IDLE);
 
+  // Submit by hand instead of <form action>: React resets a form after an action,
+  // which unchecks the controlled reason chips and loses them on the next try.
+  function onSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    startTransition(() => formAction(data));
+  }
+
   const errorFor = (field: keyof NoteInput) =>
     state.status === "error" && state.field === field ? state.message : undefined;
   const formError = state.status === "error" && !state.field ? state.message : undefined;
   const ids = { name: `${id}-name`, reasonNote: `${id}-rn`, feedback: `${id}-fb`, reason: `${id}-reason` };
 
   return (
-    <form action={formAction} className="flex flex-col gap-5 border border-dashed border-[#7dffa0]/40 bg-[#06110b]/70 p-5" noValidate>
+    // method="post": if someone submits before hydration, the browser must not put the fields (feedback!) in the URL.
+    <form method="post" onSubmit={onSubmit} className="flex flex-col gap-5 border border-dashed border-[#7dffa0]/40 bg-[#06110b]/70 p-5" noValidate>
       {/* Bot trap: humans never see or fill this. */}
       <div aria-hidden className="absolute -left-[9999px] h-px w-px overflow-hidden">
         <label>

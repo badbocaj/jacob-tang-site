@@ -217,3 +217,11 @@ html[data-lab-mode="night"] .site-nav[data-theme="lab"] {
     animation: none !important;
   }
 }
+
+/* ── Guestbook radar ──────────────────────────────────────────────────────── */
+/* Rotate only: Tailwind 4 centres the wedge with the separate `translate` property. */
+@keyframes radar-sweep {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -57,11 +57,24 @@ function Status({ children }: { children: ReactNode }) {
   return <span className="font-mono text-xs uppercase tracking-wider text-stone-400"> · {children}</span>;
 }
 
-function OffDuty({ name, children }: { name: string; children: ReactNode }) {
+function OffDuty({ name, href, children }: { name: string; href?: string; children: ReactNode }) {
   return (
     <div>
-      <span className="block font-semibold text-[#f3ead7]">{name}</span>
-      {children}
+      {href ? (
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`-my-2 inline-flex items-center gap-1.5 py-2 font-semibold ${ACCENT_TEXT} underline decoration-dashed underline-offset-4 hover:decoration-solid`}
+        >
+          {name}
+          <span aria-hidden>↗</span>
+          <span className="sr-only">(opens in a new tab)</span>
+        </a>
+      ) : (
+        <span className="block font-semibold text-[#f3ead7]">{name}</span>
+      )}
+      {href ? <span className="block">{children}</span> : children}
     </div>
   );
 }
@@ -127,7 +140,7 @@ function Callout({
       );
 
     case "quarters": {
-      const { league, chess, catan } = GAMES;
+      const { league, chess, catan, poker } = GAMES;
       // Live from Riot when the API answers; otherwise whatever's typed in data.ts.
       const rank = leagueRank?.label ?? (league.rank || "??? (ask me)");
       const elo = chess.elo || "??? (ask me)";
@@ -145,6 +158,9 @@ function Callout({
             </OffDuty>
             <OffDuty name={SPORTS.hiking.name}>{SPORTS.hiking.note}</OffDuty>
             <OffDuty name={catan.name}>{catan.note}</OffDuty>
+            <OffDuty name={poker.name} href={poker.href}>
+              {poker.note}
+            </OffDuty>
           </div>
         </>
       );

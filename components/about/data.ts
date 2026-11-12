@@ -164,6 +164,12 @@ export const GAMES = {
     name: "Catan",
     note: "I hate sheep.",
   },
+  poker: {
+    name: "Poker",
+    note: "Receipts kept. Tap for the ledger.",
+    /** The name on the page links here, in a new tab. */
+    href: "https://docs.google.com/spreadsheets/d/1-RzqMwKdDy-vxvRYwvc30LFYOy0aJZKuDT6YEQyhNuI/edit?usp=sharing",
+  },
 };
 
 // ─── Mission profile: a short history of jacob ──────────────────────────────

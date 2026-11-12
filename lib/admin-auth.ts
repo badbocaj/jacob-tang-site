@@ -7,6 +7,7 @@ import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 
 export const ADMIN_COOKIE = "gb_admin";
 export const SESSION_MS = 7 * 24 * 60 * 60 * 1000;
+export const DISABLED_MESSAGE = "Admin login is disabled: set GUESTBOOK_ADMIN_PASSWORD and GUESTBOOK_SECRET.";
 
 const digest = (s: string) => createHash("sha256").update(s).digest();
 const sign = (payload: string, secret: string) => createHmac("sha256", secret).update(payload).digest("hex");

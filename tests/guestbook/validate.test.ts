@@ -79,6 +79,20 @@ describe("validateNote", () => {
     expect(note({ reasonNote: "this is fucking cool" })).toEqual({ ok: false, field: "reasonNote", message: PROFANITY });
   });
 
+  it("lets real names and phrases through", () => {
+    for (const name of ["Dickinson", "Cumming", "Mary Cummings", "Fagan", "Fagerstrom", "Analise", "Raper", "Peniston", "Penistone"]) {
+      expect(note({ name }), name).toMatchObject({ ok: true });
+    }
+    for (const reasonNote of ["Graduated magna cum laude", "Summa cum laude, class of '24", "Dickinson College alum", "Scunthorpe native"]) {
+      expect(note({ reasonNote }), reasonNote).toMatchObject({ ok: true });
+    }
+  });
+
+  it("still blocks the plain words those names contain", () => {
+    expect(note({ reasonNote: "what a dick" })).toMatchObject({ ok: false, message: PROFANITY });
+    expect(note({ reasonNote: "cum" })).toMatchObject({ ok: false, message: PROFANITY });
+  });
+
   it("does not filter private feedback", () => {
     expect(note({ feedback: "this site is shit, see www.better.io" }).ok).toBe(true);
   });

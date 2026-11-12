@@ -23,7 +23,19 @@ const MAX_FEEDBACK = 1000;
 const PROFANITY = "Transmission blocked: language filter tripped.";
 const LINKS = "Transmission blocked: no links on the wall.";
 
-const profanity = new RegExpMatcher({ ...englishDataset.build(), ...englishRecommendedTransformers });
+/** Real names, places and phrases that contain a filtered word. Matches inside these don't count. */
+const ALLOWED = [
+  "dickinson", "dickens", "dickerson", "dickey",
+  "cumming", "cummings", "cum laude", "magna cum", "summa cum",
+  "fagan", "fagerstrom", "analise", "raper", "peniston", "penistone", "scunthorpe",
+];
+
+const dataset = englishDataset.build();
+const profanity = new RegExpMatcher({
+  ...dataset,
+  whitelistedTerms: [...dataset.whitelistedTerms, ...ALLOWED],
+  ...englishRecommendedTransformers,
+});
 const LINK = /(https?:\/\/|www\.|\b[a-z0-9-]+\.(com|net|org|io|co|xyz|ru|info|biz|me|ly|gg|app|dev)\b)/i;
 
 /** Length in code points, matching Postgres char_length (an emoji counts as one). */
